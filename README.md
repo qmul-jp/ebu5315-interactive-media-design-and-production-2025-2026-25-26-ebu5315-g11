@@ -10,7 +10,7 @@ MathArena
 
 ---
 
-## Members 成员
+## Members
 
 | Name | BUPT Student Number | QM Student Number | Email |
 |-----|-----|-----|-----|
@@ -20,7 +20,7 @@ MathArena
 
 ---
 
-## Work Allocation 分工
+## Work Allocation
 
 | Module | Responsible Member |
 |------|------|
@@ -30,7 +30,7 @@ MathArena
 
 ---
 
-## Assigned TA 指定助教
+## Assigned TA
 
 **Wantong Zhao**  
 Email: 3051245683@qq.com  
