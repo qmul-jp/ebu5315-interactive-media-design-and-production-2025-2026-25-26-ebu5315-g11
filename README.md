@@ -1,14 +1,12 @@
-# EBU6305
+# EBU5315
 
 ## Group Number
-**2020EBU6305G**  
-小组编号：**2020EBU6305G**
+**25-26EBU5315G11**  
 
 ---
 
 ## Project Title
-XXXXXXXXXXXXXXX  
-项目标题：XXXXXXXXXXXXXXX
+MathArena
 
 ---
 
@@ -22,9 +20,19 @@ XXXXXXXXXXXXXXX
 
 ---
 
+## Work Allocation 分工
+
+| Module | Responsible Member |
+|------|------|
+| Homepage | Kexing Feng |
+| Game | Zhiying Shi |
+| Quiz | Haoran Wang |
+
+---
+
 ## Assigned TA 指定助教
 
 **Wantong Zhao**  
 Email: 3051245683@qq.com  
 
-**Group:** OneT-7
+**Github:** OneT-7
