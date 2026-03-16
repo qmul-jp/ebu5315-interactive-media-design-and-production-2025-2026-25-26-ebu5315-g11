@@ -1,2 +1,30 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/HLEvEf24)
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=23089763&assignment_repo_type=AssignmentRepo)
+# EBU6305
+
+## Group Number
+**2020EBU6305G**  
+小组编号：**2020EBU6305G**
+
+---
+
+## Project Title
+XXXXXXXXXXXXXXX  
+项目标题：XXXXXXXXXXXXXXX
+
+---
+
+## Members 成员
+
+| Name | BUPT Student Number | QM Student Number | Email |
+|-----|-----|-----|-----|
+| Zhiying Shi | 2024213598 | 241118418 | 2030437713@qq.com |
+| Kexing Feng | 2024213597 | 241118038 | 2024213597@bupt.cn |
+| Haoran Wang | 2024213591 | 241118533 | 3222760147@qq.com |
+
+---
+
+## Assigned TA 指定助教
+
+**Wantong Zhao**  
+Email: 3051245683@qq.com  
+
+**Group:** OneT-7
