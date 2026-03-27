@@ -25,7 +25,7 @@ MathArena
 | Module | Responsible Member |
 |------|------|
 | Homepage | Kexing Feng |
-| Game | Zhiying Shi |
+| Game ＆ Learn | Zhiying Shi |
 | Quiz | Haoran Wang |
 
 ---
