@@ -1,0 +1,677 @@
+v 1.3把theory 2的互动代码加上了
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Circle Theorems Learning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            color: #2b6cb0;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .theorems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .theorem-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .theorem-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .theorem-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background-color: #f7fafc;
+            padding: 1rem;
+        }
+
+        .theorem-title {
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .close-modal:hover {
+            color: #2d3748;
+        }
+
+        .modal-title {
+            color: #2b6cb0;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-description {
+            margin-bottom: 1.5rem;
+            color: #4a5568;
+        }
+
+        .modal-example {
+            background-color: #edf2f7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        /* Canvas相关样式 */
+        .canvas-container {
+            width: 100%;
+            height: 400px;
+            margin: 1.5rem 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            display: none;
+        }
+
+        #theoremCanvas {
+            width: 100%;
+            height: 100%;
+            background: #fafafa;
+        }
+
+        .angle-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #edf2f7;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .angle-item {
+            text-align: center;
+        }
+
+        .angle-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2b6cb0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .theorems-grid {
+                grid-template-columns: 1fr;
+            }
+            .canvas-container {
+                height: 300px;
+            }
+            .angle-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 Circle Theorems Learning Hub</h1>
+            <p class="subtitle">Interactive learning for GCSE-level circle geometry</p>
+        </header>
+
+        <div class="theorems-grid">
+            <div class="theorem-card" data-theorem="1">
+                <img src="imgs/1.png" alt="Angle at the Centre" class="theorem-image">
+                <div class="theorem-title">Circle Theorem 1 - Angle at the Centre</div>
+            </div>
+            <div class="theorem-card" data-theorem="2">
+                <img src="imgs/2.gif" alt="Angles in a Semicircle" class="theorem-image">
+                <div class="theorem-title">Circle Theorem 2 - Angles in a Semicircle</div>
+            </div>
+            <div class="theorem-card" data-theorem="3">
+                <img src="imgs/3.webp" alt="Angles in the Same Segment" class="theorem-image">
+                <div class="theorem-title">Circle Theorem 3 - Angles in the Same Segment</div>
+            </div>
+            <div class="theorem-card" data-theorem="4">
+                <img src="imgs/4.png" alt="Cyclic Quadrilateral" class="theorem-image">
+                <div class="theorem-title">Circle Theorem 4 - Cyclic Quadrilateral</div>
+            </div>
+            <div class="theorem-card" data-theorem="5">
+                <img src="imgs/5.gif" alt="Radius to a Tangent" class="theorem-image">
+                <div class="theorem-title">Circle Theorem 5 - Radius to a Tangent</div>
+            </div>
+            <div class="theorem-card" data-theorem="6">
+                <img src="imgs/6.png" alt="Tangents from a Point to a Circle" class="theorem-image">
+                <div class="theorem-title">Circle Theorem 6 - Tangents from a Point to a Circle</div>
+            </div>
+            <div class="theorem-card" data-theorem="7">
+                <img src="imgs/7.png" alt="Tangents from a Point to a Circle" class="theorem-image">
+                <div class="theorem-title">Circle Theorem 7 - Tangents from a Point to a Circle</div>
+            </div>
+            <div class="theorem-card" data-theorem="8">
+                <img src="imgs/8.webp" alt="Alternate Segment" class="theorem-image">
+                <div class="theorem-title">Circle Theorem 8 - Alternate Segment</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="theoremModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-description" id="modalDescription"></div>
+            
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="theoremCanvas"></canvas>
+            </div>
+            
+            <div class="angle-info" id="angleInfo">
+                <div class="angle-item">
+                    <p>Circumference Angle (∠ACB)</p>
+                    <p class="angle-value" id="circumferenceAngle">0°</p>
+                </div>
+                <div class="angle-item">
+                    <p>Central Angle (∠AOB)</p>
+                    <p class="angle-value" id="centerAngle">0°</p>
+                </div>
+                <div class="angle-item">
+                    <p>Relationship</p>
+                    <p class="angle-value" id="angleRelation">Central = 2 × Circumference</p>
+                </div>
+            </div>
+            
+            <div class="modal-example" id="modalExample"></div>
+        </div>
+    </div>
+
+    <script>
+        // 定理数据
+        const theoremData = {
+            1: {
+                title: "Circle Theorem 1 - Angle at the Centre",
+                description: "The angle subtended at the centre of a circle by an arc is twice the angle subtended at the circumference by the same arc. Drag points A, B, C on the circle to explore the relationship.",
+                example: "If the angle at the centre is 120°, the angle at the circumference will be 60°."
+            },
+            2: {
+                title: "Circle Theorem 2 - Angles in a Semicircle",
+                description: "The angle subtended by a diameter at the circumference is a right angle (90°). Drag point C on the circle to verify.",
+                example: "Any triangle inscribed in a semicircle with the diameter as one side is a right-angled triangle."
+            },
+            3: {
+                title: "Circle Theorem 3 - Angles in the Same Segment",
+                description: "Angles subtended by the same arc at the circumference are equal.",
+                example: "If two angles are subtended by the same arc, they will have the same measure."
+            },
+            4: {
+                title: "Circle Theorem 4 - Cyclic Quadrilateral",
+                description: "The opposite angles in a cyclic quadrilateral (a quadrilateral inscribed in a circle) add up to 180°.",
+                example: "If one angle is 70°, the opposite angle will be 110°."
+            },
+            5: {
+                title: "Circle Theorem 5 - Radius to a Tangent",
+                description: "The radius of a circle is perpendicular to the tangent at the point of contact.",
+                example: "The angle between the radius and the tangent is always 90°."
+            },
+            6: {
+                title: "Circle Theorem 6 - Tangents from a Point to a Circle",
+                description: "The lengths of the two tangents from an external point to a circle are equal.",
+                example: "If you draw two tangents from a point outside the circle, both tangents will be the same length."
+            },
+            7: {
+                title: "Circle Theorem 7 - Tangents from a Point to a Circle",
+                description: "The line from the external point to the centre of the circle bisects the angle between the two tangents.",
+                example: "The line connecting the external point to the centre splits the angle between the two tangents into two equal angles."
+            },
+            8: {
+                title: "Circle Theorem 8 - Alternate Segment",
+                description: "The angle between the tangent and the chord at the point of contact is equal to the angle in the alternate segment.",
+                example: "The angle between the tangent and the chord is equal to the angle subtended by the chord in the opposite segment."
+            }
+        };
+
+        // 模态框元素
+        const modal = document.getElementById('theoremModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalExample = document.getElementById('modalExample');
+        const canvasContainer = document.getElementById('canvasContainer');
+        const angleInfo = document.getElementById('angleInfo');
+        const closeModal = document.querySelector('.close-modal');
+
+        // Canvas全局变量
+        let canvas, ctx;
+        let isDragging = false;
+        let dragPoint = null;
+        let circle = {
+            x: 0, y: 0, radius: 0,
+            points: { A: { x: 0, y: 0 }, B: { x: 0, y: 0 }, C: { x: 0, y: 0 } }
+        };
+        let canvasInited = false;
+
+        // 关闭模态框
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // 卡片点击事件
+        document.querySelectorAll('.theorem-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const theoremId = card.dataset.theorem;
+                const data = theoremData[theoremId];
+                
+                modal.style.display = 'flex';
+                void modal.offsetWidth;
+
+                modalTitle.textContent = data.title;
+                modalDescription.textContent = data.description;
+                
+                // 重置点数据
+                circle.points = { A: { x: 0, y: 0 }, B: { x: 0, y: 0 }, C: { x: 0, y: 0 } };
+                
+                if (theoremId === '1') {
+                    canvasContainer.style.display = 'block';
+                    angleInfo.style.display = 'flex';
+                    modalExample.style.display = 'none';
+                    if (!canvasInited) {
+                        initCanvas();
+                        canvasInited = true;
+                    }
+                    drawCircleTheorem1();
+                } else if (theoremId === '2') {
+                    canvasContainer.style.display = 'block';
+                    angleInfo.style.display = 'flex';
+                    modalExample.style.display = 'none';
+                    if (!canvasInited) {
+                        initCanvas();
+                        canvasInited = true;
+                    }
+                    drawTheorem2();
+                } else {
+                    canvasContainer.style.display = 'none';
+                    angleInfo.style.display = 'none';
+                    modalExample.style.display = 'block';
+                    modalExample.textContent = `Example: ${data.example}`;
+                }
+            });
+        });
+
+        // 初始化Canvas
+        function initCanvas() {
+            canvas = document.getElementById('theoremCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.addEventListener('mousedown', startDrag);
+            canvas.addEventListener('mousemove', drag);
+            canvas.addEventListener('mouseup', stopDrag);
+            canvas.addEventListener('mouseleave', stopDrag);
+        }
+
+        // 获取圆周点坐标
+        function getPointOnCircle(centerX, centerY, radius, angleDeg) {
+            const angleRad = (angleDeg * Math.PI) / 180;
+            return {
+                x: centerX + radius * Math.cos(angleRad),
+                y: centerY + radius * Math.sin(angleRad)
+            };
+        }
+
+        // 计算夹角
+        function calculateAngleBetweenPoints(p1, p2, center) {
+            const angle1 = Math.atan2(p1.y - center.y, p1.x - center.x) * 180 / Math.PI;
+            const angle2 = Math.atan2(p2.y - center.y, p2.x - center.x) * 180 / Math.PI;
+            let diff = Math.abs(angle1 - angle2);
+            return diff > 180 ? 360 - diff : diff;
+        }
+
+        // 角平分线位置计算
+        function getAngleLabelPosition(vertex, p1, p2, offset) {
+            const vec1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
+            const vec2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
+            const len1 = Math.sqrt(vec1.x*vec1.x + vec1.y*vec1.y);
+            const len2 = Math.sqrt(vec2.x*vec2.x + vec2.y*vec2.y);
+            const normVec1 = { x: vec1.x/len1, y: vec1.y/len1 };
+            const normVec2 = { x: vec2.x/len2, y: vec2.y/len2 };
+            const bisectorVec = { x: normVec1.x + normVec2.x, y: normVec1.y + normVec2.y };
+            const bisectorLen = Math.sqrt(bisectorVec.x*bisectorVec.x + bisectorVec.y*bisectorVec.y);
+            const normBisector = { x: bisectorVec.x/bisectorLen, y: bisectorVec.y/bisectorLen };
+            return {
+                x: vertex.x + normBisector.x * offset,
+                y: vertex.y + normBisector.y * offset
+            };
+        }
+
+        // Theory 1绘制
+        function drawCircleTheorem1() {
+            const containerRect = canvasContainer.getBoundingClientRect();
+            canvas.width = containerRect.width;
+            canvas.height = containerRect.height;
+            
+            circle.x = canvas.width / 2;
+            circle.y = canvas.height / 2;
+            circle.radius = Math.min(canvas.width, canvas.height) * 0.4;
+            
+            if (circle.points.A.x === 0 && circle.points.A.y === 0) {
+                circle.points.A = getPointOnCircle(circle.x, circle.y, circle.radius, 120);
+                circle.points.B = getPointOnCircle(circle.x, circle.y, circle.radius, 240);
+                circle.points.C = getPointOnCircle(circle.x, circle.y, circle.radius, 30);
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制圆
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#2b6cb0';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 绘制圆心
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#e53e3e';
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.font = '16px Arial';
+            ctx.fillText('O', circle.x + 10, circle.y - 10);
+            
+            // 绘制点
+            const points = circle.points;
+            for (const key in points) {
+                const point = points[key];
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#48bb78';
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.font = '16px Arial';
+                ctx.fillText(key, point.x + 10, point.y - 10);
+            }
+            
+            // 绘制连线
+            ctx.strokeStyle = '#718096';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(circle.x, circle.y);
+            ctx.lineTo(points.A.x, points.A.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(circle.x, circle.y);
+            ctx.lineTo(points.B.x, points.B.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(points.A.x, points.A.y);
+            ctx.lineTo(points.C.x, points.C.y);
+            ctx.lineTo(points.B.x, points.B.y);
+            ctx.strokeStyle = '#9f7aea';
+            ctx.stroke();
+            
+            // 计算角度
+            const centerAngle = calculateAngleBetweenPoints(points.A, points.B, {x: circle.x, y: circle.y});
+            const circumferenceAngle = centerAngle / 2;
+            document.getElementById('circumferenceAngle').textContent = `${circumferenceAngle.toFixed(1)}°`;
+            document.getElementById('centerAngle').textContent = `${centerAngle.toFixed(1)}°`;
+            document.getElementById('angleRelation').textContent = `${centerAngle.toFixed(1)}° = 2 × ${circumferenceAngle.toFixed(1)}°`;
+            
+            // 绘制角度弧
+            drawAngleArc(circle.x, circle.y, circle.radius/4, points.A, points.B, '#e53e3e');
+            drawAngleArc(points.C.x, points.C.y, circle.radius/5, points.A, points.B, '#48bb78');
+
+            // 角度标注
+            ctx.font = '14px Arial';
+            ctx.fontWeight = 'bold';
+            const aobLabelPos = getAngleLabelPosition({x: circle.x, y: circle.y}, points.A, points.B, circle.radius / 3);
+            ctx.fillStyle = '#e53e3e';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`∠AOB = ${centerAngle.toFixed(1)}°`, aobLabelPos.x, aobLabelPos.y);
+            
+            const acbLabelPos = getAngleLabelPosition(points.C, points.A, points.B, circle.radius / 4);
+            ctx.fillStyle = '#48bb78';
+            ctx.fillText(`∠ACB = ${circumferenceAngle.toFixed(1)}°`, acbLabelPos.x, acbLabelPos.y);
+        }
+
+        // Theory 2绘制
+        function drawTheorem2() {
+            const containerRect = canvasContainer.getBoundingClientRect();
+            canvas.width = containerRect.width;
+            canvas.height = containerRect.height;
+            
+            circle.x = canvas.width / 2;
+            circle.y = canvas.height / 2;
+            circle.radius = Math.min(canvas.width, canvas.height) * 0.4;
+            
+            if (circle.points.A.x === 0 && circle.points.A.y === 0) {
+                circle.points.A = { x: circle.x - circle.radius, y: circle.y };
+                circle.points.B = { x: circle.x + circle.radius, y: circle.y };
+                circle.points.C = { x: circle.x, y: circle.y - circle.radius };
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制圆
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#2b6cb0';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 绘制圆心
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#e53e3e';
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.font = '16px Arial';
+            ctx.fillText('O', circle.x + 10, circle.y - 10);
+            
+            // 绘制点
+            const points = circle.points;
+            for (const key in points) {
+                const point = points[key];
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#48bb78';
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.font = '16px Arial';
+                ctx.fillText(key, point.x + 10, point.y - 10);
+            }
+            
+            // 绘制直径和连线
+            ctx.strokeStyle = '#718096';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(points.A.x, points.A.y);
+            ctx.lineTo(points.B.x, points.B.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(points.A.x, points.A.y);
+            ctx.lineTo(points.C.x, points.C.y);
+            ctx.lineTo(points.B.x, points.B.y);
+            ctx.strokeStyle = '#9f7aea';
+            ctx.stroke();
+            
+            // 直角标注
+            const rightAngle = 90.0;
+            document.getElementById('circumferenceAngle').textContent = `${rightAngle.toFixed(1)}°`;
+            document.getElementById('centerAngle').textContent = "180.0°";
+            document.getElementById('angleRelation').textContent = "∠ACB = 90° (Right Angle)";
+            
+            // 绘制直角符号和标注
+            drawRightAngleMarker(points.C, points.A, points.B);
+            const acbLabelPos = getAngleLabelPosition(points.C, points.A, points.B, circle.radius / 4);
+            ctx.font = '14px Arial';
+            ctx.fontWeight = 'bold';
+            ctx.fillStyle = '#48bb78';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`∠ACB = ${rightAngle.toFixed(1)}°`, acbLabelPos.x, acbLabelPos.y);
+        }
+
+        // 绘制角度弧
+        function drawAngleArc(centerX, centerY, radius, p1, p2, color) {
+            const angle1 = Math.atan2(p1.y - centerY, p1.x - centerX);
+            const angle2 = Math.atan2(p2.y - centerY, p2.x - centerX);
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, angle1, angle2, angle1 > angle2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        // 绘制直角符号
+        function drawRightAngleMarker(vertex, p1, p2) {
+            const size = circle.radius / 10;
+            const vec1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
+            const vec2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
+            const len1 = Math.sqrt(vec1.x*vec1.x + vec1.y*vec1.y);
+            const len2 = Math.sqrt(vec2.x*vec2.x + vec2.y*vec2.y);
+            const norm1 = { x: vec1.x/len1, y: vec1.y/len1 };
+            const norm2 = { x: vec2.x/len2, y: vec2.y/len2 };
+            
+            ctx.beginPath();
+            ctx.moveTo(vertex.x + norm1.x * size, vertex.y + norm1.y * size);
+            ctx.lineTo(vertex.x, vertex.y);
+            ctx.lineTo(vertex.x + norm2.x * size, vertex.y + norm2.y * size);
+            ctx.strokeStyle = '#e53e3e';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        // 检测点击点
+        function getClickedPoint(x, y) {
+            const tolerance = 15;
+            for (const key in circle.points) {
+                const point = circle.points[key];
+                const dx = x - point.x;
+                const dy = y - point.y;
+                if (Math.sqrt(dx*dx + dy*dy) < tolerance) {
+                    return key;
+                }
+            }
+            return null;
+        }
+
+        // 拖动开始
+        function startDrag(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            dragPoint = getClickedPoint(x, y);
+            isDragging = dragPoint !== null;
+        }
+
+        // 拖动过程
+        function drag(e) {
+            if (!isDragging || !dragPoint) return;
+            const rect = canvas.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+            
+            const dx = x - circle.x;
+            const dy = y - circle.y;
+            const distance = Math.sqrt(dx*dx + dy*dy);
+            if (distance === 0) return;
+            
+            // 区分定理处理拖动
+            const activeTheorem = document.querySelector('.modal-content').querySelector('.modal-title').textContent.includes('2') ? '2' : '1';
+            if (activeTheorem === '2' && dragPoint === 'C') {
+                circle.points.C.x = circle.x + (dx / distance) * circle.radius;
+                circle.points.C.y = circle.y + (dy / distance) * circle.radius;
+                drawTheorem2();
+            } else if (activeTheorem === '1') {
+                circle.points[dragPoint].x = circle.x + (dx / distance) * circle.radius;
+                circle.points[dragPoint].y = circle.y + (dy / distance) * circle.radius;
+                drawCircleTheorem1();
+            }
+        }
+
+        // 停止拖动
+        function stopDrag() {
+            isDragging = false;
+            dragPoint = null;
+        }
+    </script>
+</body>
+</html>
