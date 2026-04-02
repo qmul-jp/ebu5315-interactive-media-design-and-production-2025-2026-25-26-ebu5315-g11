@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互式圆定理学习 - 圆周角定律</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #2d3748;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #2b6cb0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .theorems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .theorem-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .theorem-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .modal-title {
+            color: #2b6cb0;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .modal-description {
+            margin-bottom: 1.5rem;
+            color: #4a5568;
+        }
+
+        /* Canvas容器 */
+        .canvas-container {
+            width: 100%;
+            height: 400px;
+            margin: 1.5rem 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #theoremCanvas {
+            width: 100%;
+            height: 100%;
+            background: #fafafa;
+        }
+
+        .angle-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #edf2f7;
+            border-radius: 8px;
+        }
+
+        .angle-item {
+            text-align: center;
+        }
+
+        .angle-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2b6cb0;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .canvas-container {
+                height: 300px;
+            }
+            .angle-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📐 交互式圆定理学习 - 可拖动调整</h1>
+        
+        <div class="theorems-grid">
+            <div class="theorem-card" data-theorem="1">
+                <h3>定理1：圆心角是圆周角的2倍</h3>
+                <p>弧所对的圆心角 = 2 × 弧所对的圆周角</p>
+            </div>
+            <!-- 其他定理卡片可在此扩展 -->
+        </div>
+    </div>
+
+    <!-- 模态框 -->
+    <div class="modal" id="theoremModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-description" id="modalDescription"></div>
+            
+            <!-- 交互式Canvas区域 -->
+            <div class="canvas-container">
+                <canvas id="theoremCanvas"></canvas>
+            </div>
+            
+            <!-- 角度信息展示 -->
+            <div class="angle-info">
+                <div class="angle-item">
+                    <p>圆周角 (∠ACB)</p>
+                    <p class="angle-value" id="circumferenceAngle">0°</p>
+                </div>
+                <div class="angle-item">
+                    <p>圆心角 (∠AOB)</p>
+                    <p class="angle-value" id="centerAngle">0°</p>
+                </div>
+                <div class="angle-item">
+                    <p>验证关系</p>
+                    <p class="angle-value" id="angleRelation">圆心角 = 2 × 圆周角</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let canvas, ctx;
+        let isDragging = false;
+        let dragPoint = null;
+        let circle = {
+            x: 0,      // 圆心x坐标
+            y: 0,      // 圆心y坐标
+            radius: 0, // 圆半径
+            points: {  // 圆周上的点
+                A: { x: 0, y: 0, label: 'A' },
+                B: { x: 0, y: 0, label: 'B' },
+                C: { x: 0, y: 0, label: 'C' }
+            }
+        };
+
+        // 初始化模态框
+        const modal = document.getElementById('theoremModal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const theoremCards = document.querySelectorAll('.theorem-card');
+
+        // 模态框关闭事件
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+
+        // 卡片点击事件 - 初始化定理1的交互演示
+        theoremCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const theoremId = card.dataset.theorem;
+                if (theoremId === '1') {
+                    document.getElementById('modalTitle').textContent = '定理1：圆心角是圆周角的2倍';
+                    document.getElementById('modalDescription').textContent = 
+                        '在同一个圆中，同一段弧所对的圆心角的度数是这段弧所对的圆周角度数的2倍。你可以拖动圆周上的A、B、C点，观察角度变化规律。';
+                    
+                    // 显示模态框并初始化Canvas
+                    modal.style.display = 'flex';
+                    initCanvas();
+                    drawCircleTheorem1();
+                }
+            });
+        });
+
+        // 初始化Canvas
+        function initCanvas() {
+            canvas = document.getElementById('theoremCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // 设置Canvas实际尺寸（解决模糊问题）
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            // 初始化圆的参数
+            circle.x = canvas.width / 2;
+            circle.y = canvas.height / 2;
+            circle.radius = Math.min(canvas.width, canvas.height) * 0.4;
+            
+            // 初始化圆周上的点（初始角度）
+            circle.points.A = getPointOnCircle(circle.x, circle.y, circle.radius, 120);
+            circle.points.B = getPointOnCircle(circle.x, circle.y, circle.radius, 240);
+            circle.points.C = getPointOnCircle(circle.x, circle.y, circle.radius, 30);
+
+            // 绑定鼠标事件
+            canvas.addEventListener('mousedown', startDrag);
+            canvas.addEventListener('mousemove', drag);
+            canvas.addEventListener('mouseup', stopDrag);
+            canvas.addEventListener('mouseleave', stopDrag);
+        }
+
+        // 根据角度获取圆周上的点坐标
+        function getPointOnCircle(centerX, centerY, radius, angleDeg) {
+            const angleRad = (angleDeg * Math.PI) / 180;
+            return {
+                x: centerX + radius * Math.cos(angleRad),
+                y: centerY + radius * Math.sin(angleRad),
+                label: ''
+            };
+        }
+
+        // 计算两点之间的角度（相对于中心点）
+        function calculateAngle(centerX, centerY, pointX, pointY) {
+            const dx = pointX - centerX;
+            const dy = pointY - centerY;
+            let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            if (angle < 0) angle += 360;
+            return angle;
+        }
+
+        // 计算两个向量之间的夹角
+        function calculateAngleBetweenPoints(p1, p2, center) {
+            const angle1 = calculateAngle(center.x, center.y, p1.x, p1.y);
+            const angle2 = calculateAngle(center.x, center.y, p2.x, p2.y);
+            let diff = Math.abs(angle1 - angle2);
+            return diff > 180 ? 360 - diff : diff;
+        }
+
+        // 绘制定理1的交互式图形
+        function drawCircleTheorem1() {
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. 绘制圆
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#2b6cb0';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 2. 绘制圆心
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#e53e3e';
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.fillText('O', circle.x + 10, circle.y - 10);
+            
+            // 3. 绘制圆周上的点
+            const points = circle.points;
+            for (const key in points) {
+                const point = points[key];
+                // 绘制点
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#48bb78';
+                ctx.fill();
+                // 绘制标签
+                ctx.fillStyle = '#000';
+                ctx.font = '16px Arial';
+                ctx.fillText(point.label || key, point.x + 10, point.y - 10);
+            }
+            
+            // 4. 绘制连线（OA, OB, AC, BC）
+            ctx.strokeStyle = '#718096';
+            ctx.lineWidth = 2;
+            
+            // 圆心到A、B的连线
+            ctx.beginPath();
+            ctx.moveTo(circle.x, circle.y);
+            ctx.lineTo(points.A.x, points.A.y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(circle.x, circle.y);
+            ctx.lineTo(points.B.x, points.B.y);
+            ctx.stroke();
+            
+            // 圆周角的连线（AC, BC）
+            ctx.beginPath();
+            ctx.moveTo(points.A.x, points.A.y);
+            ctx.lineTo(points.C.x, points.C.y);
+            ctx.lineTo(points.B.x, points.B.y);
+            ctx.strokeStyle = '#9f7aea';
+            ctx.stroke();
+            
+            // 5. 计算角度
+            const centerAngle = calculateAngleBetweenPoints(points.A, points.B, {x: circle.x, y: circle.y});
+            const circumferenceAngle = centerAngle / 2; // 定理1的核心关系
+            
+            // 更新角度显示
+            document.getElementById('circumferenceAngle').textContent = `${circumferenceAngle.toFixed(1)}°`;
+            document.getElementById('centerAngle').textContent = `${centerAngle.toFixed(1)}°`;
+            document.getElementById('angleRelation').textContent = 
+                `${centerAngle.toFixed(1)}° = 2 × ${circumferenceAngle.toFixed(1)}°`;
+            
+            // 6. 绘制角度标注（简化版角度弧）
+            drawAngleArc(circle.x, circle.y, circle.radius/4, points.A, points.B, '#e53e3e'); // 圆心角
+            drawAngleArc(points.C.x, points.C.y, circle.radius/5, points.A, points.B, '#48bb78'); // 圆周角
+        }
+
+        // 绘制角度弧标注
+        function drawAngleArc(centerX, centerY, radius, p1, p2, color) {
+            const angle1 = Math.atan2(p1.y - centerY, p1.x - centerX);
+            const angle2 = Math.atan2(p2.y - centerY, p2.x - centerX);
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, angle1, angle2, angle1 > angle2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        // 检测鼠标是否点击到点
+        function getClickedPoint(x, y) {
+            const tolerance = 15; // 点击检测容差
+            for (const key in circle.points) {
+                const point = circle.points[key];
+                const dx = x - point.x;
+                const dy = y - point.y;
+                if (Math.sqrt(dx*dx + dy*dy) < tolerance) {
+                    return key;
+                }
+            }
+            return null;
+        }
+
+        // 拖动开始
+        function startDrag(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            dragPoint = getClickedPoint(x, y);
+            isDragging = dragPoint !== null;
+        }
+
+        // 拖动过程
+        function drag(e) {
+            if (!isDragging || !dragPoint) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+            
+            // 限制拖动点在圆周上
+            const dx = x - circle.x;
+            const dy = y - circle.y;
+            const distance = Math.sqrt(dx*dx + dy*dy);
+            
+            // 计算点在圆周上的坐标
+            circle.points[dragPoint].x = circle.x + (dx / distance) * circle.radius;
+            circle.points[dragPoint].y = circle.y + (dy / distance) * circle.radius;
+            
+            // 重新绘制
+            drawCircleTheorem1();
+        }
+
+        // 停止拖动
+        function stopDrag() {
+            isDragging = false;
+            dragPoint = null;
+        }
+
+        // 窗口大小变化时重新初始化Canvas
+        window.addEventListener('resize', () => {
+            if (modal.style.display === 'flex') {
+                initCanvas();
+                drawCircleTheorem1();
+            }
+        });
+    </script>
+</body>
+</html>
