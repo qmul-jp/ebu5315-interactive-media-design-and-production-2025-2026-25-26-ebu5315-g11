@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圆几何探索 - 交互式数学学习平台</title>
+    <meta name="description" content="探索圆的相关几何定理，通过交互式动画和可视化学习数学知识">
+    <meta name="theme-color" content="#4361ee">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 第二版新增：无障碍工具栏（包含全部指定按钮，纯视觉无功能） -->
+    <div class="accessibility-toolbar" id="accessibility-toolbar">
+        <div id="aria-descriptions" class="aria-description" style="display:none;" aria-live="polite"></div>
+        <div class="container">
+            <div class="toolbar-controls">
+                <!-- 色盲模式按钮 -->
+                <button class="toolbar-btn" id="colorblind-toggle" aria-label="色盲模式">
+                    <span class="toolbar-icon">👁️‍🗨️</span>
+                    <span class="toolbar-text">色盲</span>
+                </button>
+                <!-- 黑白模式按钮 -->
+                <button class="toolbar-btn" id="bw-toggle" aria-label="黑白模式">
+                    <span class="toolbar-icon">⬛⬜</span>
+                    <span class="toolbar-text">黑白</span>
+                </button>
+                <!-- 盲人模式按钮 -->
+                <button class="toolbar-btn" id="blind-toggle" aria-label="盲人模式">
+                    <span class="toolbar-icon">🎧</span>
+                    <span class="toolbar-text">盲人</span>
+                </button>
+                <!-- DEEP模式按钮 -->
+                <button class="toolbar-btn" id="deep-mode-toggle" aria-label="切换 DEEP 模式">
+                    <span class="toolbar-icon">🌑</span>
+                    <span class="toolbar-text">DEEP</span>
+                </button>
+                <!-- 隐藏工具栏按钮 -->
+                <button class="toolbar-btn" id="toggle-toolbar" aria-label="隐藏工具栏">
+                    <span class="toolbar-icon">⚙️</span>
+                    <span class="toolbar-text">隐藏</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主导航栏：无跳转功能 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-link">
+                    <span class="logo-icon">⚪</span>
+                    <span class="logo-text">圆几何探索</span>
+                </span>
+            </div>
+            <ul class="nav-menu">
+                <li><span class="nav-link">首页</span></li>
+                <li><span class="nav-link">学习</span></li>
+                <li><span class="nav-link">交互</span></li>
+                <li><span class="nav-link">游戏</span></li>
+                <li><span class="nav-link">测验</span></li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 面包屑导航：无跳转功能 -->
+    <nav class="breadcrumb-nav" id="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li><span>首页</span></li>
+                <li id="current-page">首页</li>
+            </ol>
+        </div>
+    </nav>
+
+    <!-- 首页区域 -->
+    <section id="home" class="home-section">
+        <h1 id="home-title" class="sr-only">首页区域：圆几何探索的欢迎页面</h1>
+        <!-- 广告横幅 -->
+        <div class="ad-banner">
+            <div class="container">
+                <p>🎓 推荐：几何学习工具包 - 限时优惠中！</p>
+                <span class="ad-link">了解更多 →</span>
+            </div>
+        </div>
+        
+        <!-- 极简主义英雄区域 -->
+        <div class="minimal-hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>圆几何探索</h1>
+                    <p class="hero-subtitle">通过AI驱动的交互式学习，掌握圆的几何奥秘</p>
+                    <div class="hero-buttons">
+                        <button class="btn-primary">开始学习</button>
+                        <button class="btn-secondary">观看演示</button>
+                    </div>
+                </div>
+                
+                <!-- 视频/动画展示 -->
+                <div class="video-showcase">
+                    <div class="video-container">
+                        <canvas id="demo-canvas"></canvas>
+                        <div class="video-controls">
+                            <button class="play-btn">▶ 播放演示</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主要圆规则介绍 -->
+        <div class="rules-section">
+            <div class="container">
+                <h2>圆的四大核心定理</h2>
+                <div class="rules-grid">
+                    <div class="rule-item">
+                        <div class="rule-number">01</div>
+                        <h3>圆心角定理</h3>
+                        <p>圆心角等于其所对弧的圆周角的两倍</p>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-number">02</div>
+                        <h3>切线定理</h3>
+                        <p>切线与半径垂直，且切点到圆心的距离等于半径</p>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-number">03</div>
+                        <h3>弦的性质</h3>
+                        <p>垂直于弦的直径平分该弦，并且平分弦所对的两条弧</p>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-number">04</div>
+                        <h3>圆周角定理</h3>
+                        <p>同弧或等弧所对的圆周角相等，且等于圆心角的一半</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 独特卖点 -->
+        <div class="usp-section">
+            <div class="container">
+                <h2>为什么选择我们？</h2>
+                <div class="usp-grid">
+                    <div class="usp-item">
+                        <div class="usp-icon">🤖</div>
+                        <h3>AI智能助手</h3>
+                        <p>24/7在线解答几何问题，个性化学习路径</p>
+                    </div>
+                    <div class="usp-item">
+                        <div class="usp-icon">🎯</div>
+                        <h3>交互式学习</h3>
+                        <p>通过动手实践加深理解，学习效果提升300%</p>
+                    </div>
+                    <div class="usp-item">
+                        <div class="usp-icon">📱</div>
+                        <h3>多平台支持</h3>
+                        <p>随时随地学习，支持所有设备和浏览器</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI问候和联系表单 -->
+        <div class="ai-contact-section">
+            <div class="container">
+                <div class="ai-chatbot">
+                    <div class="chat-header">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="chat-info">
+                            <h3>几何学习助手</h3>
+                            <p>在线解答圆几何问题</p>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message ai-message">
+                            <p>你好！我是你的几何学习助手。有什么关于圆的问题吗？</p>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" placeholder="输入你的问题...">
+                        <button>发送</button>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <h3>联系我们</h3>
+                    <form>
+                        <div class="form-group">
+                            <label>姓名</label>
+                            <input type="text">
+                        </div>
+                        <div class="form-group">
+                            <label>邮箱</label>
+                            <input type="email">
+                        </div>
+                        <div class="form-group">
+                            <label>留言</label>
+                            <textarea rows="4"></textarea>
+                        </div>
+                        <button type="button" class="btn-primary">发送消息</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部广告 -->
+        <div class="bottom-ad">
+            <div class="container">
+                <p>📚 <strong>几何学习资源推荐：</strong> 获取完整的学习资料包，包含视频教程、练习题和答案解析</p>
+                <span class="ad-cta">立即获取 →</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 学习区域 -->
+    <section id="learning" class="learning-section">
+        <div class="container">
+            <div class="learning-content">
+                <h2>深入学习圆几何</h2>
+                <p class="intro-text">通过详细的定理解释和交互式演示，全面掌握圆的几何性质。</p>
+                
+                <div class="theorems-grid">
+                    <div class="theorem-card">
+                        <div class="theorem-icon">①</div>
+                        <h3>圆心角定理</h3>
+                        <p>圆心角等于其所对弧的圆周角的两倍</p>
+                        <button class="btn-learn-more">深入了解</button>
+                    </div>
+                    <div class="theorem-card">
+                        <div class="theorem-icon">②</div>
+                        <h3>切线定理</h3>
+                        <p>切线与半径垂直，且切点到圆心的距离等于半径</p>
+                        <button class="btn-learn-more">深入了解</button>
+                    </div>
+                    <div class="theorem-card">
+                        <div class="theorem-icon">③</div>
+                        <h3>弦的性质</h3>
+                        <p>垂直于弦的直径平分该弦，并且平分弦所对的两条弧</p>
+                        <button class="btn-learn-more">深入了解</button>
+                    </div>
+                    <div class="theorem-card">
+                        <div class="theorem-icon">④</div>
+                        <h3>圆周角定理</h3>
+                        <p>同弧或等弧所对的圆周角相等，且等于圆心角的一半</p>
+                        <button class="btn-learn-more">深入了解</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 交互式学习区域 -->
+    <section id="interactive" class="interactive-section">
+        <div class="container">
+            <h2>交互式学习体验</h2>
+            <p class="section-intro">通过调整参数和观察动态变化，直观理解圆的几何性质</p>
+            
+            <div class="interactive-controls">
+                <div class="control-panel">
+                    <h3>圆几何模拟器</h3>
+                    <div class="control-group">
+                        <label>选择定理：</label>
+                        <select>
+                            <option>圆心角定理</option>
+                            <option>切线定理</option>
+                            <option>弦的性质</option>
+                            <option>圆周角定理</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>半径大小：</label>
+                        <input type="range" min="50" max="200" value="100">
+                        <span>100px</span>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn-reset">重置模拟</button>
+                        <button class="btn-info">定理说明</button>
+                    </div>
+                    <div class="interactive-tips">
+                        <h4>操作提示：</h4>
+                        <ul>
+                            <li>拖动滑块调整圆的大小</li>
+                            <li>选择不同定理观察变化</li>
+                            <li>点击"定理说明"查看详细解释</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="canvas-container">
+                    <canvas width="600" height="400"></canvas>
+                    <div class="canvas-info">
+                        <p>当前显示：圆心角定理</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 互动游戏区域 -->
+    <section id="game" class="game-section">
+        <div class="container">
+            <h2>互动游戏</h2>
+            <p class="section-intro">即将开放！学习游戏模块将在 DEEP 模式中进一步扩展。</p>
+            <div class="game-placeholder">游戏模块空间</div>
+        </div>
+    </section>
+
+    <!-- 测验区域 -->
+    <section id="quiz" class="quiz-section">
+        <div class="container">
+            <h2>知识测验与巩固</h2>
+            <p class="section-intro">通过测验检验你对圆几何定理的理解程度</p>
+            
+            <div class="quiz-stats">
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">总题数</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">答对数</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">0%</span>
+                    <span class="stat-label">正确率</span>
+                </div>
+            </div>
+            
+            <div class="quiz-container">
+                <div class="quiz-question">
+                    <h3>问题：在圆中，如果一条弦被直径垂直平分，那么这条弦所对的两个圆周角有什么关系？</h3>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="quiz"> A. 相等</label>
+                        <label><input type="radio" name="quiz"> B. 互补</label>
+                        <label><input type="radio" name="quiz"> C. 和为180°</label>
+                        <label><input type="radio" name="quiz"> D. 没有关系</label>
+                    </div>
+                    <button class="btn-submit">提交答案</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 多元化角色展示 -->
+    <section class="diversity-section">
+        <div class="container">
+            <h2>为所有人设计的数学学习平台</h2>
+            <div class="diversity-grid">
+                <div class="diversity-item">
+                    <div class="avatar">👩‍🎓</div>
+                    <h3>学生友好</h3>
+                    <p>适合各年龄段学生的学习体验，从初中到大学</p>
+                </div>
+                <div class="diversity-item">
+                    <div class="avatar">🧑‍🏫</div>
+                    <h3>教师支持</h3>
+                    <p>为教育工作者提供教学工具和资源</p>
+                </div>
+                <div class="diversity-item">
+                    <div class="avatar">👨‍💻</div>
+                    <h3>开发者工具</h3>
+                    <p>开源代码和可扩展的交互组件</p>
+                </div>
+                <div class="diversity-item">
+                    <div class="avatar">🌍</div>
+                    <h3>全球视野</h3>
+                    <p>支持多语言，尊重文化多样性</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚：无跳转功能 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>圆几何探索</h3>
+                    <p>通过AI驱动的交互式学习，让每个人都能轻松掌握圆的几何奥秘</p>
+                    <div class="social-links">
+                        <span>🐦 Twitter</span>
+                        <span>💻 GitHub</span>
+                        <span>📧 Email</span>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul>
+                        <li><span>首页</span></li>
+                        <li><span>学习中心</span></li>
+                        <li><span>交互学习</span></li>
+                        <li><span>知识测验</span></li>
+                        <li><span>学习仪表盘</span></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>数据政策</h3>
+                    <ul>
+                        <li><span>隐私政策</span></li>
+                        <li><span>服务条款</span></li>
+                        <li><span>Cookie政策</span></li>
+                        <li><span>无障碍声明</span></li>
+                        <li><span>多元化承诺</span></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <p>📧 contact@circlegeometry.com</p>
+                    <p>📞 +86 400-123-4567</p>
+                    <p>📍 北京市海淀区中关村大街</p>
+                    <button class="btn-secondary">提供反馈</button>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="copyright">
+                    <p>&copy; 2025 圆几何探索 - 交互式数学学习平台。保留所有权利。</p>
+                    <p>遵循包容性设计原则，支持多样化的学习需求。数据使用完全透明。</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
