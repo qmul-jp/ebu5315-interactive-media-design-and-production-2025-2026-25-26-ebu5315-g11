@@ -47,6 +47,341 @@
             background-size: cover;
         }
 
+        /* ==================== 学习进度提示条 ==================== */
+        .progress-toast {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: #4361ee;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+            z-index: 9997;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .progress-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==================== 隐私政策弹窗样式 ==================== */
+        .privacy-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .privacy-overlay.hidden {
+            display: none;
+        }
+
+        .privacy-modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .deep-mode .privacy-modal {
+            background: #1e1e2e;
+            color: #e1e6ef;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .privacy-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .deep-mode .privacy-header {
+            border-color: #333;
+        }
+
+        .privacy-header h2 {
+            color: #4361ee;
+            font-size: 22px;
+        }
+
+        .privacy-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+        }
+
+        .privacy-close:hover {
+            color: #333;
+        }
+
+        .privacy-content {
+            padding: 30px;
+        }
+
+        .privacy-section {
+            margin-bottom: 20px;
+        }
+
+        .privacy-section h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .deep-mode .privacy-section h3 {
+            color: #e1e6ef;
+        }
+
+        .privacy-section p,
+        .privacy-section li {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .deep-mode .privacy-section p,
+        .deep-mode .privacy-section li {
+            color: #9aa5b1;
+        }
+
+        .privacy-section ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .privacy-permissions {
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .deep-mode .privacy-permissions {
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .permission-item:last-child {
+            border-bottom: none;
+        }
+
+        .permission-info {
+            flex: 1;
+        }
+
+        .permission-info h4 {
+            color: #2d3748;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .deep-mode .permission-info h4 {
+            color: #e1e6ef;
+        }
+
+        .permission-info p {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .deep-mode .permission-info p {
+            color: #777;
+        }
+
+        .permission-toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .permission-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .permission-toggle input:checked + .toggle-slider {
+            background-color: #4361ee;
+        }
+
+        .permission-toggle input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .privacy-footer {
+            padding: 25px 30px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .deep-mode .privacy-footer {
+            border-color: #333;
+        }
+
+        .privacy-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-decline {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-decline:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-accept {
+            background: #4361ee;
+            color: white;
+        }
+
+        .btn-accept:hover {
+            background: #3a56d4;
+            transform: translateY(-1px);
+        }
+
+        .btn-accept-all {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+        }
+
+        .btn-accept-all:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        /* 隐私政策提示条 */
+        .privacy-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #2d3748;
+            color: white;
+            padding: 15px 20px;
+            z-index: 9998;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .privacy-banner.hidden {
+            display: none;
+        }
+
+        .privacy-banner p {
+            font-size: 14px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .privacy-banner a {
+            color: #4cc9f0;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .privacy-banner-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .banner-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .banner-btn-settings {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .banner-btn-accept {
+            background: #4361ee;
+            color: white;
+        }
+
         /* ==================== 无障碍工具栏样式 ==================== */
         .accessibility-toolbar {
             background: var(--bg-toolbar);
@@ -444,6 +779,12 @@
             color: #999;
         }
 
+        .privacy-link {
+            color: #4cc9f0;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         /* ==================== 响应式布局（手机/平板适配） ==================== */
         @media (max-width: 768px) {
             .footer-content {
@@ -466,6 +807,32 @@
                 width: 100%;
                 max-width: 400px;
                 height: auto;
+            }
+
+            .privacy-modal {
+                margin: 20px;
+                max-width: none;
+            }
+
+            .privacy-header,
+            .privacy-content,
+            .privacy-footer {
+                padding: 20px;
+            }
+
+            .privacy-footer {
+                flex-direction: column;
+            }
+
+            .privacy-btn {
+                width: 100%;
+            }
+
+            .progress-toast {
+                right: 10px;
+                left: 10px;
+                top: auto;
+                bottom: 100px;
             }
         }
 
@@ -549,6 +916,96 @@
     </style>
 </head>
 <body>
+    <!-- 学习进度提示条 -->
+    <div class="progress-toast" id="progress-toast">
+        <span id="progress-message">设置已保存！</span>
+    </div>
+
+    <!-- 隐私政策弹窗 -->
+    <div class="privacy-overlay" id="privacy-overlay">
+        <div class="privacy-modal">
+            <div class="privacy-header">
+                <h2>🔒 隐私政策与权限设置</h2>
+                <button class="privacy-close" onclick="closePrivacyModal()">&times;</button>
+            </div>
+            <div class="privacy-content">
+                <div class="privacy-section">
+                    <h3>欢迎使用圆几何探索！</h3>
+                    <p>我们非常重视您的隐私和数据安全。在您使用我们的服务之前，请仔细阅读以下隐私政策。</p>
+                </div>
+                
+                <div class="privacy-section">
+                    <h3>📋 我们收集的数据</h3>
+                    <ul>
+                        <li><strong>本地存储数据：</strong>您的学习进度、主题偏好、无障碍设置等仅存储在您的浏览器本地</li>
+                        <li><strong>无服务器数据：</strong>我们不会将任何个人数据上传到服务器</li>
+                        <li><strong>无追踪Cookie：</strong>我们不使用任何追踪或分析Cookie</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-permissions">
+                    <h3 style="margin-bottom: 15px; color: #4361ee;">⚙️ 权限设置</h3>
+                    
+                    <div class="permission-item">
+                        <div class="permission-info">
+                            <h4>本地存储</h4>
+                            <p>保存您的学习进度和偏好设置</p>
+                        </div>
+                        <label class="permission-toggle">
+                            <input type="checkbox" id="perm-storage" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="permission-item">
+                        <div class="permission-info">
+                            <h4>无障碍设置</h4>
+                            <p>保存您的无障碍模式偏好</p>
+                        </div>
+                        <label class="permission-toggle">
+                            <input type="checkbox" id="perm-accessibility" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="permission-item">
+                        <div class="permission-info">
+                            <h4>性能优化</h4>
+                            <p>使用本地缓存提升页面加载速度</p>
+                        </div>
+                        <label class="permission-toggle">
+                            <input type="checkbox" id="perm-performance" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="privacy-section">
+                    <h3>🛡️ 您的权利</h3>
+                    <ul>
+                        <li>随时查看、修改或删除您的本地数据</li>
+                        <li>随时更改权限设置</li>
+                        <li>完全匿名使用我们的服务</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="privacy-footer">
+                <button class="privacy-btn btn-decline" onclick="declinePrivacy()">拒绝</button>
+                <button class="privacy-btn btn-accept" onclick="acceptPrivacy()">接受选中</button>
+                <button class="privacy-btn btn-accept-all" onclick="acceptAllPrivacy()">全部接受</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隐私政策提示条 -->
+    <div class="privacy-banner hidden" id="privacy-banner">
+        <p>我们使用本地存储来提升您的学习体验。查看我们的 <a onclick="showPrivacyModal()">隐私政策</a>。</p>
+        <div class="privacy-banner-buttons">
+            <button class="banner-btn banner-btn-settings" onclick="showPrivacyModal()">设置</button>
+            <button class="banner-btn banner-btn-accept" onclick="acceptAllPrivacy()">接受全部</button>
+        </div>
+    </div>
+
     <!-- 无障碍工具栏 -->
     <div class="accessibility-toolbar" id="accessibility-toolbar">
         <div id="aria-descriptions" class="aria-description" style="display:none;" aria-live="polite"></div>
@@ -661,14 +1118,13 @@
         </div>
     </section>
 
-    <!-- 交互式学习区域（新增Canvas动画） -->
+    <!-- 交互式学习区域 -->
     <section id="interactive" class="interactive-section canvas-section">
         <div class="container">
             <h2 style="text-align: center;">交互式学习体验</h2>
             <p style="text-align: center; margin:15px 0; color: var(--text-secondary);">通过可视化模拟器，直观理解圆的几何性质</p>
             
             <div class="canvas-container">
-                <!-- 定理选择器 -->
                 <div class="theorem-selector">
                     <button class="theorem-btn active" id="theorem-1" onclick="selectTheorem(1)">圆心角定理</button>
                     <button class="theorem-btn" id="theorem-2" onclick="selectTheorem(2)">切线定理</button>
@@ -676,12 +1132,10 @@
                     <button class="theorem-btn" id="theorem-4" onclick="selectTheorem(4)">圆周角定理</button>
                 </div>
 
-                <!-- Canvas画布 -->
                 <div class="canvas-wrapper">
                     <canvas id="geometry-canvas" width="600" height="450"></canvas>
                 </div>
 
-                <!-- 控制面板 -->
                 <div class="controls-panel">
                     <div class="control-group">
                         <label>圆的半径: <span id="radius-value">150</span>px</label>
@@ -701,7 +1155,6 @@
                     </div>
                 </div>
 
-                <!-- 信息面板 -->
                 <div class="info-panel" id="info-panel">
                     <h3>圆心角定理</h3>
                     <p><strong>定理内容：</strong>圆心角等于其所对弧的圆周角的两倍。</p>
@@ -755,18 +1208,257 @@
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h3>关于我们</h3>
-                    <p>专注于数学几何教育的交互式学习平台</p>
+                    <h3>法律信息</h3>
+                    <ul>
+                        <li><span class="privacy-link" onclick="showPrivacyModal()">隐私政策</span></li>
+                        <li>服务条款</li>
+                        <li>Cookie政策</li>
+                        <li>无障碍声明</li>
+                    </ul>
                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; 2025 圆几何探索 保留所有权利 | Canvas几何动画交互版</p>
+                <p>&copy; 2025 圆几何探索 保留所有权利 | 本地存储版</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // ==================== 全局变量 ====================
+        // ==================== 本地存储系统 ====================
+        let privacyConsent = {
+            given: false,
+            storage: true,
+            accessibility: true,
+            performance: true
+        };
+
+        let userSettings = {
+            colorblind: false,
+            grayscale: false,
+            blind: false,
+            deepMode: false,
+            toolbarHidden: false,
+            currentTheorem: 1,
+            radius: 150,
+            angle: 60
+        };
+
+        let learningProgress = {
+            theoremsViewed: [],
+            totalInteractions: 0,
+            lastVisit: null,
+            visitCount: 0
+        };
+
+        // ==================== 隐私政策系统 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            checkPrivacyConsent();
+            loadUserSettings();
+            loadLearningProgress();
+            initializeApp();
+            updateVisitStats();
+        });
+
+        function checkPrivacyConsent() {
+            const saved = localStorage.getItem('privacyConsent');
+            if (saved) {
+                privacyConsent = JSON.parse(saved);
+                if (privacyConsent.given) {
+                    document.getElementById('privacy-overlay').classList.add('hidden');
+                    return;
+                }
+            }
+            showPrivacyModal();
+        }
+
+        function showPrivacyModal() {
+            document.getElementById('privacy-overlay').classList.remove('hidden');
+            document.getElementById('privacy-banner').classList.add('hidden');
+            document.getElementById('perm-storage').checked = privacyConsent.storage;
+            document.getElementById('perm-accessibility').checked = privacyConsent.accessibility;
+            document.getElementById('perm-performance').checked = privacyConsent.performance;
+        }
+
+        function closePrivacyModal() {
+            if (privacyConsent.given) {
+                document.getElementById('privacy-overlay').classList.add('hidden');
+            } else {
+                document.getElementById('privacy-overlay').classList.add('hidden');
+                document.getElementById('privacy-banner').classList.remove('hidden');
+            }
+        }
+
+        function acceptPrivacy() {
+            privacyConsent.storage = document.getElementById('perm-storage').checked;
+            privacyConsent.accessibility = document.getElementById('perm-accessibility').checked;
+            privacyConsent.performance = document.getElementById('perm-performance').checked;
+            privacyConsent.given = true;
+            
+            savePrivacyConsent();
+            saveAllSettings();
+            document.getElementById('privacy-overlay').classList.add('hidden');
+            showToast('隐私设置已保存！');
+        }
+
+        function acceptAllPrivacy() {
+            privacyConsent.storage = true;
+            privacyConsent.accessibility = true;
+            privacyConsent.performance = true;
+            privacyConsent.given = true;
+            
+            savePrivacyConsent();
+            saveAllSettings();
+            document.getElementById('privacy-overlay').classList.add('hidden');
+            document.getElementById('privacy-banner').classList.add('hidden');
+            showToast('已接受全部隐私设置！');
+        }
+
+        function declinePrivacy() {
+            privacyConsent.storage = false;
+            privacyConsent.accessibility = false;
+            privacyConsent.performance = false;
+            privacyConsent.given = true;
+            
+            savePrivacyConsent();
+            document.getElementById('privacy-overlay').classList.add('hidden');
+            showToast('已拒绝非必要权限，部分功能可能受限');
+        }
+
+        function savePrivacyConsent() {
+            if (privacyConsent.storage) {
+                localStorage.setItem('privacyConsent', JSON.stringify(privacyConsent));
+            }
+        }
+
+        // ==================== 用户设置存储 ====================
+        function loadUserSettings() {
+            if (!privacyConsent.storage) return;
+            
+            const saved = localStorage.getItem('userSettings');
+            if (saved) {
+                userSettings = { ...userSettings, ...JSON.parse(saved) };
+                applyUserSettings();
+            }
+        }
+
+        function saveUserSettings() {
+            if (!privacyConsent.storage) return;
+            
+            localStorage.setItem('userSettings', JSON.stringify(userSettings));
+        }
+
+        function applyUserSettings() {
+            const body = document.body;
+            const toolbar = document.getElementById('accessibility-toolbar');
+            const toolbarText = document.getElementById('toggle-toolbar').querySelector('.toolbar-text');
+            
+            // 应用无障碍模式
+            if (userSettings.colorblind) body.classList.add('colorblind-mode');
+            if (userSettings.grayscale) body.classList.add('grayscale-mode');
+            if (userSettings.blind) {
+                body.classList.add('blind-mode');
+                document.getElementById('aria-descriptions').style.display = 'block';
+            }
+            if (userSettings.deepMode) body.classList.add('deep-mode');
+            if (userSettings.toolbarHidden) {
+                toolbar.classList.add('toolbar-hidden');
+                toolbarText.textContent = '显示';
+            }
+            
+            // 应用Canvas参数
+            currentTheorem = userSettings.currentTheorem;
+            radius = userSettings.radius;
+            angle = userSettings.angle;
+            
+            // 更新UI
+            document.getElementById('radius-slider').value = radius;
+            document.getElementById('radius-value').textContent = radius;
+            document.getElementById('angle-slider').value = angle;
+            document.getElementById('angle-value').textContent = angle;
+            
+            // 更新定理选择
+            document.querySelectorAll('.theorem-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`theorem-${currentTheorem}`).classList.add('active');
+            updateInfoPanel();
+        }
+
+        function saveAllSettings() {
+            if (!privacyConsent.storage) return;
+            
+            // 保存当前状态到userSettings
+            const body = document.body;
+            userSettings.colorblind = body.classList.contains('colorblind-mode');
+            userSettings.grayscale = body.classList.contains('grayscale-mode');
+            userSettings.blind = body.classList.contains('blind-mode');
+            userSettings.deepMode = body.classList.contains('deep-mode');
+            userSettings.toolbarHidden = document.getElementById('accessibility-toolbar').classList.contains('toolbar-hidden');
+            userSettings.currentTheorem = currentTheorem;
+            userSettings.radius = radius;
+            userSettings.angle = angle;
+            
+            saveUserSettings();
+        }
+
+        // ==================== 学习进度存储 ====================
+        function loadLearningProgress() {
+            if (!privacyConsent.storage) return;
+            
+            const saved = localStorage.getItem('learningProgress');
+            if (saved) {
+                learningProgress = { ...learningProgress, ...JSON.parse(saved) };
+            }
+        }
+
+        function saveLearningProgress() {
+            if (!privacyConsent.storage) return;
+            
+            localStorage.setItem('learningProgress', JSON.stringify(learningProgress));
+        }
+
+        function updateVisitStats() {
+            if (!privacyConsent.storage) return;
+            
+            const now = new Date().toISOString();
+            learningProgress.lastVisit = now;
+            learningProgress.visitCount++;
+            saveLearningProgress();
+        }
+
+        function recordTheoremView(theoremId) {
+            if (!privacyConsent.storage) return;
+            
+            if (!learningProgress.theoremsViewed.includes(theoremId)) {
+                learningProgress.theoremsViewed.push(theoremId);
+                saveLearningProgress();
+                showToast(`新定理学习进度已保存！`);
+            }
+        }
+
+        function recordInteraction() {
+            if (!privacyConsent.storage) return;
+            
+            learningProgress.totalInteractions++;
+            // 每10次交互保存一次，避免频繁写入
+            if (learningProgress.totalInteractions % 10 === 0) {
+                saveLearningProgress();
+            }
+        }
+
+        // ==================== 提示消息 ====================
+        function showToast(message) {
+            const toast = document.getElementById('progress-toast');
+            const messageEl = document.getElementById('progress-message');
+            messageEl.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // ==================== 应用初始化 ====================
         let canvas, ctx;
         let currentTheorem = 1;
         let radius = 150;
@@ -775,7 +1467,6 @@
         let animationId;
         let animationAngle = 0;
 
-        // 定理信息
         const theoremInfo = {
             1: {
                 title: "圆心角定理",
@@ -803,39 +1494,48 @@
             }
         };
 
-        // ==================== 初始化 ====================
-        document.addEventListener('DOMContentLoaded', function() {
+        function initializeApp() {
             canvas = document.getElementById('geometry-canvas');
             ctx = canvas.getContext('2d');
             
-            // 初始化绘制
             drawGeometry();
-            
-            // 绑定无障碍功能
             setupAccessibility();
-            
-            // 绑定导航功能
             setupNavigation();
-        });
+        }
 
-        // ==================== 无障碍功能 ====================
+        // ==================== 无障碍功能（带存储） ====================
         function setupAccessibility() {
             const body = document.body;
             const toolbar = document.getElementById('accessibility-toolbar');
             const toggleToolbarBtn = document.getElementById('toggle-toolbar');
             const toolbarText = toggleToolbarBtn.querySelector('.toolbar-text');
 
-            document.getElementById('colorblind-toggle').onclick = () => body.classList.toggle('colorblind-mode');
-            document.getElementById('bw-toggle').onclick = () => body.classList.toggle('grayscale-mode');
+            document.getElementById('colorblind-toggle').onclick = () => {
+                body.classList.toggle('colorblind-mode');
+                saveAllSettings();
+                showToast('色盲模式设置已保存！');
+            };
+            document.getElementById('bw-toggle').onclick = () => {
+                body.classList.toggle('grayscale-mode');
+                saveAllSettings();
+                showToast('黑白模式设置已保存！');
+            };
             document.getElementById('blind-toggle').onclick = () => {
                 body.classList.toggle('blind-mode');
                 const aria = document.getElementById('aria-descriptions');
                 aria.style.display = body.classList.contains('blind-mode') ? 'block' : 'none';
+                saveAllSettings();
+                showToast('盲人模式设置已保存！');
             };
-            document.getElementById('deep-mode-toggle').onclick = () => body.classList.toggle('deep-mode');
+            document.getElementById('deep-mode-toggle').onclick = () => {
+                body.classList.toggle('deep-mode');
+                saveAllSettings();
+                showToast('DEEP模式设置已保存！');
+            };
             toggleToolbarBtn.onclick = () => {
                 toolbar.classList.toggle('toolbar-hidden');
                 toolbarText.textContent = toolbar.classList.contains('toolbar-hidden') ? '显示' : '隐藏';
+                saveAllSettings();
             };
         }
 
@@ -863,29 +1563,28 @@
             document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ==================== 定理选择 ====================
+        // ==================== 定理选择（带进度记录） ====================
         function selectTheorem(theoremId) {
             currentTheorem = theoremId;
             
-            // 更新按钮状态
             document.querySelectorAll('.theorem-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             document.getElementById(`theorem-${theoremId}`).classList.add('active');
             
-            // 更新信息面板
             updateInfoPanel();
             
-            // 重置动画
             if (isAnimating) {
                 toggleAnimation();
             }
             
-            // 重新绘制
             drawGeometry();
-            
-            // 滚动到交互区域
             scrollToSection('interactive');
+            
+            // 记录学习进度
+            recordTheoremView(theoremId);
+            recordInteraction();
+            saveAllSettings();
         }
 
         function updateInfoPanel() {
@@ -899,17 +1598,21 @@
             `;
         }
 
-        // ==================== 参数更新 ====================
+        // ==================== 参数更新（带存储） ====================
         function updateRadius(value) {
             radius = parseInt(value);
             document.getElementById('radius-value').textContent = value;
             drawGeometry();
+            recordInteraction();
+            saveAllSettings();
         }
 
         function updateAngle(value) {
             angle = parseInt(value);
             document.getElementById('angle-value').textContent = value;
             drawGeometry();
+            recordInteraction();
+            saveAllSettings();
         }
 
         function resetCanvas() {
@@ -925,6 +1628,9 @@
             }
             
             drawGeometry();
+            recordInteraction();
+            saveAllSettings();
+            showToast('已重置为默认设置！');
         }
 
         // ==================== 动画控制 ====================
@@ -939,6 +1645,7 @@
                 text.textContent = '▶ 播放动画';
                 cancelAnimationFrame(animationId);
             }
+            recordInteraction();
         }
 
         function startAnimation() {
@@ -958,14 +1665,11 @@
 
         // ==================== Canvas绘制核心 ====================
         function drawGeometry(animAngle = null) {
-            // 清空画布
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 设置画布中心
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
             
-            // 根据当前定理绘制
             switch(currentTheorem) {
                 case 1:
                     drawCentralAngleTheorem(centerX, centerY, animAngle);
@@ -982,15 +1686,12 @@
             }
         }
 
-        // 1. 圆心角定理
         function drawCentralAngleTheorem(centerX, centerY, animAngle) {
             const displayAngle = animAngle !== null ? animAngle : angle;
             const rad = (displayAngle * Math.PI) / 180;
             
-            // 绘制圆
             drawCircle(centerX, centerY, radius);
             
-            // 计算点的位置
             const pointA = { x: centerX + radius, y: centerY };
             const pointB = { 
                 x: centerX + radius * Math.cos(rad), 
@@ -1001,12 +1702,10 @@
                 y: centerY + radius * Math.sin(rad / 2 + Math.PI) 
             };
             
-            // 绘制圆心角
             drawLine(centerX, centerY, pointA.x, pointA.y, '#4361ee', 3);
             drawLine(centerX, centerY, pointB.x, pointB.y, '#4361ee', 3);
             drawArc(centerX, centerY, 40, 0, rad, '#4361ee', 2);
             
-            // 绘制圆周角
             drawLine(pointC.x, pointC.y, pointA.x, pointA.y, '#f72585', 2);
             drawLine(pointC.x, pointC.y, pointB.x, pointB.y, '#f72585', 2);
             drawArc(pointC.x, pointC.y, 30, 
@@ -1014,35 +1713,28 @@
                 Math.atan2(pointB.y - pointC.y, pointB.x - pointC.x),
                 '#f72585', 2);
             
-            // 标注点
             drawPoint(pointA.x, pointA.y, 'A');
             drawPoint(pointB.x, pointB.y, 'B');
             drawPoint(pointC.x, pointC.y, 'C');
             drawPoint(centerX, centerY, 'O');
             
-            // 标注角度
             drawText(`圆心角: ${displayAngle.toFixed(1)}°`, centerX + 50, centerY - 20, '#4361ee');
             drawText(`圆周角: ${(displayAngle/2).toFixed(1)}°`, pointC.x + 30, pointC.y - 10, '#f72585');
         }
 
-        // 2. 切线定理
         function drawTangentTheorem(centerX, centerY, animAngle) {
             const displayAngle = animAngle !== null ? animAngle : angle;
             const rad = (displayAngle * Math.PI) / 180;
             
-            // 绘制圆
             drawCircle(centerX, centerY, radius);
             
-            // 计算切点
             const tangentPoint = {
                 x: centerX + radius * Math.cos(rad),
                 y: centerY + radius * Math.sin(rad)
             };
             
-            // 绘制半径
             drawLine(centerX, centerY, tangentPoint.x, tangentPoint.y, '#4361ee', 3);
             
-            // 绘制切线
             const tangentLength = 120;
             const tangentRad = rad + Math.PI / 2;
             const tangentStart = {
@@ -1055,28 +1747,22 @@
             };
             drawLine(tangentStart.x, tangentStart.y, tangentEnd.x, tangentEnd.y, '#f72585', 3);
             
-            // 绘制直角符号
             drawRightAngle(tangentPoint.x, tangentPoint.y, rad, 20);
             
-            // 标注点
             drawPoint(tangentPoint.x, tangentPoint.y, 'P');
             drawPoint(centerX, centerY, 'O');
             
-            // 标注文字
             drawText('半径', centerX + (tangentPoint.x - centerX)/2 - 20, 
                      centerY + (tangentPoint.y - centerY)/2, '#4361ee');
             drawText('切线', tangentEnd.x - 30, tangentEnd.y - 10, '#f72585');
         }
 
-        // 3. 弦的性质
         function drawChordProperties(centerX, centerY, animAngle) {
             const displayAngle = animAngle !== null ? animAngle : angle;
             const rad = (displayAngle * Math.PI) / 180;
             
-            // 绘制圆
             drawCircle(centerX, centerY, radius);
             
-            // 计算弦的端点
             const chordAngle = Math.PI / 4;
             const pointA = {
                 x: centerX + radius * Math.cos(chordAngle),
@@ -1087,10 +1773,8 @@
                 y: centerY + radius * Math.sin(Math.PI - chordAngle)
             };
             
-            // 绘制弦
             drawLine(pointA.x, pointA.y, pointB.x, pointB.y, '#4361ee', 3);
             
-            // 绘制直径（垂直平分线）
             const midPoint = {
                 x: (pointA.x + pointB.x) / 2,
                 y: (pointA.y + pointB.y) / 2
@@ -1099,31 +1783,23 @@
             const diameterBottom = { x: centerX, y: centerY + radius };
             drawLine(diameterTop.x, diameterTop.y, diameterBottom.x, diameterBottom.y, '#f72585', 2);
             
-            // 绘制中点
             drawPoint(midPoint.x, midPoint.y, 'M', '#f8961e');
-            
-            // 绘制直角符号
             drawRightAngle(midPoint.x, midPoint.y, -Math.PI/2, 15);
             
-            // 标注点
             drawPoint(pointA.x, pointA.y, 'A');
             drawPoint(pointB.x, pointB.y, 'B');
             drawPoint(centerX, centerY, 'O');
             
-            // 标注文字
             drawText('弦', (pointA.x + pointB.x)/2 - 20, (pointA.y + pointB.y)/2 - 10, '#4361ee');
             drawText('直径', centerX + 10, centerY, '#f72585');
         }
 
-        // 4. 圆周角定理
         function drawInscribedAngleTheorem(centerX, centerY, animAngle) {
             const displayAngle = animAngle !== null ? animAngle : angle;
             const rad = (displayAngle * Math.PI) / 180;
             
-            // 绘制圆
             drawCircle(centerX, centerY, radius);
             
-            // 计算点的位置
             const pointA = { x: centerX + radius, y: centerY };
             const pointB = { 
                 x: centerX + radius * Math.cos(rad), 
@@ -1138,12 +1814,10 @@
                 y: centerY + radius * Math.sin(rad / 2 + Math.PI) 
             };
             
-            // 绘制圆心角
             drawLine(centerX, centerY, pointA.x, pointA.y, '#4361ee', 2);
             drawLine(centerX, centerY, pointB.x, pointB.y, '#4361ee', 2);
             drawArc(centerX, centerY, 40, 0, rad, '#4361ee', 2);
             
-            // 绘制圆周角1
             drawLine(pointC.x, pointC.y, pointA.x, pointA.y, '#f72585', 2);
             drawLine(pointC.x, pointC.y, pointB.x, pointB.y, '#f72585', 2);
             drawArc(pointC.x, pointC.y, 25, 
@@ -1151,7 +1825,6 @@
                 Math.atan2(pointB.y - pointC.y, pointB.x - pointC.x),
                 '#f72585', 2);
             
-            // 绘制圆周角2
             drawLine(pointD.x, pointD.y, pointA.x, pointA.y, '#4cc9f0', 2);
             drawLine(pointD.x, pointD.y, pointB.x, pointB.y, '#4cc9f0', 2);
             drawArc(pointD.x, pointD.y, 25, 
@@ -1159,20 +1832,17 @@
                 Math.atan2(pointB.y - pointD.y, pointB.x - pointD.x),
                 '#4cc9f0', 2);
             
-            // 标注点
             drawPoint(pointA.x, pointA.y, 'A');
             drawPoint(pointB.x, pointB.y, 'B');
             drawPoint(pointC.x, pointC.y, 'C');
             drawPoint(pointD.x, pointD.y, 'D');
             drawPoint(centerX, centerY, 'O');
             
-            // 标注角度
             drawText(`圆心角: ${displayAngle.toFixed(1)}°`, centerX + 50, centerY - 20, '#4361ee');
             drawText(`圆周角: ${(displayAngle/2).toFixed(1)}°`, pointC.x + 30, pointC.y - 10, '#f72585');
             drawText(`圆周角: ${(displayAngle/2).toFixed(1)}°`, pointD.x + 30, pointD.y + 20, '#4cc9f0');
         }
 
-        // ==================== 辅助绘制函数 ====================
         function drawCircle(x, y, r) {
             ctx.beginPath();
             ctx.arc(x, y, r, 0, Math.PI * 2);
