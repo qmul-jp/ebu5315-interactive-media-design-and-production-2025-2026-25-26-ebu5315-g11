@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circle Theorems Quiz</title>
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .option-btn.correct { }
+        .option-btn.wrong { }
+        .option-btn.disabled {
+            pointer-events: none;
+            opacity: 0.94;
+        }
+
+        .result-text {
+            min-height: 28px;
+            margin-top: 14px;
+            font-weight: 700;
+        }
+
+        .result-text.success { color: #14803c; }
+        .result-text.error { color: #c62828; }
+
+        .final-box {
+            display: none;
+        }
+
+        .final-controls {
+            justify-content: center;
+        }
+
+        @media (max-width: 760px) {
+            .meta-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        body {
+            background: linear-gradient(180deg, #eaf2ff 0%, #f8fbff 100%);
+            color: #16324f;
+            min-height: 100vh;
+            padding: 28px 18px;
+            line-height: 1.6;
+        }
+
+        .page {
+            max-width: 920px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            border-radius: 22px;
+            padding: 26px;
+            margin-bottom: 18px;
+            box-shadow: 0 18px 36px rgba(37, 99, 235, 0.18);
+        }
+
+        .hero h1 {
+            font-size: 2.3rem;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.88);
+            max-width: 58ch;
+        }
+
+        .quiz-shell {
+            background: white;
+            border: 1px solid #d6e3fa;
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.08);
+        }
+
+        .version-chip {
+            display: inline-flex;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #2563eb;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .meta-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .meta-card {
+            background: #f8fbff;
+            border: 1px solid #dbeafe;
+            border-radius: 16px;
+            padding: 14px 16px;
+        }
+
+        .meta-label {
+            display: block;
+            color: #64748b;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+        }
+
+        .question-panel {
+            background: #fbfdff;
+            border: 1px solid #e5eefc;
+            border-radius: 18px;
+            padding: 20px;
+        }
+
+        .question-title {
+            font-size: 1.28rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid #d7e4fb;
+            background: white;
+            color: #16324f;
+            font-size: 1rem;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.08);
+        }
+
+        .option-btn.correct { background: #e8f8ee; border-color: #8ed1a4; }
+        .option-btn.wrong { background: #fdeceb; border-color: #f3a29a; }
+
+        .controls {
+            margin-top: 22px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 999px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid #d7e4fb;
+            color: #2563eb;
+        }
+
+        .final-box {
+            text-align: center;
+            padding: 10px 0 4px;
+        }
+
+        .final-box h2 {
+            font-size: 1.9rem;
+            margin-bottom: 8px;
+        }
+
+        .final-box p {
+            color: #5f7691;
+            margin-bottom: 16px;
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 999px;
+            background: #e8eefc;
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            transition: width 0.25s ease;
+        }
+
+        .meta-card strong {
+            display: block;
+            font-size: 1.15rem;
+            color: #2563eb;
+        }
+
+        .question-panel {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+
+        .option-btn {
+            font-weight: 600;
+        }
+
+        .result-text {
+            padding-top: 4px;
+        }
+
+        .final-box {
+            background: #f8fbff;
+            border: 1px solid #dbeafe;
+            border-radius: 18px;
+            padding: 20px;
+            margin-top: 8px;
+        }
+
+        .final-box h2 {
+            color: #16324f;
+        }
+
+    </style>
+</head>
+<body class="">
+
+<div class="page">
+    
+<header class="hero">
+    <h1>Circle Theorems Quiz</h1>
+    <p>The second design stage is complete with stronger hierarchy, cleaner cards, and a better summary screen.</p>
+</header>
+
+    <main class="quiz-shell">
+        <div class="version-chip">Version 2.5</div>
+        
+<section class="meta-row">
+    <div class="meta-card">
+        <span class="meta-label">Question</span>
+        <strong id="questionNumber">1 / 5</strong>
+    </div>
+    <div class="meta-card">
+        <span class="meta-label">Score</span>
+        <strong id="scoreText">0</strong>
+    </div>
+    <div class="meta-card">
+        <span class="meta-label">Status</span>
+        <strong id="statusText">Ready</strong>
+    </div>
+</section>
+
+        <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+        <div id="quizArea">
+            <section class="question-panel">
+                <div class="question-title" id="questionText"></div>
+                <div class="options" id="optionsBox"></div>
+                <div class="result-text" id="resultText"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" id="nextBtn" style="display:none;">Next Question</button>
+                    <button class="btn btn-secondary" id="restartBtn">Restart Quiz</button>
+                </div>
+            
+        </div>
+        <div class="final-box" id="finalBox">
+            <h2>Quiz Complete</h2>
+            <p id="finalMessage"></p>
+            
+            <div class="controls final-controls">
+                <button class="btn btn-primary" id="restartFinalBtn">Try Again</button>
+                <a href="UI.html" class="btn btn-secondary">Return Home</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+const quizData = [
+    {
+        question: "The angle at the centre is how many times the angle at the circumference standing on the same arc?",
+        options: ["The same", "Twice", "Three times", "Half"],
+        answer: 1
+    },
+    {
+        question: "The angle in a semicircle is always:",
+        options: ["45°", "60°", "90°", "120°"],
+        answer: 2
+    },
+    {
+        question: "Angles in the same segment are:",
+        options: ["Supplementary", "Equal", "Double", "Opposite"],
+        answer: 1
+    },
+    {
+        question: "Opposite angles in a cyclic quadrilateral add up to:",
+        options: ["90°", "180°", "270°", "360°"],
+        answer: 1
+    },
+    {
+        question: "A radius and a tangent at the point of contact are:",
+        options: ["Parallel", "Equal", "Perpendicular", "Opposite"],
+        answer: 2
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+const questionNumber = document.getElementById("questionNumber");
+const scoreText = document.getElementById("scoreText");
+const statusText = document.getElementById("statusText");
+const questionText = document.getElementById("questionText");
+const optionsBox = document.getElementById("optionsBox");
+const resultText = document.getElementById("resultText");
+const nextBtn = document.getElementById("nextBtn");
+const restartBtn = document.getElementById("restartBtn");
+const finalBox = document.getElementById("finalBox");
+const quizArea = document.getElementById("quizArea");
+const finalMessage = document.getElementById("finalMessage");
+const progressFill = document.getElementById("progressFill");
+
+function setProgress() {
+    if (!progressFill) return;
+    const percent = ((currentQuestion) / quizData.length) * 100;
+    progressFill.style.width = `${percent}%`;
+}
+
+function renderQuestion() {
+    answered = false;
+    resultText.textContent = "";
+    resultText.className = "result-text";
+    nextBtn.style.display = "none";
+
+    const q = quizData[currentQuestion];
+    questionNumber.textContent = `${currentQuestion + 1} / ${quizData.length}`;
+    scoreText.textContent = score;
+    statusText.textContent = "In Progress";
+    questionText.textContent = q.question;
+
+    optionsBox.innerHTML = "";
+
+    q.options.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = option;
+        btn.addEventListener("click", () => handleAnswer(index));
+        optionsBox.appendChild(btn);
+    });
+
+    setProgress();
+}
+
+function handleAnswer(selectedIndex) {
+    if (answered) return;
+    answered = true;
+
+    const q = quizData[currentQuestion];
+    const buttons = document.querySelectorAll(".option-btn");
+
+    buttons.forEach((btn, index) => {
+        btn.classList.add("disabled");
+
+        if (index === q.answer) {
+            btn.classList.add("correct");
+        }
+
+        if (index === selectedIndex && index !== q.answer) {
+            btn.classList.add("wrong");
+        }
+    });
+
+    if (selectedIndex === q.answer) {
+        score++;
+        scoreText.textContent = score;
+        resultText.textContent = "Correct!";
+        resultText.classList.add("success");
+    } else {
+        resultText.textContent = "Wrong answer.";
+        resultText.classList.add("error");
+    }
+
+    nextBtn.style.display = "inline-flex";
+}
+
+function showFinalResult() {
+    quizArea.style.display = "none";
+    finalBox.style.display = "block";
+    statusText.textContent = "Completed";
+    if (progressFill) progressFill.style.width = "100%";
+    finalMessage.textContent = `You scored ${score} out of ${quizData.length}.`;
+}
+
+nextBtn.addEventListener("click", () => {
+    currentQuestion++;
+
+    if (currentQuestion >= quizData.length) {
+        showFinalResult();
+    } else {
+        renderQuestion();
+    }
+});
+
+function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    quizArea.style.display = "block";
+    finalBox.style.display = "none";
+    renderQuestion();
+}
+
+restartBtn.addEventListener("click", restartQuiz);
+document.getElementById("restartFinalBtn").addEventListener("click", restartQuiz);
+
+renderQuestion();
+</script>
+</body>
+</html>
