@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>圆几何探索 V2.5.a.2</title>
+  <meta name="description" content="圆几何探索第二次修改版：首页结构优化与学习路径增强" />
+  <style>
+    :root {
+      --bg: #f4f8ff;
+      --bg-soft: linear-gradient(135deg, #f8fbff 0%, #eef4ff 50%, #f7f0ff 100%);
+      --card: rgba(255,255,255,0.82);
+      --card-strong: rgba(255,255,255,0.92);
+      --text: #17324f;
+      --muted: #5f7691;
+      --primary: #2563eb;
+      --primary-2: #7c3aed;
+      --accent: #06b6d4;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --line: rgba(37,99,235,0.12);
+      --shadow: 0 18px 45px rgba(37,99,235,0.14);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(124,58,237,0.14), transparent 24%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      opacity: 0;
+      transition: opacity 0.8s ease, background 0.3s ease, color 0.3s ease;
+    }
+    body.page-loaded { opacity: 1; }
+
+    body.dark-mode {
+      --bg: #0f172a;
+      --card: rgba(30,41,59,0.84);
+      --card-strong: rgba(30,41,59,0.94);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --line: rgba(255,255,255,0.09);
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.10), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(124,58,237,0.10), transparent 24%),
+        #0f172a;
+    }
+
+    body.colorblind-mode {
+      --primary: #005fcc;
+      --primary-2: #6b3fd6;
+      --accent: #d97706;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(255,255,255,0.72);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    body.dark-mode .toolbar,
+    body.dark-mode .site-header {
+      background: rgba(15,23,42,0.75);
+    }
+
+    .toolbar-inner {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 8px 0;
+    }
+
+    .toolbar-text {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .toolbar-actions,
+    .nav-actions,
+    .hero-actions,
+    .quiz-actions,
+    .preview-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(37,99,235,0.14);
+    }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.8);
+      color: var(--primary);
+      border: 1px solid var(--line);
+    }
+
+    body.dark-mode .btn-outline {
+      background: rgba(30,41,59,0.85);
+      color: var(--text);
+    }
+
+    .site-header {
+      position: sticky;
+      top: 52px;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+      background: rgba(244,248,255,0.72);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .brand-badge {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: var(--shadow);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 0.96rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: inherit;
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    .hero {
+      padding: 56px 0 28px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(37,99,235,0.08);
+      color: var(--primary);
+      border-radius: 999px;
+      font-size: 0.92rem;
+      margin-bottom: 18px;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 4.15rem);
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .highlight {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy > p {
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 1.06rem;
+      margin-bottom: 26px;
+    }
+
+    .quick-stats,
+    .feature-grid,
+    .path-grid,
+    .theorem-grid,
+    .contact-info,
+    .result-stats {
+      display: grid;
+      gap: 16px;
+    }
+
+    .quick-stats { grid-template-columns: repeat(3, 1fr); }
+    .feature-grid { grid-template-columns: repeat(4, 1fr); }
+    .path-grid { grid-template-columns: repeat(3, 1fr); }
+    .theorem-grid { grid-template-columns: repeat(4, 1fr); }
+    .contact-info { grid-template-columns: repeat(3, 1fr); }
+    .result-stats { grid-template-columns: repeat(3, 1fr); }
+
+    .stat,
+    .feature-card,
+    .path-card,
+    .theorem-card,
+    .main-card,
+    .section-card,
+    .contact-card,
+    .quiz-card,
+    .result-panel {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.72);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      backdrop-filter: blur(16px);
+    }
+
+    .stat { padding: 18px; }
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .stat span { color: var(--muted); font-size: 0.92rem; }
+
+    .main-card {
+      position: relative;
+      padding: 26px;
+      overflow: hidden;
+      min-height: 470px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.74));
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      background: rgba(6,182,212,0.1);
+      color: #0f766e;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .muted { color: var(--muted); }
+    .lesson-title { font-size: 1.45rem; margin-bottom: 10px; }
+    .lesson-subtitle { color: var(--muted); margin-bottom: 20px; }
+
+    .diagram {
+      position: relative;
+      height: 255px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(37,99,235,0.04), rgba(124,58,237,0.05)), white;
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      overflow: visible;
+    }
+
+    body.dark-mode .diagram,
+    body.dark-mode .section-card,
+    body.dark-mode .contact-card,
+    body.dark-mode .quiz-card,
+    body.dark-mode .result-panel,
+    body.dark-mode .feature-card,
+    body.dark-mode .path-card,
+    body.dark-mode .theorem-card,
+    body.dark-mode .main-card,
+    body.dark-mode .stat {
+      background: rgba(30,41,59,0.88);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .circle-demo {
+      width: 220px;
+      height: 220px;
+      border: 4px solid var(--primary);
+      border-radius: 50%;
+      position: relative;
+      box-shadow: inset 0 0 0 10px rgba(37,99,235,0.03);
+    }
+
+    .center-dot, .point, .line {
+      position: absolute;
+      transition: all 0.08s linear;
+    }
+    .center-dot, .point {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .center-dot { background: #ef4444; z-index: 3; }
+    .point { background: #22c55e; z-index: 4; }
+    .point.c { background: #a855f7; }
+    .line {
+      height: 3px;
+      border-radius: 999px;
+      transform-origin: left center;
+      background: #7c3aed;
+      z-index: 2;
+    }
+    .line.oa, .line.ob { background: #2563eb; }
+
+    .mini-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px; }
+    .mini-card {
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid rgba(37,99,235,0.08);
+    }
+    .mini-card small { display: block; color: var(--muted); margin-bottom: 6px; }
+    .mini-card strong { color: var(--text); font-size: 1.05rem; }
+
+    .floating-card {
+      position: absolute;
+      right: -16px;
+      top: 42px;
+      width: 185px;
+      padding: 16px;
+      border-radius: 20px;
+      background: var(--card-strong);
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 18px 40px rgba(22,50,79,0.16);
+    }
+    .floating-card h3 { font-size: 0.95rem; margin-bottom: 6px; }
+    .floating-card p { font-size: 0.88rem; color: var(--muted); }
+
+    section { padding: 30px 0 18px; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 22px; }
+    .section-head h2 { font-size: 1.9rem; margin-bottom: 6px; }
+    .section-head p { color: var(--muted); max-width: 60ch; }
+
+    .feature-card,
+    .path-card,
+    .theorem-card,
+    .section-card,
+    .contact-card,
+    .quiz-card,
+    .result-panel { padding: 24px; }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 16px;
+      color: white;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    .feature-card h3,
+    .path-card h3,
+    .theorem-card h3 { margin-bottom: 8px; font-size: 1.08rem; }
+    .feature-card p,
+    .path-card p,
+    .theorem-card p { color: var(--muted); font-size: 0.95rem; }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 7px 10px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      background: rgba(124,58,237,0.09);
+      color: var(--primary-2);
+    }
+
+    .path-card ul {
+      list-style: none;
+      margin: 14px 0 18px;
+      color: var(--muted);
+    }
+    .path-card li + li { margin-top: 8px; }
+    .path-link {
+      display: inline-block;
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+      margin-top: 4px;
+    }
+
+    .theorem-card {
+      min-height: 175px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(235,244,255,0.75));
+    }
+    .theorem-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 28px rgba(37,99,235,0.16);
+    }
+
+    .preview-board {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .preview-canvas-wrap {
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid var(--line);
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+      background: rgba(255,255,255,0.55);
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    body.dark-mode canvas {
+      background: rgba(15,23,42,0.55);
+    }
+
+    .control-panel {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .control-box {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid var(--line);
+    }
+
+    .control-box h3 {
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .control-box p,
+    .control-box li,
+    .control-box label {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .control-box ul {
+      padding-left: 18px;
+      margin-top: 10px;
+    }
+
+    .slider-group {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .slider-group input[type="range"] { width: 100%; }
+
+    .quiz-header { text-align: center; margin-bottom: 24px; }
+    .quiz-header h2 { font-size: 2rem; margin-bottom: 10px; }
+    .quiz-header p { color: var(--muted); }
+
+    .quiz-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 16px;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.72);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+    .stat-label { font-size: 0.88rem; color: var(--muted); margin-top: 4px; }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: rgba(37,99,235,0.10);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
+      transition: width 0.3s ease;
+    }
+
+    .question-card {
+      padding: 22px 0;
+      border-bottom: 1px solid rgba(37,99,235,0.10);
+    }
+    .question-card:last-child { border-bottom: none; }
+
+    .question-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .question-number {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .question-options { display: grid; gap: 12px; }
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      background: rgba(255,255,255,0.65);
+      cursor: pointer;
+    }
+    .option-item:hover { border-color: rgba(37,99,235,0.22); background: rgba(37,99,235,0.06); }
+    .option-item.selected { border-color: var(--primary); background: rgba(37,99,235,0.12); }
+    .option-item.correct { border-color: var(--success); background: rgba(22,163,74,0.10); }
+    .option-item.wrong { border-color: var(--danger); background: rgba(220,38,38,0.10); }
+    .option-item.disabled { cursor: not-allowed; opacity: 0.92; }
+
+    .option-radio {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid #b9c3d3; margin-top: 2px; flex-shrink: 0;
+    }
+    .option-item.selected .option-radio,
+    .option-item.correct .option-radio,
+    .option-item.wrong .option-radio { background: currentColor; border-color: currentColor; }
+
+    .question-result {
+      display: none;
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      color: var(--muted);
+    }
+    .question-result.show { display: block; }
+    .question-result.correct { background: rgba(22,163,74,0.10); border-left: 4px solid var(--success); }
+    .question-result.wrong { background: rgba(220,38,38,0.10); border-left: 4px solid var(--danger); }
+
+    .result-panel { display: none; text-align: center; }
+    .result-panel.show { display: block; }
+    .score-circle {
+      width: 144px; height: 144px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
+    .contact-wrap {
+      max-width: 840px;
+      margin: 0 auto;
+    }
+
+    .contact-form { display: grid; gap: 12px; margin-top: 18px; }
+    .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid rgba(37,99,235,0.14);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+    }
+    textarea { min-height: 130px; resize: vertical; }
+    body.dark-mode input,
+    body.dark-mode textarea,
+    body.dark-mode select {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-color: #334155;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      top: 92px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-12px);
+      transition: all 0.28s ease;
+      z-index: 60;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .site-footer {
+      padding: 22px 0 40px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-grid,
+      .preview-board,
+      .feature-grid,
+      .path-grid,
+      .theorem-grid,
+      .contact-info,
+      .quiz-stats-bar,
+      .quick-stats,
+      .result-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+      .floating-card { position: static; width: 100%; margin-top: 16px; }
+      .main-card { min-height: auto; }
+    }
+
+    @media (max-width: 760px) {
+      .toolbar, .site-header { position: static; }
+      .hero-grid,
+      .preview-board,
+      .feature-grid,
+      .path-grid,
+      .theorem-grid,
+      .contact-info,
+      .quiz-stats-bar,
+      .quick-stats,
+      .result-stats,
+      .mini-panel,
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .nav { padding: 14px 0; }
+      .nav-links { width: 100%; justify-content: space-between; }
+      h1 { font-size: 2.45rem; }
+      .section-head { flex-direction: column; align-items: flex-start; }
+      .toast { left: 16px; right: 16px; top: auto; bottom: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="container toolbar-inner">
+      <div class="toolbar-text" id="toolbarText">V2.5.a.3 第三次修改：双语切换与主题体验增强</div>
+      <div class="toolbar-actions">
+        <button class="btn btn-outline" id="langBtn">EN</button>
+        <button class="btn btn-outline" id="themeBtn">🌙 深色模式</button>
+        <button class="btn btn-outline" id="cbBtn">👁 色盲模式</button>
+      </div>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#home">
+        <span class="brand-badge">◯</span>
+        <span id="brandText">圆几何探索</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#home" id="navHome">首页</a>
+        <a href="#paths" id="navPaths">学习路径</a>
+        <a href="#preview" id="navPreview">学习预览</a>
+        <a href="#quiz" id="navQuiz">知识测验</a>
+        <a href="#contact" id="navContact">联系</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="btn btn-primary" href="#paths" id="startBtn">开始学习</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow" id="eyebrow">📐 适合 GCSE · 互动式 · 可视化</div>
+          <h1 id="heroTitle">让 <span class="highlight">圆几何学习</span> 更清晰、更顺畅、更有路径感</h1>
+          <p id="heroDesc">
+            本次第三次修改在第二次结构优化的基础上，进一步加入双语切换、主题切换与更完整的体验控制。
+            用户不仅能按路径学习，还能根据语言与视觉偏好自由切换页面模式。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#paths" id="heroBtnPaths">查看三大学习路径</a>
+            <a class="btn btn-outline" href="#preview" id="heroBtnPreview">查看交互预览</a>
+          </div>
+          <div class="quick-stats">
+            <div class="stat"><strong>4</strong><span id="stat1">核心定理模块</span></div>
+            <div class="stat"><strong>3</strong><span id="stat2">学习路径入口</span></div>
+            <div class="stat"><strong>10</strong><span id="stat3">知识测验题目</span></div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="main-card">
+            <div class="card-top">
+              <span class="pill" id="previewPill">实时概念预览</span>
+              <span class="muted" id="previewTag">定理 1</span>
+            </div>
+            <h2 class="lesson-title" id="lessonTitle">圆心角定理</h2>
+            <p class="lesson-subtitle" id="lessonSubtitle">同弧所对的圆心角等于圆周角的两倍。首页在第三次修改中开始加入双语与主题体验控制。</p>
+            <div class="diagram">
+              <div class="circle-demo" id="demoCircle">
+                <span class="center-dot" id="demoO"></span>
+                <span class="point" id="demoA"></span>
+                <span class="point" id="demoB"></span>
+                <span class="point c" id="demoC"></span>
+                <span class="line oa" id="demoOA"></span>
+                <span class="line ob" id="demoOB"></span>
+                <span class="line" id="demoCA"></span>
+                <span class="line" id="demoCB"></span>
+              </div>
+            </div>
+            <div class="mini-panel">
+              <div class="mini-card">
+                <small id="miniLabel1">圆周角</small>
+                <strong id="miniInscribed">∠ACB = 60°</strong>
+              </div>
+              <div class="mini-card">
+                <small id="miniLabel2">圆心角</small>
+                <strong id="miniCentral">∠AOB = 120°</strong>
+              </div>
+            </div>
+          </div>
+          <aside class="floating-card">
+            <h3 id="floatingTitle">第三次修改亮点</h3>
+            <p id="floatingDesc">在第二次结构优化的基础上，这一版进一步支持双语切换、深色模式与色盲模式。</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="paths" id="paths">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="pathsTitle">三大学习路径</h2>
+            <p id="pathsDesc">第三次修改保留清晰的三大学习路径，同时让不同语言和视觉偏好的用户都能更顺畅地使用页面。</p>
+          </div>
+        </div>
+        <div class="path-grid">
+          <article class="path-card">
+            <span class="tag" id="pathTag1">Learn</span>
+            <h3 id="pathTitle1">定理学习</h3>
+            <p id="pathDesc1">从四大核心定理切入，先理解定义、关系和图形意义，建立知识基础。</p>
+            <ul>
+              <li>圆心角定理</li>
+              <li>切线定理</li>
+              <li>弦的性质</li>
+              <li>圆周角定理</li>
+            </ul>
+            <a class="path-link" href="#theorems" id="pathLink1">查看定理入口 →</a>
+          </article>
+
+          <article class="path-card">
+            <span class="tag" id="pathTag2">Practice</span>
+            <h3 id="pathTitle2">交互理解</h3>
+            <p id="pathDesc2">通过滑块、图形变化和动画展示，观察定理在不同图形状态下如何始终成立。</p>
+            <ul>
+              <li>半径调节</li>
+              <li>角度变化</li>
+              <li>动态演示</li>
+            </ul>
+            <a class="path-link" href="#preview" id="pathLink2">进入交互预览 →</a>
+          </article>
+
+          <article class="path-card">
+            <span class="tag" id="pathTag3">Test</span>
+            <h3 id="pathTitle3">知识检验</h3>
+            <p id="pathDesc3">通过测验模块验证掌握情况，查看答题结果、正确率和错题解析。</p>
+            <ul>
+              <li>即时反馈</li>
+              <li>答题进度</li>
+              <li>结果统计</li>
+            </ul>
+            <a class="path-link" href="#quiz" id="pathLink3">开始知识测验 →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="featuresTitle">为什么这个首页更有效</h2>
+            <p id="featuresDesc">相比基础版的单页功能集合，这个版本继续把首页做成真正的学习门户：首页负责介绍、引导、分流和预览。</p>
+          </div>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="icon">🎯</div>
+            <h3 id="featureTitle1">学习目标更清晰</h3>
+            <p id="featureDesc1">用户打开页面后，能立刻理解网站的主题、重点知识和学习方向。</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">🧠</div>
+            <h3 id="featureTitle2">结构更有层次</h3>
+            <p id="featureDesc2">首页信息从“内容堆叠”变成“先介绍、再引导、后深入”的分层结构。</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">🧩</div>
+            <h3 id="featureTitle3">模块关系更顺</h3>
+            <p id="featureDesc3">学习、交互和测验之间的关系更自然，用户更容易理解使用顺序。</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">✅</div>
+            <h3 id="featureTitle4">更接近完整产品</h3>
+            <p id="featureDesc4">这一版已经从“网页页面”向“学习平台首页”迈进了一步。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="theorems">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="theoremsTitle">四大核心定理入口</h2>
+            <p id="theoremsDesc">第三次修改中，定理模块继续承担资源入口和学习导航作用，并增强了跨语言可访问性。</p>
+          </div>
+        </div>
+        <div class="theorem-grid">
+          <article class="theorem-card" data-theorem="1">
+            <h3 id="theoremCardTitle1">圆心角定理</h3>
+            <p id="theoremCardDesc1">圆心角等于其所对弧的圆周角的两倍。</p>
+            <span class="path-link" id="theoremCardLink1">跳转到交互区 →</span>
+          </article>
+          <article class="theorem-card" data-theorem="2">
+            <h3 id="theoremCardTitle2">切线定理</h3>
+            <p id="theoremCardDesc2">切线与过切点的半径垂直。</p>
+            <span class="path-link" id="theoremCardLink2">跳转到交互区 →</span>
+          </article>
+          <article class="theorem-card" data-theorem="3">
+            <h3 id="theoremCardTitle3">弦的性质</h3>
+            <p id="theoremCardDesc3">垂直于弦的直径会平分该弦。</p>
+            <span class="path-link" id="theoremCardLink3">跳转到交互区 →</span>
+          </article>
+          <article class="theorem-card" data-theorem="4">
+            <h3 id="theoremCardTitle4">圆周角定理</h3>
+            <p id="theoremCardDesc4">同弧所对的圆周角相等，并且等于圆心角的一半。</p>
+            <span class="path-link" id="theoremCardLink4">跳转到交互区 →</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="preview">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="previewTitle">交互学习预览</h2>
+            <p id="previewDesc">这里保留基础版中的核心交互逻辑，并在第三次修改中加入双语与主题模式适配。</p>
+          </div>
+        </div>
+
+        <div class="preview-board">
+          <div class="preview-canvas-wrap section-card">
+            <canvas id="geometryCanvas" width="620" height="420"></canvas>
+          </div>
+
+          <div class="control-panel">
+            <div class="control-box">
+              <h3 id="currentTheoremLabel">当前定理</h3>
+              <p id="theoremTitle">圆心角定理</p>
+              <p id="theoremDesc" style="margin-top:8px;">圆心角等于其所对弧的圆周角的两倍。</p>
+              <div class="preview-actions" style="margin-top:14px;">
+                <button class="btn btn-primary theoremBtn" data-id="1" id="theoremBtn1">圆心角</button>
+                <button class="btn btn-outline theoremBtn" data-id="2" id="theoremBtn2">切线</button>
+                <button class="btn btn-outline theoremBtn" data-id="3" id="theoremBtn3">弦</button>
+                <button class="btn btn-outline theoremBtn" data-id="4" id="theoremBtn4">圆周角</button>
+              </div>
+            </div>
+
+            <div class="control-box">
+              <h3 id="controlsTitle">参数调节</h3>
+              <div class="slider-group">
+                <label><span id="radiusLabelText">圆的半径：</span><span id="radiusValue">140</span> px</label>
+                <input type="range" id="radiusSlider" min="90" max="180" value="140" />
+                <label><span id="angleLabelText">角度：</span><span id="angleValue">60</span>°</label>
+                <input type="range" id="angleSlider" min="20" max="160" value="60" />
+              </div>
+              <div class="preview-actions" style="margin-top:14px;">
+                <button class="btn btn-primary" id="animateBtn">播放动画</button>
+                <button class="btn btn-outline" id="resetBtn">重置参数</button>
+              </div>
+            </div>
+
+            <div class="control-box">
+              <h3 id="positioningTitle">这一版的交互定位</h3>
+              <ul>
+                <li id="pos1">保留基础版的核心学习功能</li>
+                <li id="pos2">将交互区纳入完整学习路径中</li>
+                <li id="pos3">让首页先承担引导，再进入深入学习</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quiz">
+      <div class="container">
+        <div class="quiz-header">
+          <h2 id="quizTitle">圆几何知识测验</h2>
+          <p id="quizDesc">保留基础版测验系统的核心价值，并让它成为三大学习路径中的“检验环节”。</p>
+        </div>
+
+        <div class="quiz-stats-bar">
+          <div class="stat-item"><div class="stat-value">10</div><div class="stat-label" id="quizStat1">总题数</div></div>
+          <div class="stat-item"><div class="stat-value" id="answeredCount">0</div><div class="stat-label" id="quizStat2">已答题</div></div>
+          <div class="stat-item"><div class="stat-value" id="correctCountStat">0</div><div class="stat-label" id="quizStat3">当前正确</div></div>
+          <div class="stat-item"><div class="stat-value" id="highestStat">--</div><div class="stat-label" id="quizStat4">历史最高分</div></div>
+        </div>
+
+        <div class="progress-bar"><div class="progress-fill" id="quizProgress"></div></div>
+
+        <div class="result-panel" id="resultPanel">
+          <div class="score-circle" id="scoreCircle">0</div>
+          <h3 id="resultTitle">测验完成</h3>
+          <p class="muted" id="resultDesc">你已完成本轮知识测验。</p>
+          <div class="result-stats" style="margin-top:18px;">
+            <div class="stat"><strong id="finalCorrect">0</strong><span id="resultStat1">正确题数</span></div>
+            <div class="stat"><strong id="finalWrong">0</strong><span id="resultStat2">错误题数</span></div>
+            <div class="stat"><strong id="finalRate">0%</strong><span id="resultStat3">正确率</span></div>
+          </div>
+        </div>
+
+        <div class="quiz-card" id="quizCard"></div>
+
+        <div class="quiz-actions" style="justify-content:center; margin-top:16px;">
+          <button class="btn btn-outline" id="resetQuizBtn">重置答题</button>
+          <button class="btn btn-primary" id="submitQuizBtn" disabled>提交答案</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container contact-wrap">
+        <div class="section-head">
+          <div>
+            <h2 id="contactTitle">联系我们</h2>
+            <p id="contactDesc">联系模块仍被保留，并在第三次修改中继续作为完整学习闭环的一部分。</p>
+          </div>
+        </div>
+        <article class="contact-card">
+          <div class="contact-info" style="margin-bottom:18px;">
+            <div class="stat"><strong>📧</strong><span>contact@circlegeometry.com</span></div>
+            <div class="stat"><strong>📞</strong><span>+86 400-123-4567</span></div>
+            <div class="stat"><strong>📍</strong><span>北京市海淀区中关村大街</span></div>
+          </div>
+          <form class="contact-form" id="contactForm">
+            <div class="form-row">
+              <input type="text" id="name" placeholder="你的名字" required />
+              <input type="email" id="email" placeholder="你的邮箱" required />
+            </div>
+            <select id="subject">
+              <option value="" id="subjectDefault">请选择主题</option>
+              <option id="subject1">学习建议</option>
+              <option id="subject2">功能反馈</option>
+              <option id="subject3">Bug 报告</option>
+              <option id="subject4">合作咨询</option>
+            </select>
+            <textarea id="message" placeholder="请输入你的留言内容（至少10个字符）" required></textarea>
+            <div class="preview-actions">
+              <button class="btn btn-primary" type="submit" id="contactSubmit">提交留言</button>
+            </div>
+          </form>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container" id="footerText">© 2026 圆几何探索 · V2.5.a.3 第三次修改版：双语切换与主题体验增强</div>
+  </footer>
+
+  <div class="toast" id="toast">已保存</div>
+
+  <script>
+    const toast = document.getElementById('toast');
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+
+    const i18n = {
+      zh: {
+        toolbarText: 'V2.5.a.3 第三次修改：双语切换与主题体验增强',
+        brandText: '圆几何探索', navHome: '首页', navPaths: '学习路径', navPreview: '学习预览', navQuiz: '知识测验', navContact: '联系',
+        startBtn: '开始学习', eyebrow: '📐 适合 GCSE · 互动式 · 可视化',
+        heroTitle: '让 <span class="highlight">圆几何学习</span> 更清晰、更顺畅、更有路径感',
+        heroDesc: '本次第三次修改在第二次结构优化的基础上，进一步加入双语切换、主题切换与更完整的体验控制。用户不仅能按路径学习，还能根据语言与视觉偏好自由切换页面模式。',
+        heroBtnPaths: '查看三大学习路径', heroBtnPreview: '查看交互预览', stat1: '核心定理模块', stat2: '学习路径入口', stat3: '知识测验题目',
+        previewPill: '实时概念预览', previewTag: '定理 1', lessonTitle: '圆心角定理', lessonSubtitle: '同弧所对的圆心角等于圆周角的两倍。首页在第三次修改中开始加入双语与主题体验控制。',
+        miniLabel1: '圆周角', miniLabel2: '圆心角', floatingTitle: '第三次修改亮点', floatingDesc: '在第二次结构优化的基础上，这一版进一步支持双语切换、深色模式与色盲模式。',
+        pathsTitle: '三大学习路径', pathsDesc: '第三次修改保留清晰的三大学习路径，同时让不同语言和视觉偏好的用户都能更顺畅地使用页面。',
+        pathTag1: 'Learn', pathTitle1: '定理学习', pathDesc1: '从四大核心定理切入，先理解定义、关系和图形意义，建立知识基础。', pathLink1: '查看定理入口 →',
+        pathTag2: 'Practice', pathTitle2: '交互理解', pathDesc2: '通过滑块、图形变化和动画展示，观察定理在不同图形状态下如何始终成立。', pathLink2: '进入交互预览 →',
+        pathTag3: 'Test', pathTitle3: '知识检验', pathDesc3: '通过测验模块验证掌握情况，查看答题结果、正确率和错题解析。', pathLink3: '开始知识测验 →',
+        featuresTitle: '为什么这个首页更有效', featuresDesc: '相比基础版的单页功能集合，这个版本继续把首页做成真正的学习门户：首页负责介绍、引导、分流和预览。',
+        featureTitle1: '学习目标更清晰', featureDesc1: '用户打开页面后，能立刻理解网站的主题、重点知识和学习方向。',
+        featureTitle2: '结构更有层次', featureDesc2: '首页信息从“内容堆叠”变成“先介绍、再引导、后深入”的分层结构。',
+        featureTitle3: '模块关系更顺', featureDesc3: '学习、交互和测验之间的关系更自然，用户更容易理解使用顺序。',
+        featureTitle4: '更接近完整产品', featureDesc4: '这一版已经从“网页页面”向“学习平台首页”迈进了一步。',
+        theoremsTitle: '四大核心定理入口', theoremsDesc: '第三次修改中，定理模块继续承担资源入口和学习导航作用，并增强了跨语言可访问性。',
+        theoremCardTitle1: '圆心角定理', theoremCardDesc1: '圆心角等于其所对弧的圆周角的两倍。', theoremCardLink1: '跳转到交互区 →',
+        theoremCardTitle2: '切线定理', theoremCardDesc2: '切线与过切点的半径垂直。', theoremCardLink2: '跳转到交互区 →',
+        theoremCardTitle3: '弦的性质', theoremCardDesc3: '垂直于弦的直径会平分该弦。', theoremCardLink3: '跳转到交互区 →',
+        theoremCardTitle4: '圆周角定理', theoremCardDesc4: '同弧所对的圆周角相等，并且等于圆心角的一半。', theoremCardLink4: '跳转到交互区 →',
+        previewTitle: '交互学习预览', previewDesc: '这里保留基础版中的核心交互逻辑，并在第三次修改中加入双语与主题模式适配。', currentTheoremLabel: '当前定理', controlsTitle: '参数调节',
+        radiusLabelText: '圆的半径：', angleLabelText: '角度：', animateBtnIdle: '播放动画', animateBtnRun: '暂停动画', resetBtn: '重置参数',
+        positioningTitle: '这一版的交互定位', pos1: '保留基础版的核心学习功能', pos2: '将交互区纳入完整学习路径中', pos3: '让首页先承担引导，再进入深入学习',
+        theoremBtn1: '圆心角', theoremBtn2: '切线', theoremBtn3: '弦', theoremBtn4: '圆周角',
+        quizTitle: '圆几何知识测验', quizDesc: '保留基础版测验系统的核心价值，并让它成为三大学习路径中的“检验环节”。', quizStat1: '总题数', quizStat2: '已答题', quizStat3: '当前正确', quizStat4: '历史最高分',
+        resultTitleDefault: '测验完成', resultDescDefault: '你已完成本轮知识测验。', resultStat1: '正确题数', resultStat2: '错误题数', resultStat3: '正确率', resetQuizBtn: '重置答题', submitQuizBtn: '提交答案',
+        contactTitle: '联系我们', contactDesc: '联系模块仍被保留，并在第三次修改中继续作为完整学习闭环的一部分。', contactSubmit: '提交留言',
+        footerText: '© 2026 圆几何探索 · V2.5.a.3 第三次修改版：双语切换与主题体验增强',
+        themeOn: '🌙 深色模式', themeOff: '☀️ 浅色模式', cbOn: '👁 色盲模式', cbOff: '👁 标准模式', langBtn: 'EN',
+        subjectDefault: '请选择主题', subject1: '学习建议', subject2: '功能反馈', subject3: 'Bug 报告', subject4: '合作咨询',
+        namePlaceholder: '你的名字', emailPlaceholder: '你的邮箱', messagePlaceholder: '请输入你的留言内容（至少10个字符）',
+        toastDarkOn: '已切换为深色模式', toastDarkOff: '已切换为浅色模式', toastCbOn: '已开启色盲模式', toastCbOff: '已关闭色盲模式',
+        toastLang: '已切换为中文', toastReset: '已重置交互参数', toastTheorem: '已切换到', toastQuizDone: '测验完成，得分', toastQuizReset: '已重置答题', toastContactError: '请完整填写表单，留言至少10个字符', toastContactSuccess: '留言提交成功',
+        resultExcellent: '优秀！', resultExcellentDesc: '你对圆几何核心定理掌握得非常扎实。', resultGood: '良好！', resultGoodDesc: '你已经具备较好的理解，继续巩固细节会更好。', resultKeep: '继续提升', resultKeepDesc: '建议回到学习路径中的交互理解部分继续巩固。'
+      },
+      en: {
+        toolbarText: 'V2.5.a.3 Third Update: Bilingual Toggle and Theme Experience',
+        brandText: 'Circle Geometry Explorer', navHome: 'Home', navPaths: 'Learning Paths', navPreview: 'Preview', navQuiz: 'Quiz', navContact: 'Contact',
+        startBtn: 'Start Learning', eyebrow: '📐 GCSE-friendly · Interactive · Visual',
+        heroTitle: 'Make <span class="highlight">circle theorem learning</span> clearer, smoother, and more structured',
+        heroDesc: 'This third update builds on the second structural iteration by adding bilingual switching, theme controls, and a more inclusive experience. Learners can now follow the same path while choosing their preferred language and visual mode.',
+        heroBtnPaths: 'View 3 Learning Paths', heroBtnPreview: 'Open Interactive Preview', stat1: 'Core theorem modules', stat2: 'Learning path entries', stat3: 'Quiz questions',
+        previewPill: 'Live concept preview', previewTag: 'Theorem 1', lessonTitle: 'Angle at the Centre', lessonSubtitle: 'The angle at the centre is twice the angle at the circumference. The third update adds bilingual and theme-aware experience controls.',
+        miniLabel1: 'Inscribed angle', miniLabel2: 'Central angle', floatingTitle: 'What changed in v3', floatingDesc: 'On top of the improved homepage structure, this version adds bilingual support, dark mode, and colourblind mode.',
+        pathsTitle: 'Three Learning Paths', pathsDesc: 'The third update keeps the three-path learning structure while making it easier for users with different language and visual preferences to learn comfortably.',
+        pathTag1: 'Learn', pathTitle1: 'Theorem Learning', pathDesc1: 'Start with the four core theorems to build clear conceptual understanding and geometric meaning.', pathLink1: 'View theorem entry →',
+        pathTag2: 'Practice', pathTitle2: 'Interactive Understanding', pathDesc2: 'Use sliders, changing diagrams, and motion to observe why each theorem stays true.', pathLink2: 'Open interactive preview →',
+        pathTag3: 'Test', pathTitle3: 'Knowledge Check', pathDesc3: 'Use the quiz module to verify understanding and review accuracy with explanations.', pathLink3: 'Start the quiz →',
+        featuresTitle: 'Why this homepage works better', featuresDesc: 'Compared with the original single-page collection of functions, this version continues shaping the homepage into a real learning portal for introduction, guidance, routing, and preview.',
+        featureTitle1: 'Clearer learning goals', featureDesc1: 'Users can immediately understand the topic, the key knowledge, and the direction of study.',
+        featureTitle2: 'Better information hierarchy', featureDesc2: 'The homepage now moves from introduction to guidance and then to deeper learning.',
+        featureTitle3: 'Smoother module relationships', featureDesc3: 'Learning, interaction, and testing now connect more naturally.',
+        featureTitle4: 'Closer to a full product', featureDesc4: 'This version moves one step closer from a webpage to a real learning platform homepage.',
+        theoremsTitle: 'Four Core Theorem Entries', theoremsDesc: 'In the third update, the theorem module continues to work as both a learning entry point and a navigation resource, now with bilingual accessibility.',
+        theoremCardTitle1: 'Angle at the Centre', theoremCardDesc1: 'The angle at the centre is twice the angle at the circumference on the same arc.', theoremCardLink1: 'Jump to interaction →',
+        theoremCardTitle2: 'Tangent Theorem', theoremCardDesc2: 'A tangent is perpendicular to the radius at the point of contact.', theoremCardLink2: 'Jump to interaction →',
+        theoremCardTitle3: 'Chord Property', theoremCardDesc3: 'A diameter perpendicular to a chord bisects the chord.', theoremCardLink3: 'Jump to interaction →',
+        theoremCardTitle4: 'Inscribed Angle Theorem', theoremCardDesc4: 'Angles on the same arc are equal and each is half the central angle.', theoremCardLink4: 'Jump to interaction →',
+        previewTitle: 'Interactive Learning Preview', previewDesc: 'The core interaction logic from the base version remains here, now adapted for bilingual and theme-aware use.', currentTheoremLabel: 'Current theorem', controlsTitle: 'Controls',
+        radiusLabelText: 'Radius: ', angleLabelText: 'Angle: ', animateBtnIdle: 'Play animation', animateBtnRun: 'Pause animation', resetBtn: 'Reset values',
+        positioningTitle: 'Purpose of interaction in this version', pos1: 'Keep the core learning functions from the base version', pos2: 'Place interaction inside a full learning path', pos3: 'Let the homepage guide first, then move into deeper learning',
+        theoremBtn1: 'Central Angle', theoremBtn2: 'Tangent', theoremBtn3: 'Chord', theoremBtn4: 'Inscribed Angle',
+        quizTitle: 'Circle Geometry Quiz', quizDesc: 'The core quiz value from the base version remains here, now positioned clearly as the checking stage in the learning path.', quizStat1: 'Total', quizStat2: 'Answered', quizStat3: 'Correct', quizStat4: 'Highest',
+        resultTitleDefault: 'Quiz Completed', resultDescDefault: 'You have finished this round of the quiz.', resultStat1: 'Correct answers', resultStat2: 'Wrong answers', resultStat3: 'Accuracy', resetQuizBtn: 'Reset Quiz', submitQuizBtn: 'Submit Answers',
+        contactTitle: 'Contact Us', contactDesc: 'The contact module remains as part of the complete learning journey in the third update.', contactSubmit: 'Send Message',
+        footerText: '© 2026 Circle Geometry Explorer · V2.5.a.3 Third Update: Bilingual Toggle and Theme Experience',
+        themeOn: '🌙 Dark Mode', themeOff: '☀️ Light Mode', cbOn: '👁 Colourblind Mode', cbOff: '👁 Standard Mode', langBtn: '中文',
+        subjectDefault: 'Select a topic', subject1: 'Learning suggestion', subject2: 'Feature feedback', subject3: 'Bug report', subject4: 'Cooperation inquiry',
+        namePlaceholder: 'Your name', emailPlaceholder: 'Your email', messagePlaceholder: 'Enter your message (at least 10 characters)',
+        toastDarkOn: 'Switched to dark mode', toastDarkOff: 'Switched to light mode', toastCbOn: 'Colourblind mode enabled', toastCbOff: 'Colourblind mode disabled', toastLang: 'Switched to English',
+        toastReset: 'Interaction settings reset', toastTheorem: 'Switched to ', toastQuizDone: 'Quiz completed. Score', toastQuizReset: 'Quiz reset', toastContactError: 'Please complete the form. Message must be at least 10 characters.', toastContactSuccess: 'Message submitted successfully',
+        resultExcellent: 'Excellent!', resultExcellentDesc: 'You have a very strong grasp of the core circle theorems.', resultGood: 'Good job!', resultGoodDesc: 'You already understand the essentials quite well. Keep polishing the details.', resultKeep: 'Keep improving', resultKeepDesc: 'Go back to the interactive path to strengthen your understanding.'
+      }
+    };
+
+    let currentLang = localStorage.getItem('circle_v253_lang') || 'zh';
+    function t(key){ return i18n[currentLang][key] || key; }
+    function setText(id, value, html=false){ const el=document.getElementById(id); if(!el) return; html ? el.innerHTML=value : el.textContent=value; }
+    function updateModeButtons(){
+      document.getElementById('langBtn').textContent = t('langBtn');
+      document.getElementById('themeBtn').textContent = document.body.classList.contains('dark-mode') ? t('themeOff') : t('themeOn');
+      document.getElementById('cbBtn').textContent = document.body.classList.contains('colorblind-mode') ? t('cbOff') : t('cbOn');
+      document.getElementById('animateBtn').textContent = animating ? t('animateBtnRun') : t('animateBtnIdle');
+      document.getElementById('resetBtn').textContent = t('resetBtn');
+      document.getElementById('resetQuizBtn').textContent = t('resetQuizBtn');
+      document.getElementById('submitQuizBtn').textContent = t('submitQuizBtn');
+    }
+    function applyLanguage(){
+      const htmlKeys = new Set(['heroTitle','heroDesc']);
+      [
+        'toolbarText','brandText','navHome','navPaths','navPreview','navQuiz','navContact','startBtn','eyebrow','heroTitle','heroDesc','heroBtnPaths','heroBtnPreview','stat1','stat2','stat3',
+        'previewPill','previewTag','lessonTitle','lessonSubtitle','miniLabel1','miniLabel2','floatingTitle','floatingDesc','pathsTitle','pathsDesc','pathTag1','pathTitle1','pathDesc1','pathLink1','pathTag2','pathTitle2','pathDesc2','pathLink2','pathTag3','pathTitle3','pathDesc3','pathLink3',
+        'featuresTitle','featuresDesc','featureTitle1','featureDesc1','featureTitle2','featureDesc2','featureTitle3','featureDesc3','featureTitle4','featureDesc4','theoremsTitle','theoremsDesc','theoremCardTitle1','theoremCardDesc1','theoremCardLink1','theoremCardTitle2','theoremCardDesc2','theoremCardLink2','theoremCardTitle3','theoremCardDesc3','theoremCardLink3','theoremCardTitle4','theoremCardDesc4','theoremCardLink4',
+        'previewTitle','previewDesc','currentTheoremLabel','controlsTitle','radiusLabelText','angleLabelText','positioningTitle','pos1','pos2','pos3','quizTitle','quizDesc','quizStat1','quizStat2','quizStat3','quizStat4','resultStat1','resultStat2','resultStat3','contactTitle','contactDesc','contactSubmit','footerText'
+      ].forEach(k=>setText(k,t(k),htmlKeys.has(k)));
+      setText('theoremBtn1', t('theoremBtn1')); setText('theoremBtn2', t('theoremBtn2')); setText('theoremBtn3', t('theoremBtn3')); setText('theoremBtn4', t('theoremBtn4'));
+      setText('resultTitle', submitted ? document.getElementById('resultTitle').textContent : t('resultTitleDefault'));
+      if(!submitted) setText('resultDesc', t('resultDescDefault'));
+      document.getElementById('name').placeholder = t('namePlaceholder');
+      document.getElementById('email').placeholder = t('emailPlaceholder');
+      document.getElementById('message').placeholder = t('messagePlaceholder');
+      setText('subjectDefault', t('subjectDefault')); setText('subject1', t('subject1')); setText('subject2', t('subject2')); setText('subject3', t('subject3')); setText('subject4', t('subject4'));
+      theoremTitle.textContent = theoremMeta[currentTheorem].title[currentLang];
+      theoremDesc.textContent = theoremMeta[currentTheorem].desc[currentLang];
+      renderQuiz();
+      updateQuizProgress();
+      updateModeButtons();
+    }
+
+    window.addEventListener('load', () => {
+      if (localStorage.getItem('circle_v253_dark') === '1') document.body.classList.add('dark-mode');
+      if (localStorage.getItem('circle_v253_cb') === '1') document.body.classList.add('colorblind-mode');
+      applyLanguage();
+      document.body.classList.add('page-loaded');
+      setTimeout(startHeroDemo, 300);
+      loadHighestScore();
+    });
+
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('circle_v253_dark', document.body.classList.contains('dark-mode') ? '1' : '0');
+      updateModeButtons();
+      showToast(document.body.classList.contains('dark-mode') ? t('toastDarkOn') : t('toastDarkOff'));
+    });
+
+    document.getElementById('cbBtn').addEventListener('click', () => {
+      document.body.classList.toggle('colorblind-mode');
+      localStorage.setItem('circle_v253_cb', document.body.classList.contains('colorblind-mode') ? '1' : '0');
+      updateModeButtons();
+      showToast(document.body.classList.contains('colorblind-mode') ? t('toastCbOn') : t('toastCbOff'));
+    });
+
+    document.getElementById('langBtn').addEventListener('click', () => {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      localStorage.setItem('circle_v253_lang', currentLang);
+      if (!submitted) resultPanel.classList.remove('show');
+      applyLanguage();
+      showToast(t('toastLang'));
+    });
+
+    const demoCircle = document.getElementById('demoCircle');
+    const demoEls = {
+      O: document.getElementById('demoO'),
+      A: document.getElementById('demoA'),
+      B: document.getElementById('demoB'),
+      C: document.getElementById('demoC'),
+      OA: document.getElementById('demoOA'),
+      OB: document.getElementById('demoOB'),
+      CA: document.getElementById('demoCA'),
+      CB: document.getElementById('demoCB')
+    };
+    const miniInscribed = document.getElementById('miniInscribed');
+    const miniCentral = document.getElementById('miniCentral');
+    let heroAngle = 120;
+    let heroTimer = null;
+
+    function polarPoint(angleDeg, radius, center) {
+      const rad = angleDeg * Math.PI / 180;
+      return { x: center.x + radius * Math.cos(rad), y: center.y + radius * Math.sin(rad) };
+    }
+
+    function placePoint(el, p) {
+      el.style.left = `${p.x}px`;
+      el.style.top = `${p.y}px`;
+    }
+
+    function placeLine(el, p1, p2) {
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const len = Math.sqrt(dx*dx + dy*dy);
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      el.style.left = `${p1.x}px`;
+      el.style.top = `${p1.y}px`;
+      el.style.width = `${len}px`;
+      el.style.transform = `rotate(${angle}deg)`;
+    }
+
+    function updateHeroDemo() {
+      const center = { x: 110, y: 110 };
+      const radius = 92;
+      const O = center;
+      const A = polarPoint(-18, radius, center);
+      const B = polarPoint(heroAngle - 18, radius, center);
+      const C = polarPoint((heroAngle / 2) + 150, radius, center);
+      placePoint(demoEls.O, O);
+      placePoint(demoEls.A, A);
+      placePoint(demoEls.B, B);
+      placePoint(demoEls.C, C);
+      placeLine(demoEls.OA, O, A);
+      placeLine(demoEls.OB, O, B);
+      placeLine(demoEls.CA, C, A);
+      placeLine(demoEls.CB, C, B);
+      miniCentral.textContent = `∠AOB = ${heroAngle.toFixed(0)}°`;
+      miniInscribed.textContent = `∠ACB = ${(heroAngle/2).toFixed(0)}°`;
+    }
+
+    function startHeroDemo() {
+      if (heroTimer) return;
+      updateHeroDemo();
+      heroTimer = setInterval(() => {
+        heroAngle += 1.2;
+        if (heroAngle > 152) heroAngle = 56;
+        updateHeroDemo();
+      }, 40);
+    }
+
+    document.querySelectorAll('.theorem-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = Number(card.dataset.theorem);
+        selectTheorem(id);
+        document.getElementById('preview').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    const canvas = document.getElementById('geometryCanvas');
+    const ctx = canvas.getContext('2d');
+    const theoremTitle = document.getElementById('theoremTitle');
+    const theoremDesc = document.getElementById('theoremDesc');
+    const radiusSlider = document.getElementById('radiusSlider');
+    const angleSlider = document.getElementById('angleSlider');
+    const radiusValue = document.getElementById('radiusValue');
+    const angleValue = document.getElementById('angleValue');
+    const animateBtn = document.getElementById('animateBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const theoremMeta = {
+      1: { title: { zh: '圆心角定理', en: 'Angle at the Centre' }, desc: { zh: '圆心角等于其所对弧的圆周角的两倍。', en: 'The angle at the centre is twice the angle at the circumference standing on the same arc.' } },
+      2: { title: { zh: '切线定理', en: 'Tangent Theorem' }, desc: { zh: '圆的切线与过切点的半径垂直。', en: 'A tangent is perpendicular to the radius at the point of contact.' } },
+      3: { title: { zh: '弦的性质', en: 'Chord Property' }, desc: { zh: '垂直于弦的直径平分该弦。', en: 'A diameter perpendicular to a chord bisects the chord.' } },
+      4: { title: { zh: '圆周角定理', en: 'Inscribed Angle Theorem' }, desc: { zh: '同弧所对的圆周角相等，并等于圆心角的一半。', en: 'Angles standing on the same arc are equal and each is half the central angle.' } }
+    };
+
+    let currentTheorem = 1;
+    let radius = 140;
+    let angle = 60;
+    let animating = false;
+    let animationFrame = null;
+
+    document.querySelectorAll('.theoremBtn').forEach(btn => {
+      btn.addEventListener('click', () => selectTheorem(Number(btn.dataset.id)));
+    });
+
+    function updateTheoremButtons() {
+      document.querySelectorAll('.theoremBtn').forEach(btn => {
+        btn.className = Number(btn.dataset.id) === currentTheorem ? 'btn btn-primary theoremBtn' : 'btn btn-outline theoremBtn';
+      });
+    }
+
+    function selectTheorem(id) {
+      currentTheorem = id;
+      theoremTitle.textContent = theoremMeta[id].title[currentLang];
+      theoremDesc.textContent = theoremMeta[id].desc[currentLang];
+      updateTheoremButtons();
+      drawGeometry();
+      showToast(`${t('toastTheorem')}${theoremMeta[id].title[currentLang]}`);
+    }
+
+    radiusSlider.addEventListener('input', e => {
+      radius = Number(e.target.value);
+      radiusValue.textContent = radius;
+      drawGeometry();
+    });
+
+    angleSlider.addEventListener('input', e => {
+      angle = Number(e.target.value);
+      angleValue.textContent = angle;
+      drawGeometry();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      radius = 140;
+      angle = 60;
+      radiusSlider.value = radius;
+      angleSlider.value = angle;
+      radiusValue.textContent = radius;
+      angleValue.textContent = angle;
+      if (animating) toggleAnimation();
+      drawGeometry();
+      applyLanguage();
+      showToast(t('toastReset'));
+    });
+
+    animateBtn.addEventListener('click', toggleAnimation);
+
+    function toggleAnimation() {
+      animating = !animating;
+      animateBtn.textContent = animating ? t('animateBtnRun') : t('animateBtnIdle');
+      if (animating) animateGeometry();
+      else cancelAnimationFrame(animationFrame);
+    }
+
+    function animateGeometry() {
+      angle += 0.8;
+      if (angle > 160) angle = 25;
+      angleSlider.value = angle;
+      angleValue.textContent = angle.toFixed(0);
+      drawGeometry();
+      animationFrame = requestAnimationFrame(animateGeometry);
+    }
+
+    function circlePoint(centerX, centerY, r, deg) {
+      const rad = deg * Math.PI / 180;
+      return { x: centerX + r * Math.cos(rad), y: centerY + r * Math.sin(rad) };
+    }
+
+    function drawCircle(x, y, r) {
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary');
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function drawLine(p1, p2, color, width = 2) {
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function drawPoint(p, label, color) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.font = 'bold 14px Arial';
+      ctx.fillStyle = color;
+      ctx.fillText(label, p.x + 8, p.y - 8);
+    }
+
+    function drawText(text, x, y, color) {
+      ctx.font = '14px Arial';
+      ctx.fillStyle = color;
+      ctx.fillText(text, x, y);
+    }
+
+    function drawArc(centerX, centerY, r, start, end, color) {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, r, start, end);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function drawGeometry() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const center = { x: canvas.width / 2, y: canvas.height / 2 };
+      const primary = '#2563eb';
+      const secondary = '#7c3aed';
+      const accent = '#f59e0b';
+
+      drawCircle(center.x, center.y, radius);
+
+      if (currentTheorem === 1) {
+        const A = circlePoint(center.x, center.y, radius, 0);
+        const B = circlePoint(center.x, center.y, radius, angle);
+        const C = circlePoint(center.x, center.y, radius, angle / 2 + 180);
+        drawLine(center, A, primary, 3);
+        drawLine(center, B, primary, 3);
+        drawLine(C, A, secondary, 2);
+        drawLine(C, B, secondary, 2);
+        drawArc(center.x, center.y, 42, 0, angle * Math.PI/180, primary);
+        drawPoint(center, 'O', primary);
+        drawPoint(A, 'A', primary);
+        drawPoint(B, 'B', primary);
+        drawPoint(C, 'C', secondary);
+        drawText(`${currentLang==='zh'?'圆心角':'Central'}: ${angle.toFixed(0)}°`, center.x + 48, center.y - 16, primary);
+        drawText(`${currentLang==='zh'?'圆周角':'Inscribed'}: ${(angle/2).toFixed(0)}°`, C.x + 20, C.y - 12, secondary);
+      }
+
+      if (currentTheorem === 2) {
+        const P = circlePoint(center.x, center.y, radius, angle);
+        const tangentDir = (angle + 90) * Math.PI / 180;
+        const t1 = { x: P.x + 120 * Math.cos(tangentDir), y: P.y + 120 * Math.sin(tangentDir) };
+        const t2 = { x: P.x - 120 * Math.cos(tangentDir), y: P.y - 120 * Math.sin(tangentDir) };
+        drawLine(center, P, primary, 3);
+        drawLine(t1, t2, secondary, 3);
+        ctx.strokeStyle = accent;
+        ctx.strokeRect(P.x - 6, P.y - 6, 12, 12);
+        drawPoint(center, 'O', primary);
+        drawPoint(P, 'P', secondary);
+        drawText('90°', P.x + 14, P.y - 10, accent);
+        drawText(currentLang==='zh'?'切线与半径垂直':'Tangent ⟂ radius', center.x - 54, center.y + radius + 34, secondary);
+      }
+
+      if (currentTheorem === 3) {
+        const A = circlePoint(center.x, center.y, radius, 35);
+        const B = circlePoint(center.x, center.y, radius, 145);
+        const M = { x: (A.x + B.x)/2, y: (A.y + B.y)/2 };
+        const top = { x: center.x, y: center.y - radius };
+        const bottom = { x: center.x, y: center.y + radius };
+        drawLine(A, B, primary, 3);
+        drawLine(top, bottom, secondary, 2);
+        ctx.strokeStyle = accent;
+        ctx.strokeRect(M.x - 6, M.y - 6, 12, 12);
+        drawPoint(A, 'A', primary);
+        drawPoint(B, 'B', primary);
+        drawPoint(M, 'M', accent);
+        drawPoint(center, 'O', secondary);
+        drawText(currentLang==='zh'?'直径垂直平分弦':'Diameter bisects chord', center.x - 56, center.y + radius + 34, secondary);
+      }
+
+      if (currentTheorem === 4) {
+        const A = circlePoint(center.x, center.y, radius, 0);
+        const B = circlePoint(center.x, center.y, radius, angle);
+        const C = circlePoint(center.x, center.y, radius, angle / 2 + 90);
+        const D = circlePoint(center.x, center.y, radius, angle / 2 + 180);
+        drawLine(center, A, primary, 2);
+        drawLine(center, B, primary, 2);
+        drawLine(C, A, secondary, 2);
+        drawLine(C, B, secondary, 2);
+        drawLine(D, A, accent, 2);
+        drawLine(D, B, accent, 2);
+        drawPoint(center, 'O', primary);
+        drawPoint(A, 'A', primary);
+        drawPoint(B, 'B', primary);
+        drawPoint(C, 'C', secondary);
+        drawPoint(D, 'D', accent);
+        drawText(`${currentLang==='zh'?'两个圆周角':'Two inscribed angles'} = ${(angle/2).toFixed(0)}°`, center.x - 58, center.y + radius + 34, secondary);
+      }
+    }
+
+    drawGeometry();
+    updateTheoremButtons();
+
+    const quizBank = [
+      { id: 1, q: { zh:'在同一个圆中，圆心角为80°，则其所对弧的圆周角是多少？', en:'In the same circle, if the central angle is 80°, what is the inscribed angle on the same arc?' }, options: { zh:['80°','40°','160°','20°'], en:['80°','40°','160°','20°'] }, correct: 1, exp: { zh:'同弧所对的圆周角等于圆心角的一半，因此为40°。', en:'The inscribed angle is half of the central angle on the same arc, so it is 40°.' } },
+      { id: 2, q: { zh:'圆的切线与过切点的半径之间夹角是？', en:'What is the angle between a tangent and the radius through the point of contact?' }, options: { zh:['30°','60°','90°','180°'], en:['30°','60°','90°','180°'] }, correct: 2, exp: { zh:'切线与过切点的半径垂直，因此是90°。', en:'A tangent is perpendicular to the radius at the point of contact, so it is 90°.' } },
+      { id: 3, q: { zh:'直径垂直于弦时，会产生什么结论？', en:'If a diameter is perpendicular to a chord, what follows?' }, options: { zh:['弦被平分','圆被平分','切线被平分','角度翻倍'], en:['The chord is bisected','The circle is bisected','The tangent is bisected','The angle doubles'] }, correct: 0, exp: { zh:'垂直于弦的直径会平分该弦。', en:'A diameter perpendicular to a chord bisects the chord.' } },
+      { id: 4, q: { zh:'同弧所对的圆周角之间关系是？', en:'What is true about inscribed angles standing on the same arc?' }, options: { zh:['互补','相等','无关系','和为180°'], en:['Supplementary','Equal','Unrelated','Add to 180°'] }, correct: 1, exp: { zh:'同弧所对的圆周角相等。', en:'Inscribed angles standing on the same arc are equal.' } },
+      { id: 5, q: { zh:'若圆周角是35°，则同弧所对圆心角是？', en:'If an inscribed angle is 35°, what is the central angle on the same arc?' }, options: { zh:['35°','70°','17.5°','140°'], en:['35°','70°','17.5°','140°'] }, correct: 1, exp: { zh:'圆心角是圆周角的两倍，因此是70°。', en:'The central angle is twice the inscribed angle, so it is 70°.' } },
+      { id: 6, q: { zh:'直径所对的圆周角恒为？', en:'An angle subtended by a diameter at the circumference is always?' }, options: { zh:['45°','60°','90°','120°'], en:['45°','60°','90°','120°'] }, correct: 2, exp: { zh:'直径所对的圆周角恒为直角。', en:'The angle in a semicircle is always a right angle.' } },
+      { id: 7, q: { zh:'同弧所对圆心角和圆周角之比为？', en:'What is the ratio of a central angle to an inscribed angle on the same arc?' }, options: { zh:['1:2','2:1','1:1','4:1'], en:['1:2','2:1','1:1','4:1'] }, correct: 1, exp: { zh:'圆心角是圆周角两倍，所以比是2:1。', en:'The central angle is twice the inscribed angle, so the ratio is 2:1.' } },
+      { id: 8, q: { zh:'切线定理最核心的几何关系是？', en:'What is the key geometric relation in the tangent theorem?' }, options: { zh:['相等','平行','垂直','重合'], en:['Equal','Parallel','Perpendicular','Coincident'] }, correct: 2, exp: { zh:'切线与半径垂直。', en:'The tangent is perpendicular to the radius.' } },
+      { id: 9, q: { zh:'弦AB长度为12，若直径垂直于它，则弦被分成两段各为？', en:'If chord AB has length 12 and a diameter is perpendicular to it, each half is?' }, options: { zh:['3','4','6','12'], en:['3','4','6','12'] }, correct: 2, exp: { zh:'弦被平分，因此每段是6。', en:'The chord is bisected, so each half is 6.' } },
+      { id: 10, q: { zh:'圆周角定理可用于说明什么？', en:'What can the inscribed angle theorem be used to show?' }, options: { zh:['同弧角不相等','同弧角相等','切线平行半径','弦一定过圆心'], en:['Angles on the same arc are not equal','Angles on the same arc are equal','The tangent is parallel to the radius','A chord always passes through the centre'] }, correct: 1, exp: { zh:'同弧所对圆周角相等。', en:'Angles standing on the same arc are equal.' } }
+    ];
+
+    let answers = {};
+    let submitted = false;
+    const quizCard = document.getElementById('quizCard');
+    const submitQuizBtn = document.getElementById('submitQuizBtn');
+    const resetQuizBtn = document.getElementById('resetQuizBtn');
+    const answeredCount = document.getElementById('answeredCount');
+    const correctCountStat = document.getElementById('correctCountStat');
+    const highestStat = document.getElementById('highestStat');
+    const quizProgress = document.getElementById('quizProgress');
+    const resultPanel = document.getElementById('resultPanel');
+    const scoreCircle = document.getElementById('scoreCircle');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultDesc = document.getElementById('resultDesc');
+    const finalCorrect = document.getElementById('finalCorrect');
+    const finalWrong = document.getElementById('finalWrong');
+    const finalRate = document.getElementById('finalRate');
+
+    function renderQuiz() {
+      quizCard.innerHTML = quizBank.map((item, index) => `
+        <div class="question-card" id="q-${item.id}">
+          <div class="question-head">
+            <div class="question-number">${index + 1}</div>
+            <div>
+              <div style="font-weight:700; font-size:1.02rem;">${item.q[currentLang]}</div>
+            </div>
+          </div>
+          <div class="question-options">
+            ${item.options[currentLang].map((opt, optIndex) => `
+              <div class="option-item" data-qid="${item.id}" data-opt="${optIndex}">
+                <div class="option-radio"></div>
+                <div>${opt}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="question-result" id="result-${item.id}"></div>
+        </div>
+      `).join('');
+
+      quizCard.querySelectorAll('.option-item').forEach(el => {
+        el.addEventListener('click', () => {
+          if (submitted) return;
+          const qid = Number(el.dataset.qid);
+          const opt = Number(el.dataset.opt);
+          answers[qid] = opt;
+          quizCard.querySelectorAll(`.option-item[data-qid="${qid}"]`).forEach(node => node.classList.remove('selected'));
+          el.classList.add('selected');
+          updateQuizProgress();
+        });
+      });
+    }
+
+    function updateQuizProgress() {
+      const totalAnswered = Object.keys(answers).length;
+      answeredCount.textContent = totalAnswered;
+      quizProgress.style.width = `${(totalAnswered / quizBank.length) * 100}%`;
+      submitQuizBtn.disabled = totalAnswered !== quizBank.length;
+    }
+
+    function loadHighestScore() {
+      const highest = Number(localStorage.getItem('circle_v252_highest') || 0);
+      highestStat.textContent = highest > 0 ? highest : '--';
+    }
+
+    function submitQuiz() {
+      if (submitted) return;
+      submitted = true;
+      let correct = 0;
+
+      quizBank.forEach(item => {
+        const selected = answers[item.id];
+        const resultEl = document.getElementById(`result-${item.id}`);
+        const optionEls = quizCard.querySelectorAll(`.option-item[data-qid="${item.id}"]`);
+        optionEls.forEach((el, idx) => {
+          el.classList.add('disabled');
+          if (idx === item.correct) el.classList.add('correct');
+          if (idx === selected && idx !== item.correct) el.classList.add('wrong');
+        });
+        if (selected === item.correct) {
+          correct += 1;
+          resultEl.className = 'question-result show correct';
+          resultEl.textContent = currentLang==='zh' ? `回答正确。解析：${item.exp[currentLang]}` : `Correct. Explanation: ${item.exp[currentLang]}`;
+        } else {
+          resultEl.className = 'question-result show wrong';
+          resultEl.textContent = currentLang==='zh' ? `回答错误。正确答案：${item.options[currentLang][item.correct]}。解析：${item.exp[currentLang]}` : `Incorrect. Correct answer: ${item.options[currentLang][item.correct]}. Explanation: ${item.exp[currentLang]}`;
+        }
+      });
+
+      const score = Math.round((correct / quizBank.length) * 100);
+      const wrong = quizBank.length - correct;
+      const rate = `${score}%`;
+      correctCountStat.textContent = correct;
+      scoreCircle.textContent = score;
+      finalCorrect.textContent = correct;
+      finalWrong.textContent = wrong;
+      finalRate.textContent = rate;
+      resultPanel.classList.add('show');
+
+      if (score >= 90) {
+        resultTitle.textContent = t('resultExcellent');
+        resultDesc.textContent = t('resultExcellentDesc');
+      } else if (score >= 70) {
+        resultTitle.textContent = t('resultGood');
+        resultDesc.textContent = t('resultGoodDesc');
+      } else {
+        resultTitle.textContent = t('resultKeep');
+        resultDesc.textContent = t('resultKeepDesc');
+      }
+
+      const highest = Number(localStorage.getItem('circle_v252_highest') || 0);
+      if (score > highest) {
+        localStorage.setItem('circle_v252_highest', String(score));
+      }
+      loadHighestScore();
+      showToast(currentLang==='zh' ? `${t('toastQuizDone')} ${score} 分` : `${t('toastQuizDone')} ${score}`);
+    }
+
+    function resetQuiz() {
+      answers = {};
+      submitted = false;
+      correctCountStat.textContent = '0';
+      resultPanel.classList.remove('show');
+      renderQuiz();
+      updateQuizProgress();
+      showToast(t('toastQuizReset'));
+    }
+
+    submitQuizBtn.addEventListener('click', submitQuiz);
+    resetQuizBtn.addEventListener('click', resetQuiz);
+    renderQuiz();
+    updateQuizProgress();
+
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      if (!name || !email || message.length < 10) {
+        showToast(t('toastContactError'));
+        return;
+      }
+      e.target.reset();
+      showToast(t('toastContactSuccess'));
+    });
+  </script>
+</body>
+</html>

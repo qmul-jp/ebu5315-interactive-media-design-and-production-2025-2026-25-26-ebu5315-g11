@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>圆几何探索 · V2.5.a.5</title>
+  <style>
+    :root {
+      --bg: #f4f8ff;
+      --bg-soft: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(240,246,255,0.82));
+      --card: rgba(255,255,255,0.84);
+      --text: #16324f;
+      --muted: #5f7691;
+      --primary: #2563eb;
+      --primary-2: #7c3aed;
+      --accent: #06b6d4;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --line: rgba(37, 99, 235, 0.12);
+      --shadow: 0 18px 45px rgba(37, 99, 235, 0.14);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(124,58,237,0.14), transparent 24%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background 0.3s ease, color 0.3s ease, opacity 0.8s ease;
+      opacity: 0;
+    }
+
+    body.page-loaded { opacity: 1; }
+
+    body.dark-mode {
+      --bg: #0f172a;
+      --bg-soft: linear-gradient(180deg, rgba(30,41,59,0.96), rgba(17,24,39,0.88));
+      --card: rgba(30,41,59,0.84);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --line: rgba(255,255,255,0.08);
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(124,58,237,0.10), transparent 24%),
+        #0f172a;
+    }
+
+    body.colorblind-mode {
+      --primary: #005fcc;
+      --primary-2: #6b3fd6;
+      --accent: #d97706;
+      --text: #102a43;
+      --muted: #486581;
+      --line: rgba(0,95,204,0.20);
+    }
+
+    body.dark-mode.colorblind-mode {
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --line: rgba(255,255,255,0.18);
+    }
+
+    .container {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(14px);
+      background: rgba(244,248,255,0.75);
+      border-bottom: 1px solid rgba(37,99,235,0.08);
+    }
+
+    body.dark-mode .site-header {
+      background: rgba(15,23,42,0.78);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      padding: 10px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: var(--shadow);
+    }
+
+    .nav-links, .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover { color: var(--primary); }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(37,99,235,0.14);
+    }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.82);
+      color: var(--primary);
+      border: 1px solid rgba(37,99,235,0.12);
+    }
+
+    .btn-ghost {
+      background: rgba(37,99,235,0.06);
+      color: var(--primary);
+      border: 1px solid rgba(37,99,235,0.10);
+    }
+
+    body.dark-mode .btn-outline {
+      background: rgba(30,41,59,0.85);
+      color: #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .hero {
+      padding: 52px 0 24px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(37,99,235,0.08);
+      color: var(--primary);
+      border-radius: 999px;
+      font-size: 0.92rem;
+      margin-bottom: 18px;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      line-height: 1.05;
+      margin-bottom: 14px;
+    }
+
+    .highlight {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy p {
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin-bottom: 24px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .card, .stat, .feature-card, .module-card, .theorem-card, .side-card, .quiz-card, .contact-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.72);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    body.dark-mode .card,
+    body.dark-mode .stat,
+    body.dark-mode .feature-card,
+    body.dark-mode .module-card,
+    body.dark-mode .theorem-card,
+    body.dark-mode .side-card,
+    body.dark-mode .quiz-card,
+    body.dark-mode .contact-card {
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    body.colorblind-mode .card,
+    body.colorblind-mode .stat,
+    body.colorblind-mode .feature-card,
+    body.colorblind-mode .module-card,
+    body.colorblind-mode .theorem-card,
+    body.colorblind-mode .side-card,
+    body.colorblind-mode .quiz-card,
+    body.colorblind-mode .contact-card {
+      border: 2px solid rgba(0,95,204,0.20);
+    }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 14px;
+    }
+
+    .stat {
+      padding: 18px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .hero-card {
+      background: var(--bg-soft);
+      border-radius: 30px;
+      padding: 24px;
+      overflow: hidden;
+      min-height: 450px;
+    }
+
+    .hero-card h3 {
+      font-size: 1.35rem;
+      margin-bottom: 8px;
+    }
+
+    .hero-card p {
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .preview-board {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .preview-panel {
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid rgba(37,99,235,0.10);
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(37,99,235,0.08);
+    }
+
+    body.dark-mode .mini-item {
+      background: rgba(30,41,59,0.72);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    section {
+      padding: 26px 0 18px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .section-head h2 {
+      font-size: 1.9rem;
+      margin-bottom: 6px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      max-width: 64ch;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card, .module-card, .theorem-card, .side-card, .quiz-card, .contact-card {
+      padding: 22px 24px;
+    }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      color: white;
+      font-size: 1.2rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    .feature-card h3,
+    .module-card h3,
+    .theorem-card h3,
+    .side-card h3,
+    .quiz-card h3,
+    .contact-card h3 {
+      margin-bottom: 8px;
+    }
+
+    .feature-card p,
+    .module-card p,
+    .theorem-card p,
+    .side-card p,
+    .quiz-card p,
+    .contact-card p {
+      color: var(--muted);
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 7px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: rgba(124,58,237,0.09);
+      color: var(--primary-2);
+    }
+
+    .module-card ul, .side-list {
+      list-style: none;
+      margin-top: 12px;
+      color: var(--muted);
+    }
+
+    .module-card li + li,
+    .side-list li + li {
+      margin-top: 8px;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr 0.8fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .theorem-toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 14px 0 14px;
+    }
+
+    .search-input, .filter-select, .contact-form input, .contact-form textarea {
+      width: 100%;
+      border: 1px solid rgba(37,99,235,0.12);
+      border-radius: 16px;
+      padding: 13px 15px;
+      font: inherit;
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+    }
+
+    body.dark-mode .search-input,
+    body.dark-mode .filter-select,
+    body.dark-mode .contact-form input,
+    body.dark-mode .contact-form textarea {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+    }
+
+    .theorem-list {
+      display: grid;
+      gap: 12px;
+      max-height: 700px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .theorem-card {
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .theorem-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(37,99,235,0.16);
+    }
+
+    .theorem-card.active {
+      border-color: rgba(37,99,235,0.32);
+      outline: 2px solid rgba(37,99,235,0.18);
+    }
+
+    .theorem-card.completed {
+      outline: 2px solid rgba(22,163,74,0.28);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .status-learned { background: rgba(22,163,74,0.10); color: var(--success); }
+    .status-review  { background: rgba(217,119,6,0.10); color: var(--warning); }
+    .status-neutral { background: rgba(37,99,235,0.08); color: var(--primary); }
+
+    .lab-main {
+      display: grid;
+      gap: 16px;
+    }
+
+    .lab-header {
+      padding: 22px 24px;
+    }
+
+    .lab-header p { color: var(--muted); }
+
+    .info-box {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(37,99,235,0.06);
+      border: 1px solid rgba(37,99,235,0.10);
+    }
+
+    .info-box p { color: var(--muted); }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(37,99,235,0.03), rgba(124,58,237,0.04)),
+        #fafcff;
+      display: block;
+    }
+
+    body.dark-mode canvas {
+      background:
+        linear-gradient(180deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08)),
+        #0f172a;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .control-row label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .control-row input[type="range"] {
+      width: 100%;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .score-item {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid rgba(37,99,235,0.08);
+      text-align: center;
+    }
+
+    .score-item strong {
+      display: block;
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .quiz-question {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .option-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .option-btn {
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(37,99,235,0.12);
+      background: rgba(255,255,255,0.82);
+      cursor: pointer;
+      color: var(--text);
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .option-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37,99,235,0.30);
+      background: rgba(37,99,235,0.05);
+    }
+
+    body.dark-mode .option-btn {
+      background: rgba(30,41,59,0.82);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      display: none;
+    }
+
+    .feedback.show { display: block; }
+    .feedback.success {
+      background: rgba(22,163,74,0.10);
+      color: var(--success);
+      border: 1px solid rgba(22,163,74,0.18);
+    }
+    .feedback.error {
+      background: rgba(220,38,38,0.10);
+      color: var(--danger);
+      border: 1px solid rgba(220,38,38,0.18);
+    }
+
+    .progress-shell {
+      margin-top: 14px;
+      background: rgba(37,99,235,0.08);
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      transition: width 0.3s ease;
+    }
+
+    .side-card {
+      display: grid;
+      gap: 16px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .side-section {
+      padding-bottom: 2px;
+      border-bottom: 1px dashed rgba(37,99,235,0.12);
+    }
+
+    .side-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .side-section h4 {
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .side-section p,
+    .activity-item,
+    .review-item {
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .activity-item, .review-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid rgba(37,99,235,0.08);
+    }
+
+    .review-item strong,
+    .activity-item strong {
+      color: var(--text);
+    }
+
+    .activity-meta {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .contact-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .site-footer {
+      padding: 22px 0 40px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    @media (max-width: 1180px) {
+      .workspace-grid { grid-template-columns: 1fr 1fr; }
+      .workspace-grid > :last-child { grid-column: 1 / -1; }
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .quick-stats { grid-template-columns: repeat(3, 1fr); }
+      .scoreboard { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 860px) {
+      .hero-grid,
+      .module-grid,
+      .workspace-grid,
+      .preview-board,
+      .feature-grid,
+      .quick-stats,
+      .scoreboard {
+        grid-template-columns: 1fr;
+      }
+      .nav { align-items: flex-start; }
+      h1 { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#home">
+        <span class="brand-badge">◯</span>
+        <span data-i18n="brand">Circle Theorems Learning Hub</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#home" data-i18n="navHome">Home</a>
+        <a href="#highlights" data-i18n="navHighlights">Highlights</a>
+        <a href="#modules" data-i18n="navModules">Modules</a>
+        <a href="#workspace" data-i18n="navWorkspace">Workspace</a>
+        <a href="#contact" data-i18n="navContact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn btn-outline" id="langBtn">中文</button>
+        <button class="btn btn-outline" id="themeBtn">🌙 Dark</button>
+        <button class="btn btn-outline" id="cbBtn">👁 Colorblind</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow" data-i18n="eyebrow">📐 Revision 5 • Systematic Learning • Review Ready</div>
+          <h1 data-i18n="heroTitle">Turn circle theorem study into a <span class="highlight">trackable learning system</span>.</h1>
+          <p data-i18n="heroDesc">This next version builds on the previous independent learning module and pushes it further into a study workspace: searchable theorem library, review queue, learning log, and exportable progress.</p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#workspace" data-i18n="heroPrimary">Open Workspace</a>
+            <a class="btn btn-outline" href="#modules" data-i18n="heroSecondary">See What’s New</a>
+          </div>
+
+          <div class="quick-stats">
+            <div class="stat"><strong id="statLearned">0</strong><span data-i18n="statLearned">Learned theorems</span></div>
+            <div class="stat"><strong id="statCorrect">0</strong><span data-i18n="statCorrect">Correct checks</span></div>
+            <div class="stat"><strong id="statMistakes">0</strong><span data-i18n="statMistakes">Review items</span></div>
+            <div class="stat"><strong id="statVisits">1</strong><span data-i18n="statVisits">Visits</span></div>
+            <div class="stat"><strong id="statProgress">0%</strong><span data-i18n="statProgress">Overall progress</span></div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="eyebrow" style="margin-bottom: 12px;" data-i18n="previewBadge">Study Dashboard Preview</div>
+          <h3 data-i18n="previewTitle">One page, three layers of learning</h3>
+          <p data-i18n="previewDesc">This revision adds a searchable theorem library, a focused interactive lab, and a side dashboard for activity, review, and export.</p>
+
+          <div class="preview-board">
+            <div class="preview-panel">
+              <div class="tag" data-i18n="previewTag1">Layer 1</div>
+              <div class="mini-list">
+                <div class="mini-item" data-i18n="previewItem1">Search and filter theorem modules</div>
+                <div class="mini-item" data-i18n="previewItem2">Open the active theorem in the lab</div>
+                <div class="mini-item" data-i18n="previewItem3">Track which theorem is completed</div>
+              </div>
+            </div>
+            <div class="preview-panel">
+              <div class="tag" data-i18n="previewTag2">Layer 2</div>
+              <div class="mini-list">
+                <div class="mini-item" data-i18n="previewItem4">See recent activity</div>
+                <div class="mini-item" data-i18n="previewItem5">Review incorrect checks later</div>
+                <div class="mini-item" data-i18n="previewItem6">Export progress as JSON</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="highlights">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="highlightsTitle">What changed in revision 5</h2>
+            <p data-i18n="highlightsDesc">The previous version made the learning module more independent. This version makes it more systematic, searchable, and ready for long-term use.</p>
+          </div>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="icon">🔎</div>
+            <h3 data-i18n="feature1Title">Searchable theorem library</h3>
+            <p data-i18n="feature1Desc">Users can search by theorem name and filter by completion state, making the module feel more like a real resource library.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">🧠</div>
+            <h3 data-i18n="feature2Title">Review queue</h3>
+            <p data-i18n="feature2Desc">Wrong answers are not lost. They feed into a review panel so learners know what still needs attention.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">📝</div>
+            <h3 data-i18n="feature3Title">Learning log</h3>
+            <p data-i18n="feature3Desc">Each meaningful action writes to a recent activity log, helping users see what they just completed.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">📦</div>
+            <h3 data-i18n="feature4Title">Progress export</h3>
+            <p data-i18n="feature4Desc">Progress can now be exported as structured data, which makes the system feel more complete and portfolio-ready.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="modules">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="modulesTitle">New study modules</h2>
+            <p data-i18n="modulesDesc">This version is organized like a study workspace rather than only a content page. Each part now has a clearer role.</p>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <article class="module-card">
+            <span class="tag" data-i18n="module1Tag">Module 1</span>
+            <h3 data-i18n="module1Title">Theorem library</h3>
+            <p data-i18n="module1Desc">Browse, search, and filter theorem cards. This turns theorem study into an actual library experience.</p>
+            <ul>
+              <li data-i18n="module1Item1">Keyword search</li>
+              <li data-i18n="module1Item2">All / learned / review filters</li>
+              <li data-i18n="module1Item3">Click any theorem to load it</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <span class="tag" data-i18n="module2Tag">Module 2</span>
+            <h3 data-i18n="module2Title">Interactive lab</h3>
+            <p data-i18n="module2Desc">The active theorem stays at the center of the workspace, with geometry drawing, controls, and a short check.</p>
+            <ul>
+              <li data-i18n="module2Item1">Canvas demonstration</li>
+              <li data-i18n="module2Item2">Parameter controls</li>
+              <li data-i18n="module2Item3">Immediate theorem check</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <span class="tag" data-i18n="module3Tag">Module 3</span>
+            <h3 data-i18n="module3Title">Review + export panel</h3>
+            <p data-i18n="module3Desc">The system now remembers what needs revision and allows users to export their current study data.</p>
+            <ul>
+              <li data-i18n="module3Item1">Recent actions log</li>
+              <li data-i18n="module3Item2">Review queue from mistakes</li>
+              <li data-i18n="module3Item3">Progress export button</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workspace">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="workspaceTitle">Learning workspace</h2>
+            <p data-i18n="workspaceDesc">Search a theorem on the left, study it in the center, and manage progress and review from the right panel.</p>
+          </div>
+        </div>
+
+        <div class="workspace-grid">
+          <div class="card">
+            <div class="theorem-toolbar">
+              <input class="search-input" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="Search theorem...">
+              <select class="filter-select" id="filterSelect">
+                <option value="all" data-i18n="filterAll">All</option>
+                <option value="learned" data-i18n="filterLearned">Learned</option>
+                <option value="review" data-i18n="filterReview">Need review</option>
+                <option value="fresh" data-i18n="filterFresh">Not learned</option>
+              </select>
+            </div>
+
+            <div class="theorem-list" id="theoremList"></div>
+          </div>
+
+          <div class="lab-main">
+            <div class="card lab-header">
+              <div class="tag" id="currentTheoremTag">Theorem 1</div>
+              <h3 id="currentTheoremTitle">Angle at the centre</h3>
+              <p id="currentTheoremDesc">The angle at the centre is twice the angle at the circumference standing on the same arc.</p>
+
+              <div class="info-box">
+                <p id="currentTheoremExplain">As the central angle changes, the inscribed angle changes with it and stays exactly half as large.</p>
+              </div>
+
+              <div class="status-row">
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <span class="status-chip status-neutral" id="currentStatusChip" data-i18n="statusCurrent">Current theorem</span>
+                  <span class="status-chip status-review" id="reviewCountChip">0 review</span>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <button class="btn btn-primary" id="markCompleteBtn" data-i18n="completeBtn">Mark as learned</button>
+                  <button class="btn btn-ghost" id="resetCanvasBtn" data-i18n="resetBtn">Reset lab</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="padding: 22px 24px;">
+              <canvas id="geometryCanvas" width="700" height="430"></canvas>
+
+              <div class="controls">
+                <div class="control-row">
+                  <label for="radiusRange" data-i18n="radiusLabel">Radius</label>
+                  <input type="range" id="radiusRange" min="90" max="175" value="130">
+                </div>
+                <div class="control-row">
+                  <label for="angleRange" data-i18n="angleLabel">Angle</label>
+                  <input type="range" id="angleRange" min="20" max="160" value="70">
+                </div>
+              </div>
+
+              <div class="progress-shell">
+                <div class="progress-fill" id="progressFill"></div>
+              </div>
+
+              <div class="scoreboard" style="margin-top: 16px;">
+                <div class="score-item"><strong id="scoreLearned">0</strong><span data-i18n="scoreLearned">Learned</span></div>
+                <div class="score-item"><strong id="scoreCorrect">0</strong><span data-i18n="scoreCorrect">Correct</span></div>
+                <div class="score-item"><strong id="scoreReview">0</strong><span data-i18n="scoreReview">Review queue</span></div>
+                <div class="score-item"><strong id="scoreProgress">0%</strong><span data-i18n="scoreProgress">Completion</span></div>
+              </div>
+
+              <div class="quiz-card" style="margin-top: 16px;">
+                <h3 data-i18n="quizTitle">Quick theorem check</h3>
+                <div class="quiz-question" id="quizQuestion">Which statement matches the current theorem?</div>
+                <div class="option-list" id="quizOptions"></div>
+                <div class="feedback" id="quizFeedback"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-section">
+              <h4 data-i18n="sideTitle1">Recent activity</h4>
+              <div class="stack" id="activityLog"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle2">Review queue</h4>
+              <div class="stack" id="reviewQueue"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle3">Data tools</h4>
+              <p data-i18n="sideDesc3">Export the current learning state as a JSON file for documentation or testing.</p>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+                <button class="btn btn-outline" id="exportBtn" data-i18n="exportBtn">Export progress</button>
+                <button class="btn btn-ghost" id="clearLogBtn" data-i18n="clearLogBtn">Clear log</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="contactTitle">Contact and reflection</h2>
+            <p data-i18n="contactDesc">This section stays simple, but now it sits under a much more complete study workflow than before.</p>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <h3 data-i18n="contactHeading">Leave a revision note</h3>
+          <p data-i18n="contactBody">Use this space to summarise what improved in this version, what still needs refinement, and what should be moved into the next major upgrade.</p>
+          <form class="contact-form" onsubmit="event.preventDefault(); alert(currentLang === 'zh' ? '已记录版本备注（演示版）' : 'Revision note recorded (demo)');">
+            <input type="text" data-i18n-placeholder="contactName" placeholder="Your name">
+            <input type="email" data-i18n-placeholder="contactEmail" placeholder="Your email">
+            <textarea data-i18n-placeholder="contactMsg" placeholder="Write your revision note..."></textarea>
+            <button class="btn btn-primary" type="submit" data-i18n="contactSubmit">Submit</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container" data-i18n="footerText">© 2026 Circle Theorems Learning Hub · V2.5.a.5 · Searchable library + review queue + learning log</div>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = "ct_v255_state";
+
+    const translations = {
+      en: {
+        brand: "Circle Theorems Learning Hub",
+        navHome: "Home",
+        navHighlights: "Highlights",
+        navModules: "Modules",
+        navWorkspace: "Workspace",
+        navContact: "Contact",
+        eyebrow: "📐 Revision 5 • Systematic Learning • Review Ready",
+        heroTitle: "Turn circle theorem study into a <span class='highlight'>trackable learning system</span>.",
+        heroDesc: "This next version builds on the previous independent learning module and pushes it further into a study workspace: searchable theorem library, review queue, learning log, and exportable progress.",
+        heroPrimary: "Open Workspace",
+        heroSecondary: "See What’s New",
+        statLearned: "Learned theorems",
+        statCorrect: "Correct checks",
+        statMistakes: "Review items",
+        statVisits: "Visits",
+        statProgress: "Overall progress",
+        previewBadge: "Study Dashboard Preview",
+        previewTitle: "One page, three layers of learning",
+        previewDesc: "This revision adds a searchable theorem library, a focused interactive lab, and a side dashboard for activity, review, and export.",
+        previewTag1: "Layer 1",
+        previewTag2: "Layer 2",
+        previewItem1: "Search and filter theorem modules",
+        previewItem2: "Open the active theorem in the lab",
+        previewItem3: "Track which theorem is completed",
+        previewItem4: "See recent activity",
+        previewItem5: "Review incorrect checks later",
+        previewItem6: "Export progress as JSON",
+        highlightsTitle: "What changed in revision 5",
+        highlightsDesc: "The previous version made the learning module more independent. This version makes it more systematic, searchable, and ready for long-term use.",
+        feature1Title: "Searchable theorem library",
+        feature1Desc: "Users can search by theorem name and filter by completion state, making the module feel more like a real resource library.",
+        feature2Title: "Review queue",
+        feature2Desc: "Wrong answers are not lost. They feed into a review panel so learners know what still needs attention.",
+        feature3Title: "Learning log",
+        feature3Desc: "Each meaningful action writes to a recent activity log, helping users see what they just completed.",
+        feature4Title: "Progress export",
+        feature4Desc: "Progress can now be exported as structured data, which makes the system feel more complete and portfolio-ready.",
+        modulesTitle: "New study modules",
+        modulesDesc: "This version is organized like a study workspace rather than only a content page. Each part now has a clearer role.",
+        module1Tag: "Module 1",
+        module1Title: "Theorem library",
+        module1Desc: "Browse, search, and filter theorem cards. This turns theorem study into an actual library experience.",
+        module1Item1: "Keyword search",
+        module1Item2: "All / learned / review filters",
+        module1Item3: "Click any theorem to load it",
+        module2Tag: "Module 2",
+        module2Title: "Interactive lab",
+        module2Desc: "The active theorem stays at the center of the workspace, with geometry drawing, controls, and a short check.",
+        module2Item1: "Canvas demonstration",
+        module2Item2: "Parameter controls",
+        module2Item3: "Immediate theorem check",
+        module3Tag: "Module 3",
+        module3Title: "Review + export panel",
+        module3Desc: "The system now remembers what needs revision and allows users to export their current study data.",
+        module3Item1: "Recent actions log",
+        module3Item2: "Review queue from mistakes",
+        module3Item3: "Progress export button",
+        workspaceTitle: "Learning workspace",
+        workspaceDesc: "Search a theorem on the left, study it in the center, and manage progress and review from the right panel.",
+        searchPlaceholder: "Search theorem...",
+        filterAll: "All",
+        filterLearned: "Learned",
+        filterReview: "Need review",
+        filterFresh: "Not learned",
+        statusCurrent: "Current theorem",
+        completeBtn: "Mark as learned",
+        resetBtn: "Reset lab",
+        radiusLabel: "Radius",
+        angleLabel: "Angle",
+        scoreLearned: "Learned",
+        scoreCorrect: "Correct",
+        scoreReview: "Review queue",
+        scoreProgress: "Completion",
+        quizTitle: "Quick theorem check",
+        sideTitle1: "Recent activity",
+        sideTitle2: "Review queue",
+        sideTitle3: "Data tools",
+        sideDesc3: "Export the current learning state as a JSON file for documentation or testing.",
+        exportBtn: "Export progress",
+        clearLogBtn: "Clear log",
+        contactTitle: "Contact and reflection",
+        contactDesc: "This section stays simple, but now it sits under a much more complete study workflow than before.",
+        contactHeading: "Leave a revision note",
+        contactBody: "Use this space to summarise what improved in this version, what still needs refinement, and what should be moved into the next major upgrade.",
+        contactSubmit: "Submit",
+        contactName: "Your name",
+        contactEmail: "Your email",
+        contactMsg: "Write your revision note...",
+        footerText: "© 2026 Circle Theorems Learning Hub · V2.5.a.5 · Searchable library + review queue + learning log"
+      },
+      zh: {
+        brand: "圆定理学习中心",
+        navHome: "首页",
+        navHighlights: "本版亮点",
+        navModules: "新增模块",
+        navWorkspace: "学习工作区",
+        navContact: "联系反馈",
+        eyebrow: "📐 第 5 次修改 • 系统化学习 • 支持复习",
+        heroTitle: "把圆定理学习升级成一个<span class='highlight'>可追踪的学习系统</span>。",
+        heroDesc: "这一版建立在上一版“独立学习模块”的基础上，进一步推进为学习工作区：加入可搜索的定理资料库、复习队列、学习日志和进度导出。",
+        heroPrimary: "打开学习工作区",
+        heroSecondary: "查看新增内容",
+        statLearned: "已学定理",
+        statCorrect: "答对检测",
+        statMistakes: "复习项目",
+        statVisits: "访问次数",
+        statProgress: "总体进度",
+        previewBadge: "学习面板预览",
+        previewTitle: "一页里有三层学习结构",
+        previewDesc: "这一版新增可搜索的定理资料库、聚焦的交互实验区，以及右侧的活动、复习和导出面板。",
+        previewTag1: "层级 1",
+        previewTag2: "层级 2",
+        previewItem1: "搜索并筛选定理模块",
+        previewItem2: "把当前定理加载到实验区",
+        previewItem3: "追踪哪些定理已完成",
+        previewItem4: "查看最近学习活动",
+        previewItem5: "把错误题目加入复习队列",
+        previewItem6: "将进度导出为 JSON",
+        highlightsTitle: "第 5 次修改新增了什么",
+        highlightsDesc: "上一版让学习模块更独立，而这一版让它更系统化、更可搜索，也更适合长期使用。",
+        feature1Title: "可搜索的定理资料库",
+        feature1Desc: "现在可以按定理名称搜索，并按完成状态筛选，让学习区更像一个真实资料库。",
+        feature2Title: "复习队列",
+        feature2Desc: "答错不会被忽略，系统会把它们整理到复习面板中，提醒用户后续继续巩固。",
+        feature3Title: "学习日志",
+        feature3Desc: "重要操作都会写入最近活动，用户能清楚看到自己刚刚完成了什么。",
+        feature4Title: "进度导出",
+        feature4Desc: "现在可以把当前学习状态导出为结构化数据，让系统更完整，也更适合作业展示。",
+        modulesTitle: "本版新增模块",
+        modulesDesc: "这一版更像一个学习工作区，而不只是内容页面。每个部分的职责都更明确。",
+        module1Tag: "模块 1",
+        module1Title: "定理资料库",
+        module1Desc: "浏览、搜索并筛选定理卡片，让定理学习真正具备“资料库”形态。",
+        module1Item1: "关键词搜索",
+        module1Item2: "全部 / 已学 / 待复习筛选",
+        module1Item3: "点击任意定理直接加载",
+        module2Tag: "模块 2",
+        module2Title: "交互实验区",
+        module2Desc: "当前定理始终位于工作区中心，包含图形演示、参数控制和快速检测。",
+        module2Item1: "Canvas 图形演示",
+        module2Item2: "参数调节",
+        module2Item3: "即时定理检测",
+        module3Tag: "模块 3",
+        module3Title: "复习与导出面板",
+        module3Desc: "系统会记住需要复习的内容，同时支持导出当前学习数据。",
+        module3Item1: "最近活动记录",
+        module3Item2: "由错误形成的复习队列",
+        module3Item3: "进度导出按钮",
+        workspaceTitle: "学习工作区",
+        workspaceDesc: "左侧搜索定理，中间进行学习和交互，右侧管理进度、活动与复习。",
+        searchPlaceholder: "搜索定理名称……",
+        filterAll: "全部",
+        filterLearned: "已学",
+        filterReview: "待复习",
+        filterFresh: "未学习",
+        statusCurrent: "当前定理",
+        completeBtn: "标记为已学会",
+        resetBtn: "重置实验区",
+        radiusLabel: "半径",
+        angleLabel: "角度",
+        scoreLearned: "已学",
+        scoreCorrect: "答对",
+        scoreReview: "复习队列",
+        scoreProgress: "完成度",
+        quizTitle: "快速检测",
+        sideTitle1: "最近活动",
+        sideTitle2: "复习队列",
+        sideTitle3: "数据工具",
+        sideDesc3: "把当前学习状态导出为 JSON 文件，方便记录、展示或后续测试。",
+        exportBtn: "导出进度",
+        clearLogBtn: "清空日志",
+        contactTitle: "联系与反思",
+        contactDesc: "这一部分依然保持简洁，但它现在位于一个更完整的学习流程之后。",
+        contactHeading: "留下版本备注",
+        contactBody: "可以在这里记录本次版本最明显的提升、仍需优化的部分，以及下一阶段应该推进的内容。",
+        contactSubmit: "提交",
+        contactName: "你的姓名",
+        contactEmail: "你的邮箱",
+        contactMsg: "写下你的版本备注……",
+        footerText: "© 2026 圆定理学习中心 · V2.5.a.5 · 可搜索资料库 + 复习队列 + 学习日志"
+      }
+    };
+
+    const theoremData = {
+      1: {
+        title: { en: "Angle at the centre", zh: "圆心角定理" },
+        tag: { en: "Theorem 1", zh: "定理 1" },
+        desc: {
+          en: "The angle at the centre is twice the angle at the circumference standing on the same arc.",
+          zh: "同弧所对的圆心角等于圆周角的两倍。"
+        },
+        explain: {
+          en: "As the central angle changes, the inscribed angle changes with it and stays exactly half as large.",
+          zh: "当圆心角变化时，对应圆周角也会变化，并始终保持为圆心角的一半。"
+        },
+        quizQuestion: {
+          en: "Which statement matches the current theorem?",
+          zh: "以下哪句话符合当前定理？"
+        },
+        options: {
+          en: [
+            "The central angle is twice the angle at the circumference on the same arc.",
+            "The angle in a semicircle is always 90°.",
+            "Opposite angles in a cyclic quadrilateral total 180°."
+          ],
+          zh: [
+            "同弧所对的圆心角是圆周角的两倍。",
+            "半圆所对的圆周角恒为 90°。",
+            "圆内接四边形的对角和为 180°。"
+          ]
+        },
+        correct: 0
+      },
+      2: {
+        title: { en: "Angle in a semicircle", zh: "半圆中的角" },
+        tag: { en: "Theorem 2", zh: "定理 2" },
+        desc: {
+          en: "The angle subtended by a diameter at the circumference is always 90°.",
+          zh: "直径所对的圆周角恒为 90°。"
+        },
+        explain: {
+          en: "No matter where the point moves on the semicircle, the triangle keeps a right angle at the circumference.",
+          zh: "无论点在半圆上怎样移动，圆周角始终保持直角。"
+        },
+        quizQuestion: {
+          en: "What remains true in this theorem?",
+          zh: "这个定理中始终成立的是什么？"
+        },
+        options: {
+          en: [
+            "Angles on the same arc are equal.",
+            "The angle from a diameter at the circumference is always 90°.",
+            "The central angle is three times the circumference angle."
+          ],
+          zh: [
+            "同弧所对的角总相等。",
+            "直径所对的圆周角始终是 90°。",
+            "圆心角总是圆周角的三倍。"
+          ]
+        },
+        correct: 1
+      },
+      3: {
+        title: { en: "Same segment theorem", zh: "同弧定理" },
+        tag: { en: "Theorem 3", zh: "定理 3" },
+        desc: {
+          en: "Angles subtended by the same arc at the circumference are equal.",
+          zh: "同弧所对的圆周角相等。"
+        },
+        explain: {
+          en: "Two points on the circumference looking at the same chord create equal angles.",
+          zh: "圆周上两个点只要对着同一条弧或弦，就会形成相等的圆周角。"
+        },
+        quizQuestion: {
+          en: "Which option describes this theorem best?",
+          zh: "哪一项最准确描述了这个定理？"
+        },
+        options: {
+          en: [
+            "Angles in the same segment are equal.",
+            "All central angles are 90°.",
+            "A tangent is parallel to the radius."
+          ],
+          zh: [
+            "同弧所对的圆周角相等。",
+            "所有圆心角都等于 90°。",
+            "切线与半径平行。"
+          ]
+        },
+        correct: 0
+      },
+      4: {
+        title: { en: "Cyclic quadrilateral", zh: "圆内接四边形" },
+        tag: { en: "Theorem 4", zh: "定理 4" },
+        desc: {
+          en: "Opposite angles in a cyclic quadrilateral add up to 180°.",
+          zh: "圆内接四边形的对角互补，总和为 180°。"
+        },
+        explain: {
+          en: "If four points lie on a circle, then each pair of opposite angles always sums to 180°.",
+          zh: "如果四个点都在圆上，那么这四边形的任意一对对角之和都等于 180°。"
+        },
+        quizQuestion: {
+          en: "What is always true for a cyclic quadrilateral?",
+          zh: "对于圆内接四边形，哪一项一定成立？"
+        },
+        options: {
+          en: [
+            "All four angles are equal.",
+            "Opposite angles add up to 180°.",
+            "Every side has equal length."
+          ],
+          zh: [
+            "四个角全部相等。",
+            "对角之和等于 180°。",
+            "四条边长度都相等。"
+          ]
+        },
+        correct: 1
+      }
+    };
+
+    const defaultState = {
+      currentLang: "en",
+      darkMode: false,
+      colorblindMode: false,
+      currentTheorem: 1,
+      radius: 130,
+      angle: 70,
+      learned: [],
+      correctCount: 0,
+      reviewMap: {},
+      answeredPairs: [],
+      activityLog: [],
+      visits: 0
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(defaultState);
+        const saved = JSON.parse(raw);
+        return { ...structuredClone(defaultState), ...saved };
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    const state = loadState();
+    state.visits += 1;
+
+    const canvas = document.getElementById("geometryCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function t(key) {
+      return translations[state.currentLang][key] || key;
+    }
+
+    function logActivity(type, messageEn, messageZh) {
+      state.activityLog.unshift({
+        id: Date.now(),
+        type,
+        message: { en: messageEn, zh: messageZh },
+        time: new Date().toLocaleString(state.currentLang === "zh" ? "zh-CN" : "en-GB")
+      });
+      state.activityLog = state.activityLog.slice(0, 8);
+      renderActivityLog();
+      saveState();
+    }
+
+    function getProgressPercent() {
+      const theoremPart = state.learned.length / 4;
+      const quizPart = Math.min(state.correctCount, 4) / 4;
+      const reviewPenalty = Math.min(Object.keys(state.reviewMap).length, 4) / 4;
+      return Math.max(0, Math.round((theoremPart * 0.55 + quizPart * 0.35 + (1 - reviewPenalty) * 0.10) * 100));
+    }
+
+    function applyMode() {
+      document.body.classList.toggle("dark-mode", state.darkMode);
+      document.body.classList.toggle("colorblind-mode", state.colorblindMode);
+      document.getElementById("themeBtn").textContent = state.currentLang === "zh"
+        ? (state.darkMode ? "☀️ 亮色" : "🌙 暗夜")
+        : (state.darkMode ? "☀️ Light" : "🌙 Dark");
+      document.getElementById("cbBtn").textContent = state.currentLang === "zh" ? "👁 色盲模式" : "👁 Colorblind";
+    }
+
+    function applyTranslations() {
+      document.documentElement.lang = state.currentLang === "zh" ? "zh-CN" : "en";
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (translations[state.currentLang][key]) {
+          el.innerHTML = translations[state.currentLang][key];
+        }
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        if (translations[state.currentLang][key]) {
+          el.placeholder = translations[state.currentLang][key];
+        }
+      });
+      document.getElementById("langBtn").textContent = state.currentLang === "zh" ? "EN" : "中文";
+      applyMode();
+      renderTheoremList();
+      renderCurrentTheorem();
+      renderQuiz();
+      renderActivityLog();
+      renderReviewQueue();
+      updateStats();
+      saveState();
+    }
+
+    function updateStats() {
+      const reviewCount = Object.keys(state.reviewMap).length;
+      const progress = getProgressPercent();
+
+      document.getElementById("statLearned").textContent = state.learned.length;
+      document.getElementById("statCorrect").textContent = state.correctCount;
+      document.getElementById("statMistakes").textContent = reviewCount;
+      document.getElementById("statVisits").textContent = state.visits;
+      document.getElementById("statProgress").textContent = progress + "%";
+
+      document.getElementById("scoreLearned").textContent = state.learned.length;
+      document.getElementById("scoreCorrect").textContent = state.correctCount;
+      document.getElementById("scoreReview").textContent = reviewCount;
+      document.getElementById("scoreProgress").textContent = progress + "%";
+      document.getElementById("progressFill").style.width = progress + "%";
+
+      document.getElementById("reviewCountChip").textContent = state.currentLang === "zh"
+        ? `待复习 ${reviewCount}`
+        : `${reviewCount} review`;
+
+      saveState();
+    }
+
+    function renderTheoremList() {
+      const list = document.getElementById("theoremList");
+      const searchValue = document.getElementById("searchInput").value.trim().toLowerCase();
+      const filterValue = document.getElementById("filterSelect").value;
+
+      list.innerHTML = "";
+
+      Object.entries(theoremData).forEach(([id, item]) => {
+        const numId = Number(id);
+        const title = item.title[state.currentLang];
+        const desc = item.desc[state.currentLang];
+        const learned = state.learned.includes(numId);
+        const inReview = Boolean(state.reviewMap[numId]);
+
+        const searchHit = !searchValue || title.toLowerCase().includes(searchValue) || desc.toLowerCase().includes(searchValue);
+
+        let filterHit = true;
+        if (filterValue === "learned") filterHit = learned;
+        if (filterValue === "review") filterHit = inReview;
+        if (filterValue === "fresh") filterHit = !learned;
+
+        if (!searchHit || !filterHit) return;
+
+        const card = document.createElement("article");
+        card.className = "theorem-card";
+        if (state.currentTheorem === numId) card.classList.add("active");
+        if (learned) card.classList.add("completed");
+
+        const statusClass = learned ? "status-learned" : inReview ? "status-review" : "status-neutral";
+        const statusText = learned
+          ? (state.currentLang === "zh" ? "已学会" : "Learned")
+          : inReview
+            ? (state.currentLang === "zh" ? "待复习" : "Review")
+            : (state.currentLang === "zh" ? "未学习" : "Fresh");
+
+        card.innerHTML = `
+          <span class="tag">${item.tag[state.currentLang]}</span>
+          <h3>${title}</h3>
+          <p>${desc}</p>
+          <div class="status-row">
+            <span class="status-chip ${statusClass}">${statusText}</span>
+            <button class="btn btn-outline" data-id="${numId}">${t("heroPrimary")}</button>
+          </div>
+        `;
+
+        card.addEventListener("click", (e) => {
+          if (e.target.matches("button")) e.stopPropagation();
+          loadTheorem(numId);
+        });
+
+        card.querySelector("button").addEventListener("click", (e) => {
+          e.stopPropagation();
+          loadTheorem(numId);
+        });
+
+        list.appendChild(card);
+      });
+
+      if (!list.children.length) {
+        const empty = document.createElement("div");
+        empty.className = "activity-item";
+        empty.textContent = state.currentLang === "zh" ? "没有找到符合条件的定理。" : "No theorem matches the current search.";
+        list.appendChild(empty);
+      }
+    }
+
+    function renderCurrentTheorem() {
+      const item = theoremData[state.currentTheorem];
+      document.getElementById("currentTheoremTag").textContent = item.tag[state.currentLang];
+      document.getElementById("currentTheoremTitle").textContent = item.title[state.currentLang];
+      document.getElementById("currentTheoremDesc").textContent = item.desc[state.currentLang];
+      document.getElementById("currentTheoremExplain").textContent = item.explain[state.currentLang];
+
+      const chip = document.getElementById("currentStatusChip");
+      if (state.learned.includes(state.currentTheorem)) {
+        chip.className = "status-chip status-learned";
+        chip.textContent = state.currentLang === "zh" ? "当前定理 · 已学会" : "Current theorem · Learned";
+      } else if (state.reviewMap[state.currentTheorem]) {
+        chip.className = "status-chip status-review";
+        chip.textContent = state.currentLang === "zh" ? "当前定理 · 待复习" : "Current theorem · Review";
+      } else {
+        chip.className = "status-chip status-neutral";
+        chip.textContent = state.currentLang === "zh" ? "当前定理 · 新内容" : "Current theorem · Fresh";
+      }
+
+      drawGeometry();
+    }
+
+    function renderQuiz() {
+      const item = theoremData[state.currentTheorem];
+      document.getElementById("quizQuestion").textContent = item.quizQuestion[state.currentLang];
+      const optionsEl = document.getElementById("quizOptions");
+      const feedbackEl = document.getElementById("quizFeedback");
+      optionsEl.innerHTML = "";
+      feedbackEl.className = "feedback";
+      feedbackEl.textContent = "";
+
+      item.options[state.currentLang].forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleQuizAnswer(idx));
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function handleQuizAnswer(selectedIndex) {
+      const item = theoremData[state.currentTheorem];
+      const pairKey = `${state.currentLang}_${state.currentTheorem}`;
+      const feedbackEl = document.getElementById("quizFeedback");
+
+      if (selectedIndex === item.correct) {
+        if (!state.answeredPairs.includes(pairKey)) {
+          state.correctCount += 1;
+          state.answeredPairs.push(pairKey);
+        }
+        delete state.reviewMap[state.currentTheorem];
+        feedbackEl.className = "feedback success show";
+        feedbackEl.textContent = state.currentLang === "zh"
+          ? "回答正确：这条定理已经被你正确验证，可以继续进入下一条。"
+          : "Correct: this theorem has been checked successfully. You can move on.";
+        logActivity("correct", `Answered theorem ${state.currentTheorem} correctly`, `完成了定理 ${state.currentTheorem} 的正确检测`);
+      } else {
+        state.reviewMap[state.currentTheorem] = {
+          theoremId: state.currentTheorem,
+          mistakes: (state.reviewMap[state.currentTheorem]?.mistakes || 0) + 1
+        };
+        feedbackEl.className = "feedback error show";
+        feedbackEl.textContent = state.currentLang === "zh"
+          ? "回答错误：已加入复习队列，建议稍后再回看这个定理。"
+          : "Incorrect: added to the review queue. Revisit this theorem later.";
+        logActivity("wrong", `Added theorem ${state.currentTheorem} to review`, `已将定理 ${state.currentTheorem} 加入复习队列`);
+      }
+
+      renderReviewQueue();
+      renderTheoremList();
+      renderCurrentTheorem();
+      updateStats();
+    }
+
+    function renderActivityLog() {
+      const wrap = document.getElementById("activityLog");
+      wrap.innerHTML = "";
+
+      if (!state.activityLog.length) {
+        const empty = document.createElement("div");
+        empty.className = "activity-item";
+        empty.textContent = state.currentLang === "zh" ? "还没有学习活动记录。" : "No recent activity yet.";
+        wrap.appendChild(empty);
+        return;
+      }
+
+      state.activityLog.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "activity-item";
+        div.innerHTML = `<strong>${item.message[state.currentLang]}</strong><span class="activity-meta">${item.time}</span>`;
+        wrap.appendChild(div);
+      });
+    }
+
+    function renderReviewQueue() {
+      const wrap = document.getElementById("reviewQueue");
+      wrap.innerHTML = "";
+
+      const items = Object.values(state.reviewMap);
+      if (!items.length) {
+        const empty = document.createElement("div");
+        empty.className = "review-item";
+        empty.textContent = state.currentLang === "zh" ? "当前没有待复习项目。" : "No review items at the moment.";
+        wrap.appendChild(empty);
+        return;
+      }
+
+      items.forEach(entry => {
+        const theorem = theoremData[entry.theoremId];
+        const div = document.createElement("div");
+        div.className = "review-item";
+        div.innerHTML = `
+          <strong>${theorem.tag[state.currentLang]} · ${theorem.title[state.currentLang]}</strong>
+          <div>${state.currentLang === "zh" ? `错误次数：${entry.mistakes}` : `Mistakes: ${entry.mistakes}`}</div>
+        `;
+        div.addEventListener("click", () => loadTheorem(entry.theoremId));
+        wrap.appendChild(div);
+      });
+    }
+
+    function loadTheorem(theoremId) {
+      state.currentTheorem = theoremId;
+      renderTheoremList();
+      renderCurrentTheorem();
+      renderQuiz();
+      updateStats();
+      document.getElementById("workspace").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function markCurrentLearned() {
+      if (!state.learned.includes(state.currentTheorem)) {
+        state.learned.push(state.currentTheorem);
+        logActivity("learned", `Marked theorem ${state.currentTheorem} as learned`, `已将定理 ${state.currentTheorem} 标记为学会`);
+      }
+      renderTheoremList();
+      renderCurrentTheorem();
+      updateStats();
+    }
+
+    function exportProgress() {
+      const exportData = {
+        version: "v2.5.a.5",
+        exportedAt: new Date().toISOString(),
+        learned: state.learned,
+        correctCount: state.correctCount,
+        reviewMap: state.reviewMap,
+        answeredPairs: state.answeredPairs,
+        visits: state.visits,
+        activityLog: state.activityLog
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "circle_theorems_progress_v2.5.a.5.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      logActivity("export", "Exported learning progress", "已导出当前学习进度");
+    }
+
+    function clearLog() {
+      state.activityLog = [];
+      renderActivityLog();
+      saveState();
+    }
+
+    function drawGeometry() {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = state.radius;
+      const angleDeg = state.angle;
+      const theta = angleDeg * Math.PI / 180;
+
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#2563eb';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (state.currentTheorem === 1) {
+        const A = { x: cx + r, y: cy };
+        const B = { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
+        const C = { x: cx + r * Math.cos(theta / 2 + Math.PI), y: cy + r * Math.sin(theta / 2 + Math.PI) };
+
+        drawLine(cx, cy, A.x, A.y, "#2563eb", 3);
+        drawLine(cx, cy, B.x, B.y, "#2563eb", 3);
+        drawLine(C.x, C.y, A.x, A.y, "#7c3aed", 3);
+        drawLine(C.x, C.y, B.x, B.y, "#7c3aed", 3);
+
+        drawPoint(A.x, A.y, "A");
+        drawPoint(B.x, B.y, "B");
+        drawPoint(C.x, C.y, "C");
+        drawPoint(cx, cy, "O");
+
+        drawText((state.currentLang === "zh" ? "圆心角: " : "Central angle: ") + angleDeg + "°", cx + 24, cy - 18);
+        drawText((state.currentLang === "zh" ? "圆周角: " : "Inscribed angle: ") + Math.round(angleDeg / 2) + "°", C.x + 18, C.y - 8);
+      } else if (state.currentTheorem === 2) {
+        const A = { x: cx - r, y: cy };
+        const B = { x: cx + r, y: cy };
+        const C = { x: cx + r * Math.cos(theta), y: cy - r * Math.sin(theta) };
+
+        drawLine(A.x, A.y, B.x, B.y, "#2563eb", 3);
+        drawLine(A.x, A.y, C.x, C.y, "#7c3aed", 3);
+        drawLine(B.x, B.y, C.x, C.y, "#7c3aed", 3);
+
+        drawPoint(A.x, A.y, "A");
+        drawPoint(B.x, B.y, "B");
+        drawPoint(C.x, C.y, "C");
+        drawPoint(cx, cy, "O");
+
+        drawText("∠ACB = 90°", C.x + 18, C.y - 8);
+      } else if (state.currentTheorem === 3) {
+        const A = { x: cx + r * Math.cos(Math.PI * 0.15), y: cy - r * Math.sin(Math.PI * 0.15) };
+        const B = { x: cx - r * Math.cos(Math.PI * 0.15), y: cy - r * Math.sin(Math.PI * 0.15) };
+        const C = { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
+        const D = { x: cx + r * Math.cos(theta + 0.8), y: cy + r * Math.sin(theta + 0.8) };
+
+        drawLine(C.x, C.y, A.x, A.y, "#7c3aed", 3);
+        drawLine(C.x, C.y, B.x, B.y, "#7c3aed", 3);
+        drawLine(D.x, D.y, A.x, A.y, "#0ea5e9", 3);
+        drawLine(D.x, D.y, B.x, B.y, "#0ea5e9", 3);
+
+        drawPoint(A.x, A.y, "A");
+        drawPoint(B.x, B.y, "B");
+        drawPoint(C.x, C.y, "C");
+        drawPoint(D.x, D.y, "D");
+        drawText(state.currentLang === "zh" ? "同弧所对角相等" : "Angles in same segment are equal", cx - 100, cy + r + 26);
+      } else {
+        const P1 = getCirclePoint(cx, cy, r, -30);
+        const P2 = getCirclePoint(cx, cy, r, 50);
+        const P3 = getCirclePoint(cx, cy, r, 140);
+        const P4 = getCirclePoint(cx, cy, r, 225);
+
+        drawPolygon([P1, P2, P3, P4], "#7c3aed", 3);
+
+        drawPoint(P1.x, P1.y, "A");
+        drawPoint(P2.x, P2.y, "B");
+        drawPoint(P3.x, P3.y, "C");
+        drawPoint(P4.x, P4.y, "D");
+        drawText(state.currentLang === "zh" ? "对角和 = 180°" : "Opposite angles = 180°", cx - 80, cy + r + 26);
+      }
+    }
+
+    function getCirclePoint(cx, cy, r, deg) {
+      const rad = deg * Math.PI / 180;
+      return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+    }
+
+    function drawLine(x1, y1, x2, y2, color, width) {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function drawPolygon(points, color, width) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+      ctx.closePath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function drawPoint(x, y, label) {
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "#2563eb";
+      ctx.fill();
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text').trim() || "#16324f";
+      ctx.font = "bold 14px Arial";
+      ctx.fillText(label, x + 8, y - 8);
+    }
+
+    function drawText(text, x, y) {
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text').trim() || "#16324f";
+      ctx.font = "14px Arial";
+      ctx.fillText(text, x, y);
+    }
+
+    document.getElementById("langBtn").addEventListener("click", () => {
+      state.currentLang = state.currentLang === "en" ? "zh" : "en";
+      applyTranslations();
+    });
+
+    document.getElementById("themeBtn").addEventListener("click", () => {
+      state.darkMode = !state.darkMode;
+      applyMode();
+      drawGeometry();
+      saveState();
+    });
+
+    document.getElementById("cbBtn").addEventListener("click", () => {
+      state.colorblindMode = !state.colorblindMode;
+      applyMode();
+      drawGeometry();
+      saveState();
+    });
+
+    document.getElementById("searchInput").addEventListener("input", renderTheoremList);
+    document.getElementById("filterSelect").addEventListener("change", renderTheoremList);
+
+    document.getElementById("markCompleteBtn").addEventListener("click", markCurrentLearned);
+    document.getElementById("resetCanvasBtn").addEventListener("click", () => {
+      state.radius = 130;
+      state.angle = 70;
+      document.getElementById("radiusRange").value = state.radius;
+      document.getElementById("angleRange").value = state.angle;
+      drawGeometry();
+    });
+
+    document.getElementById("radiusRange").addEventListener("input", (e) => {
+      state.radius = Number(e.target.value);
+      drawGeometry();
+    });
+
+    document.getElementById("angleRange").addEventListener("input", (e) => {
+      state.angle = Number(e.target.value);
+      drawGeometry();
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", exportProgress);
+    document.getElementById("clearLogBtn").addEventListener("click", clearLog);
+
+    window.addEventListener("load", () => {
+      document.body.classList.add("page-loaded");
+      applyTranslations();
+      renderTheoremList();
+      renderCurrentTheorem();
+      renderQuiz();
+      renderActivityLog();
+      renderReviewQueue();
+      updateStats();
+      drawGeometry();
+      logActivity("visit", "Opened revision 5 workspace", "已进入第 5 次修改版学习工作区");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>圆几何探索 · V2.5.a.4</title>
+  <style>
+    :root {
+      --bg: #f4f8ff; --bg-soft: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(240,246,255,0.8));
+      --card: rgba(255,255,255,0.82); --text: #16324f; --muted: #5f7691;
+      --primary: #2563eb; --primary-2: #7c3aed; --accent: #06b6d4;
+      --line: rgba(37, 99, 235, 0.12); --shadow: 0 18px 45px rgba(37, 99, 235, 0.14);
+      --success: #16a34a; --danger: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 28%), radial-gradient(circle at bottom right, rgba(124,58,237,0.14), transparent 24%), var(--bg);
+      color: var(--text); line-height: 1.6; transition: background 0.3s ease, color 0.3s ease, opacity 0.8s ease; opacity: 0;
+    }
+    body.page-loaded { opacity: 1; }
+    body.dark-mode {
+      --bg: #0f172a; --bg-soft: linear-gradient(180deg, rgba(30,41,59,0.94), rgba(17,24,39,0.88));
+      --card: rgba(30,41,59,0.82); --text: #e2e8f0; --muted: #94a3b8; --line: rgba(255,255,255,0.08);
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 28%), radial-gradient(circle at bottom right, rgba(124,58,237,0.10), transparent 24%), #0f172a;
+    }
+    body.colorblind-mode {
+      --primary: #005fcc; --primary-2: #6b3fd6; --accent: #d97706; --text: #102a43; --muted: #486581; --line: rgba(0,95,204,0.20);
+    }
+    body.dark-mode.colorblind-mode { --text: #f8fafc; --muted: #cbd5e1; --line: rgba(255,255,255,0.18); }
+    .container { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .site-header { position: sticky; top: 0; z-index: 30; backdrop-filter: blur(14px); background: rgba(244, 248, 255, 0.72); border-bottom: 1px solid rgba(37, 99, 235, 0.08); }
+    body.dark-mode .site-header { background: rgba(15, 23, 42, 0.75); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 10px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.05rem; text-decoration: none; color: inherit; }
+    .brand-badge { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; color: white; background: linear-gradient(135deg, var(--primary), var(--primary-2)); box-shadow: var(--shadow); }
+    .nav-links, .nav-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.95rem; }
+    .nav-links a:hover { color: var(--primary); }
+    .btn { border: none; border-radius: 999px; padding: 11px 18px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; font-size: 0.95rem; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(37,99,235,0.14); }
+    .btn-primary { color: white; background: linear-gradient(135deg, var(--primary), var(--primary-2)); }
+    .btn-outline { background: rgba(255,255,255,0.82); color: var(--primary); border: 1px solid rgba(37,99,235,0.12); }
+    body.dark-mode .btn-outline { background: rgba(30,41,59,0.85); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.12); }
+    .hero { padding: 56px 0 26px; }
+    .hero-grid { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 28px; align-items: center; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(37,99,235,0.08); color: var(--primary); border-radius: 999px; font-size: 0.92rem; margin-bottom: 18px; font-weight: 700; }
+    h1 { font-size: clamp(2.2rem, 5vw, 4.2rem); line-height: 1.05; margin-bottom: 16px; }
+    .highlight { background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero-copy p { max-width: 58ch; color: var(--muted); font-size: 1.05rem; margin-bottom: 24px; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 26px; }
+    .quick-stats { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 14px; }
+    .stat, .card, .feature-card, .theorem-card, .path-card, .quiz-card, .contact-card { background: var(--card); border: 1px solid rgba(255,255,255,0.72); border-radius: 22px; box-shadow: var(--shadow); backdrop-filter: blur(16px); }
+    body.dark-mode .stat, body.dark-mode .card, body.dark-mode .feature-card, body.dark-mode .theorem-card, body.dark-mode .path-card, body.dark-mode .quiz-card, body.dark-mode .contact-card { border: 1px solid rgba(255,255,255,0.08); }
+    body.colorblind-mode .stat, body.colorblind-mode .card, body.colorblind-mode .feature-card, body.colorblind-mode .theorem-card, body.colorblind-mode .path-card, body.colorblind-mode .quiz-card, body.colorblind-mode .contact-card { border: 2px solid rgba(0,95,204,0.20); }
+    .stat { padding: 18px; }
+    .stat strong { display: block; font-size: 1.35rem; color: var(--primary); margin-bottom: 6px; }
+    .stat span { color: var(--muted); font-size: 0.92rem; }
+    .hero-card { background: var(--bg-soft); border: 1px solid rgba(255,255,255,0.8); border-radius: 30px; padding: 26px; min-height: 450px; box-shadow: var(--shadow); overflow: hidden; }
+    .lesson-title { font-size: 1.45rem; margin-bottom: 10px; }
+    .lesson-subtitle { color: var(--muted); margin-bottom: 20px; }
+    .diagram { position: relative; height: 260px; border-radius: 24px; background: linear-gradient(180deg, rgba(37,99,235,0.04), rgba(124,58,237,0.05)), white; border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
+    body.dark-mode .diagram { background: linear-gradient(180deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08)), #0f172a; border: 1px solid rgba(255,255,255,0.08); }
+    .circle { width: 220px; height: 220px; border: 4px solid var(--primary); border-radius: 50%; position: relative; box-shadow: inset 0 0 0 10px rgba(37,99,235,0.03); }
+    .center-dot, .point { position: absolute; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%); }
+    .center-dot { top: 50%; left: 50%; background: #ef4444; }
+    .point.a { top: 18%; left: 74%; background: #22c55e; }
+    .point.b { top: 75%; left: 25%; background: #0ea5e9; }
+    .point.c { top: 82%; left: 78%; background: #a855f7; }
+    body.colorblind-mode .center-dot { background: #111827; border: 2px solid #fff; }
+    body.colorblind-mode .point.a { background: #f59e0b; border: 2px solid #111827; }
+    body.colorblind-mode .point.b { background: #0f766e; border: 2px solid #111827; }
+    body.colorblind-mode .point.c { background: #7c3aed; border: 2px solid #111827; }
+    .line { position: absolute; background: #7c3aed; transform-origin: left center; height: 3px; border-radius: 999px; }
+    .line.oa { width: 72px; left: 50%; top: 50%; transform: rotate(-35deg); background: #2563eb; }
+    .line.ob { width: 90px; left: 50%; top: 50%; transform: rotate(145deg); background: #2563eb; }
+    .line.ca { width: 132px; left: 78%; top: 82%; transform: rotate(-114deg); }
+    .line.cb { width: 130px; left: 78%; top: 82%; transform: rotate(-175deg); }
+    .mini-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px; }
+    .mini-card { border-radius: 18px; padding: 14px; background: rgba(37,99,235,0.05); border: 1px solid rgba(37,99,235,0.08); }
+    .mini-card small { display: block; color: var(--muted); margin-bottom: 6px; }
+    .mini-card strong { color: var(--text); font-size: 1.05rem; }
+    section { padding: 28px 0 18px; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+    .section-head h2 { font-size: 1.9rem; margin-bottom: 6px; }
+    .section-head p { color: var(--muted); max-width: 62ch; }
+    .feature-grid, .path-grid { display: grid; gap: 16px; }
+    .feature-grid { grid-template-columns: repeat(3, 1fr); }
+    .path-grid { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .feature-card, .path-card, .theorem-card, .quiz-card, .contact-card { padding: 22px 24px; }
+    .icon { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 16px; color: white; font-size: 1.2rem; background: linear-gradient(135deg, var(--primary), var(--primary-2)); }
+    .feature-card h3, .path-card h3, .theorem-card h3, .quiz-card h3, .contact-card h3 { margin-bottom: 8px; }
+    .feature-card p, .path-card p, .theorem-card p, .quiz-card p, .contact-card p { color: var(--muted); }
+    .tag { display: inline-block; font-size: 0.82rem; font-weight: 700; padding: 7px 10px; border-radius: 999px; margin-bottom: 14px; background: rgba(124,58,237,0.09); color: var(--primary-2); }
+    .path-card ul { list-style: none; margin: 14px 0 18px; color: var(--muted); }
+    .path-card li + li { margin-top: 8px; }
+    .progress-shell { margin-top: 14px; background: rgba(37,99,235,0.08); height: 12px; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(135deg, var(--primary), var(--accent)); transition: width 0.3s ease; }
+    .theorems-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .theorem-card { transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; }
+    .theorem-card:hover { transform: translateY(-4px); box-shadow: 0 16px 28px rgba(37,99,235,0.16); }
+    .theorem-card.completed { outline: 2px solid rgba(22,163,74,0.35); }
+    .learn-area { display: grid; grid-template-columns: 0.92fr 1.08fr; gap: 18px; }
+    .learn-panel { padding: 24px; }
+    canvas { width: 100%; max-width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--line); background: linear-gradient(180deg, rgba(37,99,235,0.03), rgba(124,58,237,0.04)), #fafcff; display: block; }
+    body.dark-mode canvas { background: linear-gradient(180deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08)), #0f172a; }
+    .controls { display: grid; gap: 14px; margin-top: 18px; }
+    .control-row label { display: block; margin-bottom: 6px; font-weight: 700; }
+    .control-row input[type=range] { width: 100%; }
+    .info-box { margin-top: 14px; padding: 16px; border-radius: 18px; background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.10); }
+    .info-box p { color: var(--muted); }
+    .scoreboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+    .score-item { padding: 14px; border-radius: 18px; background: rgba(37,99,235,0.05); border: 1px solid rgba(37,99,235,0.08); text-align: center; }
+    .score-item strong { display: block; color: var(--primary); font-size: 1.2rem; margin-bottom: 4px; }
+    .quiz-card { margin-top: 18px; }
+    .quiz-question { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; }
+    .option-list { display: grid; gap: 10px; margin-bottom: 16px; }
+    .option-btn { text-align: left; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(37,99,235,0.12); background: rgba(255,255,255,0.82); cursor: pointer; color: var(--text); transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease; }
+    .option-btn:hover { transform: translateY(-1px); border-color: rgba(37,99,235,0.30); background: rgba(37,99,235,0.05); }
+    body.dark-mode .option-btn { background: rgba(30,41,59,0.82); color: var(--text); border: 1px solid rgba(255,255,255,0.10); }
+    .feedback { margin-top: 12px; padding: 14px 16px; border-radius: 16px; display: none; }
+    .feedback.show { display: block; }
+    .feedback.success { background: rgba(22,163,74,0.10); color: var(--success); border: 1px solid rgba(22,163,74,0.18); }
+    .feedback.error { background: rgba(220,38,38,0.10); color: var(--danger); border: 1px solid rgba(220,38,38,0.18); }
+    .contact-form { display: grid; gap: 12px; margin-top: 14px; }
+    .contact-form input, .contact-form textarea { width: 100%; border: 1px solid rgba(37,99,235,0.12); border-radius: 16px; padding: 14px 16px; font: inherit; background: rgba(255,255,255,0.92); color: var(--text); }
+    body.dark-mode .contact-form input, body.dark-mode .contact-form textarea { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; }
+    .site-footer { padding: 22px 0 40px; color: var(--muted); font-size: 0.94rem; }
+    @media (max-width: 1100px) {
+      .hero-grid, .learn-area, .path-grid, .feature-grid, .theorems-grid { grid-template-columns: 1fr 1fr; }
+      .quick-stats, .scoreboard { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 760px) {
+      .hero-grid, .learn-area, .path-grid, .feature-grid, .theorems-grid, .quick-stats, .scoreboard, .mini-panel { grid-template-columns: 1fr; }
+      .nav { align-items: flex-start; } h1 { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="#home"><span class="brand-badge">◯</span><span data-i18n="brand">Circle Theorems Learning Hub</span></a>
+    <nav class="nav-links">
+      <a href="#home" data-i18n="navHome">Home</a>
+      <a href="#features" data-i18n="navFeatures">Features</a>
+      <a href="#paths" data-i18n="navPaths">Learn</a>
+      <a href="#theorems" data-i18n="navTheorems">Theorems</a>
+      <a href="#learn" data-i18n="navPractice">Practice</a>
+      <a href="#contact" data-i18n="navContact">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="btn btn-outline" id="langBtn">中文</button>
+      <button class="btn btn-outline" id="themeBtn">🌙 Dark</button>
+      <button class="btn btn-outline" id="cbBtn">👁 Colorblind</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="home">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow" data-i18n="eyebrow">📐 GCSE-friendly • Interactive • Visual</div>
+        <h1 data-i18n="heroTitle">Explore circle theorems with a clearer, smarter learning path.</h1>
+        <p data-i18n="heroDesc">The fourth revision turns the page from a well-designed homepage into a stronger learning module: clearer progress, richer feedback, independent theorem study, and a more complete practice experience.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#learn" data-i18n="heroPrimary">Start Learning</a>
+          <a class="btn btn-outline" href="#paths" data-i18n="heroSecondary">View Learning Routes</a>
+        </div>
+        <div class="quick-stats">
+          <div class="stat"><strong>4</strong><span data-i18n="statTheorems">Core theorem modules</span></div>
+          <div class="stat"><strong id="statCompletedTheorems">0</strong><span data-i18n="statCompleted">Completed theorems</span></div>
+          <div class="stat"><strong id="statQuizCorrect">0</strong><span data-i18n="statCorrect">Correct quiz answers</span></div>
+          <div class="stat"><strong id="statProgress">0%</strong><span data-i18n="statProgress">Overall progress</span></div>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="eyebrow" style="margin-bottom:12px;" data-i18n="previewBadge">Independent Learning Preview</div>
+        <div class="lesson-title" data-i18n="previewTitle">Circle relationships at a glance</div>
+        <div class="lesson-subtitle" data-i18n="previewDesc">Preview the visual logic before entering the full learning module.</div>
+        <div class="diagram">
+          <div class="circle">
+            <div class="center-dot"></div><div class="point a"></div><div class="point b"></div><div class="point c"></div>
+            <div class="line oa"></div><div class="line ob"></div><div class="line ca"></div><div class="line cb"></div>
+          </div>
+        </div>
+        <div class="mini-panel">
+          <div class="mini-card"><small data-i18n="mini1Label">Learning focus</small><strong data-i18n="mini1Value">Independent theorem study</strong></div>
+          <div class="mini-card"><small data-i18n="mini2Label">Added this revision</small><strong data-i18n="mini2Value">Progress + feedback</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 data-i18n="featuresTitle">What improved in the 4th revision</h2>
+          <p data-i18n="featuresDesc">This round focuses on stronger learning structure, visible progress, and better feedback rather than only visual polish.</p>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card"><div class="icon">📘</div><h3 data-i18n="feature1Title">Independent study area</h3><p data-i18n="feature1Desc">The learning module now feels more self-contained, not just a section hidden inside the homepage.</p></article>
+        <article class="feature-card"><div class="icon">📊</div><h3 data-i18n="feature2Title">Live progress tracking</h3><p data-i18n="feature2Desc">Completed theorem cards, correct answers, and total progress update dynamically as the learner advances.</p></article>
+        <article class="feature-card"><div class="icon">💬</div><h3 data-i18n="feature3Title">Richer feedback</h3><p data-i18n="feature3Desc">Each quiz answer now produces clearer result messages so users know what they understood and what needs review.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="paths">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 data-i18n="pathsTitle">Learning routes</h2>
+          <p data-i18n="pathsDesc">The homepage now explains a clearer order: learn the theorem, watch the visual relation, and then verify your understanding with feedback.</p>
+        </div>
+      </div>
+      <div class="path-grid">
+        <article class="path-card"><span class="tag" data-i18n="path1Tag">Route 1</span><h3 data-i18n="path1Title">Read the theorem</h3><p data-i18n="path1Desc">Start by opening a theorem card and reviewing the key statement in simpler language.</p><ul><li data-i18n="path1Item1">Understand the core relationship</li><li data-i18n="path1Item2">See what each point and angle represents</li></ul></article>
+        <article class="path-card"><span class="tag" data-i18n="path2Tag">Route 2</span><h3 data-i18n="path2Title">Use the interactive module</h3><p data-i18n="path2Desc">Move the controls and watch how the geometric relationship stays true while the figure changes.</p><ul><li data-i18n="path2Item1">Adjust radius and angle</li><li data-i18n="path2Item2">Watch the relation update live</li></ul></article>
+        <article class="path-card"><span class="tag" data-i18n="path3Tag">Route 3</span><h3 data-i18n="path3Title">Check understanding</h3><p data-i18n="path3Desc">Answer a quick question and receive immediate result feedback to confirm mastery.</p><ul><li data-i18n="path3Item1">Get correct / incorrect feedback</li><li data-i18n="path3Item2">See progress rise as you complete tasks</li></ul></article>
+      </div>
+      <div class="progress-shell"><div class="progress-fill" id="topProgressFill"></div></div>
+    </div>
+  </section>
+
+  <section id="theorems">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 data-i18n="theoremsTitle">Independent theorem modules</h2>
+          <p data-i18n="theoremsDesc">This revision makes theorem study feel more independent and trackable. Click a card to load its explanation into the learning area below.</p>
+        </div>
+      </div>
+      <div class="theorems-grid">
+        <article class="theorem-card" data-theorem="1"><div><span class="tag" data-i18n="th1Tag">Theorem 1</span><h3 data-i18n="th1Title">Angle at the centre</h3><p data-i18n="th1Desc">The angle at the centre is twice the angle at the circumference standing on the same arc.</p></div><button class="btn btn-outline theorem-open" data-theorem="1" data-i18n="openBtn">Open module</button></article>
+        <article class="theorem-card" data-theorem="2"><div><span class="tag" data-i18n="th2Tag">Theorem 2</span><h3 data-i18n="th2Title">Angle in a semicircle</h3><p data-i18n="th2Desc">The angle subtended by a diameter at the circumference is always 90°.</p></div><button class="btn btn-outline theorem-open" data-theorem="2" data-i18n="openBtn">Open module</button></article>
+        <article class="theorem-card" data-theorem="3"><div><span class="tag" data-i18n="th3Tag">Theorem 3</span><h3 data-i18n="th3Title">Same segment theorem</h3><p data-i18n="th3Desc">Angles subtended by the same arc at the circumference are equal.</p></div><button class="btn btn-outline theorem-open" data-theorem="3" data-i18n="openBtn">Open module</button></article>
+        <article class="theorem-card" data-theorem="4"><div><span class="tag" data-i18n="th4Tag">Theorem 4</span><h3 data-i18n="th4Title">Cyclic quadrilateral</h3><p data-i18n="th4Desc">Opposite angles in a cyclic quadrilateral add up to 180°.</p></div><button class="btn btn-outline theorem-open" data-theorem="4" data-i18n="openBtn">Open module</button></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="learn">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 data-i18n="learnTitle">Interactive learning module</h2>
+          <p data-i18n="learnDesc">This section is more independent in revision 4: theorem selection, live geometry, progress tracking, and quick assessment all work together.</p>
+        </div>
+      </div>
+      <div class="learn-area">
+        <div class="card learn-panel">
+          <div class="tag" id="currentTheoremTag">Theorem 1</div>
+          <h3 id="currentTheoremTitle">Angle at the centre</h3>
+          <p id="currentTheoremDesc" style="color:var(--muted); margin-bottom:12px;">The angle at the centre is twice the angle at the circumference standing on the same arc.</p>
+          <div class="info-box"><p id="currentTheoremExplain">Use the controls to change the circle and observe how the relationship stays consistent.</p></div>
+          <div class="controls">
+            <div class="control-row"><label for="radiusRange" data-i18n="radiusLabel">Radius</label><input type="range" id="radiusRange" min="90" max="170" value="130"></div>
+            <div class="control-row"><label for="angleRange" data-i18n="angleLabel">Angle</label><input type="range" id="angleRange" min="20" max="160" value="70"></div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-primary" id="markCompleteBtn" data-i18n="completeBtn">Mark this theorem as learned</button>
+              <button class="btn btn-outline" id="resetCanvasBtn" data-i18n="resetBtn">Reset controls</button>
+            </div>
+          </div>
+          <div class="scoreboard">
+            <div class="score-item"><strong id="scoreTheoremDone">0</strong><span data-i18n="scoreDone">Learned</span></div>
+            <div class="score-item"><strong id="scoreQuizDone">0</strong><span data-i18n="scoreQuiz">Quiz correct</span></div>
+            <div class="score-item"><strong id="scorePercent">0%</strong><span data-i18n="scorePercent">Completion</span></div>
+            <div class="score-item"><strong id="scoreMode">EN</strong><span data-i18n="scoreModeLabel">Language</span></div>
+          </div>
+        </div>
+        <div class="card learn-panel">
+          <canvas id="geometryCanvas" width="620" height="420"></canvas>
+          <div class="quiz-card">
+            <h3 data-i18n="quizTitle">Quick theorem check</h3>
+            <div class="quiz-question" id="quizQuestion">Which statement matches the current theorem?</div>
+            <div class="option-list" id="quizOptions"></div>
+            <div class="feedback" id="quizFeedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 data-i18n="contactTitle">Contact and reflection</h2>
+          <p data-i18n="contactDesc">The contact area remains available, but in this revision the emphasis is on tracking what users learned and how they performed.</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <h3 data-i18n="contactHeading">Leave your feedback</h3>
+        <p data-i18n="contactBody">Use this space to record what improved in the project, what users learned most clearly, and which modules still need refinement.</p>
+        <form class="contact-form" onsubmit="event.preventDefault(); alert(currentLang === 'zh' ? '留言已记录（演示版）' : 'Message recorded (demo)');">
+          <input type="text" data-i18n-placeholder="contactName" placeholder="Your name">
+          <input type="email" data-i18n-placeholder="contactEmail" placeholder="Your email">
+          <textarea data-i18n-placeholder="contactMsg" placeholder="Write your reflection or suggestions..."></textarea>
+          <button class="btn btn-primary" type="submit" data-i18n="contactSubmit">Submit</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer"><div class="container" data-i18n="footerText">© 2026 Circle Theorems Learning Hub · V2.5.a.4 · Independent learning module + feedback enhancement</div></footer>
+
+<script>
+const translations = {
+  en: {
+    brand:"Circle Theorems Learning Hub", navHome:"Home", navFeatures:"Features", navPaths:"Learn", navTheorems:"Theorems", navPractice:"Practice", navContact:"Contact",
+    eyebrow:"📐 GCSE-friendly • Interactive • Visual",
+    heroTitle:"Explore circle theorems with a clearer, smarter learning path.",
+    heroDesc:"The fourth revision turns the page from a well-designed homepage into a stronger learning module: clearer progress, richer feedback, independent theorem study, and a more complete practice experience.",
+    heroPrimary:"Start Learning", heroSecondary:"View Learning Routes",
+    statTheorems:"Core theorem modules", statCompleted:"Completed theorems", statCorrect:"Correct quiz answers", statProgress:"Overall progress",
+    previewBadge:"Independent Learning Preview", previewTitle:"Circle relationships at a glance", previewDesc:"Preview the visual logic before entering the full learning module.",
+    mini1Label:"Learning focus", mini1Value:"Independent theorem study", mini2Label:"Added this revision", mini2Value:"Progress + feedback",
+    featuresTitle:"What improved in the 4th revision", featuresDesc:"This round focuses on stronger learning structure, visible progress, and better feedback rather than only visual polish.",
+    feature1Title:"Independent study area", feature1Desc:"The learning module now feels more self-contained, not just a section hidden inside the homepage.",
+    feature2Title:"Live progress tracking", feature2Desc:"Completed theorem cards, correct answers, and total progress update dynamically as the learner advances.",
+    feature3Title:"Richer feedback", feature3Desc:"Each quiz answer now produces clearer result messages so users know what they understood and what needs review.",
+    pathsTitle:"Learning routes", pathsDesc:"The homepage now explains a clearer order: learn the theorem, watch the visual relation, and then verify your understanding with feedback.",
+    path1Tag:"Route 1", path1Title:"Read the theorem", path1Desc:"Start by opening a theorem card and reviewing the key statement in simpler language.", path1Item1:"Understand the core relationship", path1Item2:"See what each point and angle represents",
+    path2Tag:"Route 2", path2Title:"Use the interactive module", path2Desc:"Move the controls and watch how the geometric relationship stays true while the figure changes.", path2Item1:"Adjust radius and angle", path2Item2:"Watch the relation update live",
+    path3Tag:"Route 3", path3Title:"Check understanding", path3Desc:"Answer a quick question and receive immediate result feedback to confirm mastery.", path3Item1:"Get correct / incorrect feedback", path3Item2:"See progress rise as you complete tasks",
+    theoremsTitle:"Independent theorem modules", theoremsDesc:"This revision makes theorem study feel more independent and trackable. Click a card to load its explanation into the learning area below.",
+    th1Tag:"Theorem 1", th1Title:"Angle at the centre", th1Desc:"The angle at the centre is twice the angle at the circumference standing on the same arc.",
+    th2Tag:"Theorem 2", th2Title:"Angle in a semicircle", th2Desc:"The angle subtended by a diameter at the circumference is always 90°.",
+    th3Tag:"Theorem 3", th3Title:"Same segment theorem", th3Desc:"Angles subtended by the same arc at the circumference are equal.",
+    th4Tag:"Theorem 4", th4Title:"Cyclic quadrilateral", th4Desc:"Opposite angles in a cyclic quadrilateral add up to 180°.",
+    openBtn:"Open module",
+    learnTitle:"Interactive learning module", learnDesc:"This section is more independent in revision 4: theorem selection, live geometry, progress tracking, and quick assessment all work together.",
+    radiusLabel:"Radius", angleLabel:"Angle", completeBtn:"Mark this theorem as learned", resetBtn:"Reset controls",
+    scoreDone:"Learned", scoreQuiz:"Quiz correct", scorePercent:"Completion", scoreModeLabel:"Language", quizTitle:"Quick theorem check",
+    contactTitle:"Contact and reflection", contactDesc:"The contact area remains available, but in this revision the emphasis is on tracking what users learned and how they performed.",
+    contactHeading:"Leave your feedback", contactBody:"Use this space to record what improved in the project, what users learned most clearly, and which modules still need refinement.",
+    contactSubmit:"Submit", contactName:"Your name", contactEmail:"Your email", contactMsg:"Write your reflection or suggestions...", footerText:"© 2026 Circle Theorems Learning Hub · V2.5.a.4 · Independent learning module + feedback enhancement"
+  },
+  zh: {
+    brand:"圆定理学习中心", navHome:"首页", navFeatures:"升级亮点", navPaths:"学习路径", navTheorems:"定理模块", navPractice:"交互学习", navContact:"联系反馈",
+    eyebrow:"📐 适合 GCSE • 交互式 • 可视化",
+    heroTitle:"用更清晰、更有结构的方式学习圆定理。",
+    heroDesc:"第四次修改不再只是美化首页，而是把页面进一步升级为更完整的学习模块：学习进度更清楚、反馈更丰富、定理学习更独立、练习体验更完整。",
+    heroPrimary:"开始学习", heroSecondary:"查看学习路径",
+    statTheorems:"核心定理模块", statCompleted:"已完成定理", statCorrect:"答对测验题", statProgress:"总体进度",
+    previewBadge:"独立学习预览", previewTitle:"先看懂圆中的关系", previewDesc:"在进入完整学习模块前，先用首页预览理解图形中的核心逻辑。",
+    mini1Label:"本次重点", mini1Value:"独立定理学习", mini2Label:"新增能力", mini2Value:"进度 + 反馈",
+    featuresTitle:"第 4 次修改的提升点", featuresDesc:"这一轮重点不只是视觉优化，而是进一步强化学习结构、进度可视化与答题反馈。",
+    feature1Title:"学习区更独立", feature1Desc:"学习模块不再像首页里的普通区块，而更像一个单独可使用的学习区域。",
+    feature2Title:"实时进度追踪", feature2Desc:"完成定理、答对题目和总体进度会随着学习过程动态更新。",
+    feature3Title:"反馈更清晰", feature3Desc:"每次测验作答后都能得到更明确的正确/错误反馈，方便展示学习成果。",
+    pathsTitle:"学习路径", pathsDesc:"首页现在更明确地告诉用户应该先学什么、怎么观察、再如何验证自己是否掌握。",
+    path1Tag:"路径 1", path1Title:"先看定理", path1Desc:"先打开定理模块，用更容易理解的方式掌握核心结论。", path1Item1:"理解图形关系本身", path1Item2:"知道每个点和角的含义",
+    path2Tag:"路径 2", path2Title:"再做交互观察", path2Desc:"通过拖动参数变化，观察图形在变化时核心关系如何始终成立。", path2Item1:"调节半径与角度", path2Item2:"实时观察关系变化",
+    path3Tag:"路径 3", path3Title:"最后做即时检测", path3Desc:"通过快速测验获得即时反馈，判断是否真正掌握当前定理。", path3Item1:"获得正确/错误反馈", path3Item2:"随着完成情况提升进度",
+    theoremsTitle:"独立定理模块", theoremsDesc:"第四次修改让定理学习更独立、更可追踪。点击卡片后，下方学习区会加载对应定理与练习。",
+    th1Tag:"定理 1", th1Title:"圆心角定理", th1Desc:"同弧所对的圆心角等于圆周角的两倍。",
+    th2Tag:"定理 2", th2Title:"半圆中的角", th2Desc:"直径所对的圆周角恒为 90°。",
+    th3Tag:"定理 3", th3Title:"同弧定理", th3Desc:"同弧所对的圆周角相等。",
+    th4Tag:"定理 4", th4Title:"圆内接四边形", th4Desc:"圆内接四边形的对角互补，总和为 180°。",
+    openBtn:"进入模块",
+    learnTitle:"交互学习模块", learnDesc:"这一版中，定理选择、图形演示、学习进度和即时检测被更紧密地整合在一起，形成更完整的独立学习体验。",
+    radiusLabel:"半径", angleLabel:"角度", completeBtn:"标记本定理已学会", resetBtn:"重置参数",
+    scoreDone:"已学定理", scoreQuiz:"测验答对", scorePercent:"完成度", scoreModeLabel:"当前语言", quizTitle:"快速检测",
+    contactTitle:"联系与反思", contactDesc:"联系模块依然保留，但这一轮版本的重点已经转向记录用户学到了什么、掌握到了什么程度。",
+    contactHeading:"留下你的反馈", contactBody:"你可以在这里记录这一轮项目中最明显的提升点、用户最容易理解的部分，以及后续还需要继续优化的模块。",
+    contactSubmit:"提交", contactName:"你的姓名", contactEmail:"你的邮箱", contactMsg:"写下你的反馈或修改建议……", footerText:"© 2026 圆定理学习中心 · V2.5.a.4 · 独立学习模块与反馈增强版"
+  }
+};
+
+const theoremData = {
+  1: {title:{en:"Angle at the centre",zh:"圆心角定理"}, tag:{en:"Theorem 1",zh:"定理 1"}, desc:{en:"The angle at the centre is twice the angle at the circumference standing on the same arc.",zh:"同弧所对的圆心角等于圆周角的两倍。"}, explain:{en:"As the central angle changes, the inscribed angle changes with it and stays exactly half as large.",zh:"当圆心角变化时，对应圆周角也会变化，并始终保持为圆心角的一半。"}, quizQuestion:{en:"Which statement matches the current theorem?",zh:"以下哪句话符合当前定理？"}, options:{en:["The central angle is twice the angle at the circumference on the same arc.","The angle in a semicircle is always 90°.","Opposite angles in a cyclic quadrilateral total 180°."],zh:["同弧所对的圆心角是圆周角的两倍。","半圆所对的圆周角恒为 90°。","圆内接四边形的对角和为 180°。"]}, correct:0},
+  2: {title:{en:"Angle in a semicircle",zh:"半圆中的角"}, tag:{en:"Theorem 2",zh:"定理 2"}, desc:{en:"The angle subtended by a diameter at the circumference is always 90°.",zh:"直径所对的圆周角恒为 90°。"}, explain:{en:"No matter where the point moves on the semicircle, the triangle keeps a right angle at the circumference.",zh:"无论点在半圆上怎样移动，圆周角始终保持直角。"}, quizQuestion:{en:"What remains true in this theorem?",zh:"这个定理中始终成立的是什么？"}, options:{en:["Angles on the same arc are equal.","The angle from a diameter at the circumference is always 90°.","The central angle is three times the circumference angle."],zh:["同弧所对的角总相等。","直径所对的圆周角始终是 90°。","圆心角总是圆周角的三倍。"]}, correct:1},
+  3: {title:{en:"Same segment theorem",zh:"同弧定理"}, tag:{en:"Theorem 3",zh:"定理 3"}, desc:{en:"Angles subtended by the same arc at the circumference are equal.",zh:"同弧所对的圆周角相等。"}, explain:{en:"Two points on the circumference looking at the same chord create equal angles.",zh:"圆周上两个点只要对着同一条弧或弦，就会形成相等的圆周角。"}, quizQuestion:{en:"Which option describes this theorem best?",zh:"哪一项最准确描述了这个定理？"}, options:{en:["Angles in the same segment are equal.","All central angles are 90°.","A tangent is parallel to the radius."],zh:["同弧所对的圆周角相等。","所有圆心角都等于 90°。","切线与半径平行。"]}, correct:0},
+  4: {title:{en:"Cyclic quadrilateral",zh:"圆内接四边形"}, tag:{en:"Theorem 4",zh:"定理 4"}, desc:{en:"Opposite angles in a cyclic quadrilateral add up to 180°.",zh:"圆内接四边形的对角互补，总和为 180°。"}, explain:{en:"If four points lie on a circle, then each pair of opposite angles always sums to 180°.",zh:"如果四个点都在圆上，那么这四边形的任意一对对角之和都等于 180°。"}, quizQuestion:{en:"What is always true for a cyclic quadrilateral?",zh:"对于圆内接四边形，哪一项一定成立？"}, options:{en:["All four angles are equal.","Opposite angles add up to 180°.","Every side has equal length."],zh:["四个角全部相等。","对角之和等于 180°。","四条边长度都相等。"]}, correct:1}
+};
+
+let currentLang = localStorage.getItem("ct_lang_v254") || "en";
+let isDark = localStorage.getItem("ct_dark_v254") === "1";
+let isColorblind = localStorage.getItem("ct_cb_v254") === "1";
+let state = {
+  currentTheorem: 1, radius: 130, angle: 70,
+  completedTheorems: JSON.parse(localStorage.getItem("ct_done_v254") || "[]"),
+  correctAnswers: Number(localStorage.getItem("ct_correct_v254") || 0),
+  answeredPairs: JSON.parse(localStorage.getItem("ct_answered_v254") || "[]")
+};
+
+const canvas = document.getElementById("geometryCanvas");
+const ctx = canvas.getContext("2d");
+
+function applyMode() {
+  document.body.classList.toggle("dark-mode", isDark);
+  document.body.classList.toggle("colorblind-mode", isColorblind);
+  document.getElementById("themeBtn").textContent = currentLang === "zh" ? (isDark ? "☀️ 亮色" : "🌙 暗夜") : (isDark ? "☀️ Light" : "🌙 Dark");
+  document.getElementById("cbBtn").textContent = currentLang === "zh" ? "👁 色盲模式" : "👁 Colorblind";
+}
+function saveState() {
+  localStorage.setItem("ct_done_v254", JSON.stringify(state.completedTheorems));
+  localStorage.setItem("ct_correct_v254", String(state.correctAnswers));
+  localStorage.setItem("ct_answered_v254", JSON.stringify(state.answeredPairs));
+  localStorage.setItem("ct_lang_v254", currentLang);
+  localStorage.setItem("ct_dark_v254", isDark ? "1" : "0");
+  localStorage.setItem("ct_cb_v254", isColorblind ? "1" : "0");
+}
+function getProgressPercent() {
+  const theoremPart = state.completedTheorems.length / 4;
+  const quizPart = Math.min(state.correctAnswers, 4) / 4;
+  return Math.round((theoremPart * 0.6 + quizPart * 0.4) * 100);
+}
+function updateStats() {
+  document.getElementById("statCompletedTheorems").textContent = state.completedTheorems.length;
+  document.getElementById("statQuizCorrect").textContent = state.correctAnswers;
+  const percent = getProgressPercent();
+  document.getElementById("statProgress").textContent = percent + "%";
+  document.getElementById("scoreTheoremDone").textContent = state.completedTheorems.length;
+  document.getElementById("scoreQuizDone").textContent = state.correctAnswers;
+  document.getElementById("scorePercent").textContent = percent + "%";
+  document.getElementById("scoreMode").textContent = currentLang.toUpperCase();
+  document.getElementById("topProgressFill").style.width = percent + "%";
+  document.querySelectorAll(".theorem-card").forEach(card => {
+    const theoremId = Number(card.dataset.theorem);
+    card.classList.toggle("completed", state.completedTheorems.includes(theoremId));
+  });
+  saveState();
+}
+function renderCurrentTheoremText() {
+  const t = theoremData[state.currentTheorem];
+  document.getElementById("currentTheoremTag").textContent = t.tag[currentLang];
+  document.getElementById("currentTheoremTitle").textContent = t.title[currentLang];
+  document.getElementById("currentTheoremDesc").textContent = t.desc[currentLang];
+  document.getElementById("currentTheoremExplain").textContent = t.explain[currentLang];
+}
+function renderQuiz() {
+  const t = theoremData[state.currentTheorem];
+  document.getElementById("quizQuestion").textContent = t.quizQuestion[currentLang];
+  const optionsEl = document.getElementById("quizOptions");
+  const feedbackEl = document.getElementById("quizFeedback");
+  feedbackEl.className = "feedback"; feedbackEl.textContent = "";
+  optionsEl.innerHTML = "";
+  t.options[currentLang].forEach((opt, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.onclick = () => handleQuizAnswer(idx);
+    optionsEl.appendChild(btn);
+  });
+}
+function handleQuizAnswer(selectedIndex) {
+  const t = theoremData[state.currentTheorem];
+  const pairKey = currentLang + "_" + state.currentTheorem;
+  const feedbackEl = document.getElementById("quizFeedback");
+  if (selectedIndex === t.correct) {
+    if (!state.answeredPairs.includes(pairKey)) {
+      state.correctAnswers += 1;
+      state.answeredPairs.push(pairKey);
+    }
+    feedbackEl.className = "feedback success show";
+    feedbackEl.textContent = currentLang === "zh" ? "回答正确：你已经掌握了当前定理的核心结论。" : "Correct: you matched the current theorem successfully.";
+  } else {
+    feedbackEl.className = "feedback error show";
+    feedbackEl.textContent = currentLang === "zh" ? "回答错误：请再结合上方图形关系和定理说明观察一次。" : "Incorrect: review the theorem statement and diagram above, then try again.";
+  }
+  updateStats();
+}
+function markCurrentComplete() {
+  if (!state.completedTheorems.includes(state.currentTheorem)) state.completedTheorems.push(state.currentTheorem);
+  updateStats();
+  alert(currentLang === "zh" ? "已记录当前定理为已学习。" : "Current theorem marked as learned.");
+}
+function loadTheorem(theoremId) {
+  state.currentTheorem = theoremId;
+  renderCurrentTheoremText();
+  renderQuiz();
+  drawGeometry();
+  document.getElementById("learn").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function applyTranslations() {
+  document.documentElement.lang = currentLang === "zh" ? "zh-CN" : "en";
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (translations[currentLang][key]) el.textContent = translations[currentLang][key];
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    if (translations[currentLang][key]) el.placeholder = translations[currentLang][key];
+  });
+  document.getElementById("langBtn").textContent = currentLang === "zh" ? "EN" : "中文";
+  applyMode();
+  renderCurrentTheoremText();
+  renderQuiz();
+  updateStats();
+}
+function getCirclePoint(cx, cy, r, deg) {
+  const rad = deg * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+function drawLine(x1, y1, x2, y2, color, width) {
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke();
+}
+function drawPolygon(points, color, width) {
+  ctx.beginPath(); ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+  ctx.closePath(); ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke();
+}
+function drawPoint(x, y, label) {
+  ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fillStyle = "#2563eb"; ctx.fill();
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text').trim() || "#16324f";
+  ctx.font = "bold 14px Arial"; ctx.fillText(label, x + 8, y - 8);
+}
+function drawText(text, x, y) {
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text').trim() || "#16324f";
+  ctx.font = "14px Arial"; ctx.fillText(text, x, y);
+}
+function drawGeometry() {
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2, r = state.radius, angleDeg = state.angle, theta = angleDeg * Math.PI / 180;
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#2563eb';
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  if (state.currentTheorem === 1) {
+    const A = { x: cx + r, y: cy };
+    const B = { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
+    const C = { x: cx + r * Math.cos(theta / 2 + Math.PI), y: cy + r * Math.sin(theta / 2 + Math.PI) };
+    drawLine(cx, cy, A.x, A.y, "#2563eb", 3); drawLine(cx, cy, B.x, B.y, "#2563eb", 3); drawLine(C.x, C.y, A.x, A.y, "#7c3aed", 3); drawLine(C.x, C.y, B.x, B.y, "#7c3aed", 3);
+    drawPoint(A.x, A.y, "A"); drawPoint(B.x, B.y, "B"); drawPoint(C.x, C.y, "C"); drawPoint(cx, cy, "O");
+    drawText((currentLang === "zh" ? "圆心角: " : "Central angle: ") + angleDeg + "°", cx + 20, cy - 16);
+    drawText((currentLang === "zh" ? "圆周角: " : "Inscribed angle: ") + Math.round(angleDeg / 2) + "°", C.x + 18, C.y - 8);
+  } else if (state.currentTheorem === 2) {
+    const A = { x: cx - r, y: cy }, B = { x: cx + r, y: cy }, C = { x: cx + r * Math.cos(theta), y: cy - r * Math.sin(theta) };
+    drawLine(A.x, A.y, B.x, B.y, "#2563eb", 3); drawLine(A.x, A.y, C.x, C.y, "#7c3aed", 3); drawLine(B.x, B.y, C.x, C.y, "#7c3aed", 3);
+    drawPoint(A.x, A.y, "A"); drawPoint(B.x, B.y, "B"); drawPoint(C.x, C.y, "C"); drawPoint(cx, cy, "O");
+    drawText(currentLang === "zh" ? "∠ACB = 90°" : "∠ACB = 90°", C.x + 16, C.y - 8);
+  } else if (state.currentTheorem === 3) {
+    const A = { x: cx + r * Math.cos(Math.PI * 0.15), y: cy - r * Math.sin(Math.PI * 0.15) };
+    const B = { x: cx - r * Math.cos(Math.PI * 0.15), y: cy - r * Math.sin(Math.PI * 0.15) };
+    const C = { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
+    const D = { x: cx + r * Math.cos(theta + 0.8), y: cy + r * Math.sin(theta + 0.8) };
+    drawLine(C.x, C.y, A.x, A.y, "#7c3aed", 3); drawLine(C.x, C.y, B.x, B.y, "#7c3aed", 3); drawLine(D.x, D.y, A.x, A.y, "#0ea5e9", 3); drawLine(D.x, D.y, B.x, B.y, "#0ea5e9", 3);
+    drawPoint(A.x, A.y, "A"); drawPoint(B.x, B.y, "B"); drawPoint(C.x, C.y, "C"); drawPoint(D.x, D.y, "D");
+    drawText(currentLang === "zh" ? "同弧所对角相等" : "Angles in same segment are equal", cx - 90, cy + r + 26);
+  } else {
+    const P1 = getCirclePoint(cx, cy, r, -30), P2 = getCirclePoint(cx, cy, r, 50), P3 = getCirclePoint(cx, cy, r, 140), P4 = getCirclePoint(cx, cy, r, 225);
+    drawPolygon([P1, P2, P3, P4], "#7c3aed", 3);
+    drawPoint(P1.x, P1.y, "A"); drawPoint(P2.x, P2.y, "B"); drawPoint(P3.x, P3.y, "C"); drawPoint(P4.x, P4.y, "D");
+    drawText(currentLang === "zh" ? "对角和 = 180°" : "Opposite angles = 180°", cx - 72, cy + r + 26);
+  }
+}
+document.getElementById("langBtn").addEventListener("click", () => { currentLang = currentLang === "en" ? "zh" : "en"; applyTranslations(); });
+document.getElementById("themeBtn").addEventListener("click", () => { isDark = !isDark; applyMode(); drawGeometry(); saveState(); });
+document.getElementById("cbBtn").addEventListener("click", () => { isColorblind = !isColorblind; applyMode(); drawGeometry(); saveState(); });
+document.getElementById("markCompleteBtn").addEventListener("click", markCurrentComplete);
+document.getElementById("resetCanvasBtn").addEventListener("click", () => { state.radius = 130; state.angle = 70; document.getElementById("radiusRange").value = state.radius; document.getElementById("angleRange").value = state.angle; drawGeometry(); });
+document.getElementById("radiusRange").addEventListener("input", e => { state.radius = Number(e.target.value); drawGeometry(); });
+document.getElementById("angleRange").addEventListener("input", e => { state.angle = Number(e.target.value); drawGeometry(); });
+document.querySelectorAll(".theorem-open").forEach(btn => btn.addEventListener("click", () => loadTheorem(Number(btn.dataset.theorem))));
+document.querySelectorAll(".theorem-card").forEach(card => card.addEventListener("click", e => { if (!e.target.classList.contains("theorem-open")) loadTheorem(Number(card.dataset.theorem)); }));
+window.addEventListener("load", () => { document.body.classList.add("page-loaded"); applyTranslations(); updateStats(); drawGeometry(); });
+</script>
+</body>
+</html>
