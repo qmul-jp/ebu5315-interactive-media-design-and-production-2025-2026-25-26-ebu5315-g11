@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz V2.0.4</title>
+  <style>
+    :root{--p:#2563eb;--p2:#7c3aed;--s:#eff6ff;--c:#22c55e;--w:#ef4444}
+    *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+    body{padding:20px;background:radial-gradient(circle at 20% 20%,rgba(37,99,235,0.04),transparent),radial-gradient(circle at 80% 80%,rgba(124,58,237,0.04),transparent),linear-gradient(180deg,#f9fafb,#e5e7eb);min-height:100vh}
+    .wrap{max-width:800px;margin:auto}
+    .card{background:rgba(255,255,255,0.85);backdrop-filter:blur(5px);border-radius:20px;padding:30px;box-shadow:0 10px 25px #00000010}
+    .title{background:linear-gradient(90deg,var(--p),var(--p2));-webkit-background-clip:text;color:transparent;margin-bottom:10px}
+    .status{display:flex;justify-content:space-between;margin:20px 0}
+    .stat{background:var(--s);padding:12px 16px;border-radius:12px}
+    .bar{height:8px;background:#e5e7eb;border-radius:4px;margin-bottom:20px}
+    .fill{height:100%;background:var(--p);width:20%;transition:.3s}
+    .q{font-size:18px;margin-bottom:20px}
+    .opt{width:100%;padding:14px;margin:8px 0;border:1px solid #e5e7eb;border-radius:12px;text-align:left;cursor:pointer;transition:.2s}
+    .opt:hover{transform:translateY(-2px);border-color:var(--p)}
+    .correct{background:#dcfce7;border-color:var(--c)}
+    .wrong{background:#fee2e2;border-color:var(--w)}
+    .disabled{pointer-events:none}
+    .btn{padding:12px 24px;border:none;border-radius:10px;background:var(--p);color:white;cursor:pointer;margin-right:10px;margin-top:10px;transition:0.2s}
+    .btn:hover{background:#1d4ed8}
+    .end{display:none;text-align:center;padding:20px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1 class="title">Circle Theorems Quiz</h1>
+    <div class="status">
+      <div class="stat">Q: <span id="num">1/5</span></div>
+      <div class="stat">Score: <span id="sc">0</span></div>
+    </div>
+    <div class="bar"><div class="fill" id="bar"></div></div>
+    <div class="q" id="q"></div>
+    <div id="opts"></div>
+    <div id="res" style="margin:10px 0;font-weight:bold"></div>
+    <button class="btn" id="next" style="display:none">Next Question</button>
+    <button class="btn" id="reset">Restart</button>
+    <div class="end" id="end">
+      <h2>Finished!</h2>
+      <p id="final"></p>
+      <button class="btn" id="again">Restart Quiz</button>
+    </div>
+  </div>
+</div>
+<script>
+  const quiz = [
+    {q:"Angle at centre is?",o:["Same","Twice","Three","Half"],a:1},
+    {q:"Angle in semicircle?",o:["45","60","90","120"],a:2},
+    {q:"Angles in same segment?",o:["Supplementary","Equal","Double","Opposite"],a:1},
+    {q:"Cyclic quadrilateral opposite angles?",o:["90","180","270","360"],a:1},
+    {q:"Radius and tangent?",o:["Parallel","Equal","Perpendicular","Opposite"],a:2}
+  ];
+  let curr = 0;
+  let sc = 0;
+  let ans = false;
+  const num=document.getElementById("num"),scEl=document.getElementById("sc"),bar=document.getElementById("bar"),q=document.getElementById("q"),opts=document.getElementById("opts"),res=document.getElementById("res"),next=document.getElementById("next"),reset=document.getElementById("reset"),end=document.getElementById("end"),final=document.getElementById("final"),again=document.getElementById("again");
+  function upBar(){bar.style.width=((curr+1)/5*100)+"%"}
+  function load(){ans=false;res.innerText="";next.style.display="none";const qs=quiz[curr];num.innerText=(curr+1)+"/5";q.innerText=qs.q;opts.innerHTML="";upBar();qs.o.forEach((op,i)=>{const b=document.createElement("button");b.className="opt";b.innerText=op;b.onclick=()=>pick(i,b);opts.appendChild(b)})}
+  function pick(i,b){if(ans)return;ans=true;const all=document.querySelectorAll(".opt");all.forEach(x=>x.classList.add("disabled"));if(i===quiz[curr].a){b.classList.add("correct");res.innerText="Correct ✅";res.style.color="#22c55e";sc++;scEl.innerText=sc}else{b.classList.add("wrong");res.innerText="Wrong ❌";res.style.color="#ef4444";all[quiz[curr].a].classList.add("correct")}next.style.display="inline-block"}
+  next.onclick=()=>{curr++;curr>=5?(end.style.display="block",final.innerText=`You scored ${sc}/5`):load()}
+  function restart(){curr=0;sc=0;scEl.innerText=0;end.style.display="none";load()}
+  reset.onclick=restart;again.onclick=restart;load();
+</script>
+</body>
+</html>
