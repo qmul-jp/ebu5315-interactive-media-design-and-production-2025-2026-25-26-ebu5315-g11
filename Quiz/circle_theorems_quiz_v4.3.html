@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circle Theorems Quiz</title>
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .option-btn.correct { }
+        .option-btn.wrong { }
+        .option-btn.disabled {
+            pointer-events: none;
+            opacity: 0.94;
+        }
+
+        .result-text {
+            min-height: 28px;
+            margin-top: 14px;
+            font-weight: 700;
+        }
+
+        .result-text.success { color: #14803c; }
+        .result-text.error { color: #c62828; }
+
+        .final-box {
+            display: none;
+        }
+
+        .final-controls {
+            justify-content: center;
+        }
+
+        @media (max-width: 760px) {
+            .meta-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        :root {
+            --bg: #f5f8ff;
+            --card: rgba(255,255,255,0.80);
+            --text: #16324f;
+            --muted: #5f7691;
+            --primary: #2563eb;
+            --primary-2: #7c3aed;
+            --line: rgba(37, 99, 235, 0.12);
+            --shadow: 0 18px 45px rgba(37, 99, 235, 0.12);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59,130,246,0.14), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(124,58,237,0.12), transparent 24%),
+                var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 24px;
+        }
+
+        .page {
+            width: min(920px, 100%);
+            margin: 0 auto;
+        }
+
+        .simple-top {
+            margin-bottom: 22px;
+        }
+
+        .simple-top h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 10px;
+        }
+
+        .simple-top p {
+            color: var(--muted);
+            max-width: 60ch;
+        }
+
+        .quiz-shell {
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.68);
+            border-radius: 27px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(14px);
+            padding: 28px;
+        }
+
+        .version-chip {
+            display: inline-flex;
+            padding: 8px 13px;
+            border-radius: 999px;
+            background: rgba(37,99,235,0.08);
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .meta-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .meta-card {
+            background: rgba(37,99,235,0.05);
+            border: 1px solid rgba(37,99,235,0.08);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .meta-label {
+            display: block;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+        }
+
+        .meta-card strong {
+            font-size: 1.15rem;
+            color: var(--primary);
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(37,99,235,0.08);
+            overflow: hidden;
+            margin-bottom: 22px;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            transition: width 0.25s ease;
+        }
+
+        .question-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-btn {
+            border: 1px solid rgba(37,99,235,0.12);
+            background: rgba(255,255,255,0.88);
+            color: var(--text);
+            border-radius: 16px;
+            padding: 15px 16px;
+            font-size: 1rem;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37,99,235,0.10);
+        }
+
+        .option-btn.correct { background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.35); }
+        .option-btn.wrong { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.35); }
+
+        .controls {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border-radius: 999px;
+            padding: 12px 18px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(37,99,235,0.14);
+        }
+
+        .btn-primary {
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.86);
+            color: var(--primary);
+            border: 1px solid rgba(37,99,235,0.12);
+        }
+
+        .final-box {
+            text-align: center;
+            padding: 20px 0 6px;
+        }
+
+        .final-box h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .final-box p {
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 760px) {
+            .meta-row {
+                grid-template-columns: 1fr;
+            }
+
+            .quiz-shell {
+                padding: 22px;
+            }
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .badge {
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(37,99,235,0.08);
+            color: var(--primary);
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+
+    </style>
+</head>
+<body class="">
+
+<div class="page">
+    
+<div class="topbar">
+    <a href="UI.html" class="back-link">← Back to Home</a>
+    <div class="badge">Quiz & Practice</div>
+</div>
+<header class="simple-top">
+    <h1>Circle Theorems Quiz</h1>
+    <p>The cards, borders, and palette are now tuned to match the final visual language much more closely.</p>
+</header>
+
+    <main class="quiz-shell">
+        <div class="version-chip">Version 4.3</div>
+        
+<section class="meta-row">
+    <div class="meta-card">
+        <span class="meta-label">Question</span>
+        <strong id="questionNumber">1 / 5</strong>
+    </div>
+    <div class="meta-card">
+        <span class="meta-label">Score</span>
+        <strong id="scoreText">0</strong>
+    </div>
+    <div class="meta-card">
+        <span class="meta-label">Status</span>
+        <strong id="statusText">Ready</strong>
+    </div>
+</section>
+
+        <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+        <div id="quizArea">
+            <section class="question-panel">
+                <div class="question-title" id="questionText"></div>
+                <div class="options" id="optionsBox"></div>
+                <div class="result-text" id="resultText"></div>
+                <div class="controls">
+                    <button class="btn btn-primary" id="nextBtn" style="display:none;">Next Question</button>
+                    <button class="btn btn-secondary" id="restartBtn">Restart Quiz</button>
+                </div>
+            
+        </div>
+        <div class="final-box" id="finalBox">
+            <h2>Quiz Complete</h2>
+            <p id="finalMessage"></p>
+            
+            <div class="controls final-controls">
+                <button class="btn btn-primary" id="restartFinalBtn">Try Again</button>
+                <a href="UI.html" class="btn btn-secondary">Return Home</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+const quizData = [
+    {
+        question: "The angle at the centre is how many times the angle at the circumference standing on the same arc?",
+        options: ["The same", "Twice", "Three times", "Half"],
+        answer: 1
+    },
+    {
+        question: "The angle in a semicircle is always:",
+        options: ["45°", "60°", "90°", "120°"],
+        answer: 2
+    },
+    {
+        question: "Angles in the same segment are:",
+        options: ["Supplementary", "Equal", "Double", "Opposite"],
+        answer: 1
+    },
+    {
+        question: "Opposite angles in a cyclic quadrilateral add up to:",
+        options: ["90°", "180°", "270°", "360°"],
+        answer: 1
+    },
+    {
+        question: "A radius and a tangent at the point of contact are:",
+        options: ["Parallel", "Equal", "Perpendicular", "Opposite"],
+        answer: 2
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+const questionNumber = document.getElementById("questionNumber");
+const scoreText = document.getElementById("scoreText");
+const statusText = document.getElementById("statusText");
+const questionText = document.getElementById("questionText");
+const optionsBox = document.getElementById("optionsBox");
+const resultText = document.getElementById("resultText");
+const nextBtn = document.getElementById("nextBtn");
+const restartBtn = document.getElementById("restartBtn");
+const finalBox = document.getElementById("finalBox");
+const quizArea = document.getElementById("quizArea");
+const finalMessage = document.getElementById("finalMessage");
+const progressFill = document.getElementById("progressFill");
+
+function setProgress() {
+    if (!progressFill) return;
+    const percent = ((currentQuestion) / quizData.length) * 100;
+    progressFill.style.width = `${percent}%`;
+}
+
+function renderQuestion() {
+    answered = false;
+    resultText.textContent = "";
+    resultText.className = "result-text";
+    nextBtn.style.display = "none";
+
+    const q = quizData[currentQuestion];
+    questionNumber.textContent = `${currentQuestion + 1} / ${quizData.length}`;
+    scoreText.textContent = score;
+    statusText.textContent = "In Progress";
+    questionText.textContent = q.question;
+
+    optionsBox.innerHTML = "";
+
+    q.options.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = option;
+        btn.addEventListener("click", () => handleAnswer(index));
+        optionsBox.appendChild(btn);
+    });
+
+    setProgress();
+}
+
+function handleAnswer(selectedIndex) {
+    if (answered) return;
+    answered = true;
+
+    const q = quizData[currentQuestion];
+    const buttons = document.querySelectorAll(".option-btn");
+
+    buttons.forEach((btn, index) => {
+        btn.classList.add("disabled");
+
+        if (index === q.answer) {
+            btn.classList.add("correct");
+        }
+
+        if (index === selectedIndex && index !== q.answer) {
+            btn.classList.add("wrong");
+        }
+    });
+
+    if (selectedIndex === q.answer) {
+        score++;
+        scoreText.textContent = score;
+        resultText.textContent = "Correct!";
+        resultText.classList.add("success");
+    } else {
+        resultText.textContent = "Wrong answer.";
+        resultText.classList.add("error");
+    }
+
+    nextBtn.style.display = "inline-flex";
+}
+
+function showFinalResult() {
+    quizArea.style.display = "none";
+    finalBox.style.display = "block";
+    statusText.textContent = "Completed";
+    if (progressFill) progressFill.style.width = "100%";
+    finalMessage.textContent = `You scored ${score} out of ${quizData.length}.`;
+}
+
+nextBtn.addEventListener("click", () => {
+    currentQuestion++;
+
+    if (currentQuestion >= quizData.length) {
+        showFinalResult();
+    } else {
+        renderQuestion();
+    }
+});
+
+function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    quizArea.style.display = "block";
+    finalBox.style.display = "none";
+    renderQuestion();
+}
+
+restartBtn.addEventListener("click", restartQuiz);
+document.getElementById("restartFinalBtn").addEventListener("click", restartQuiz);
+
+renderQuestion();
+</script>
+</body>
+</html>
