@@ -1,0 +1,2496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Circle Theorems Learning</title>
+    <style>
+       * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+:root {
+  --bg: #f4f8ff;
+  --card: rgba(255, 255, 255, 0.78);
+  --text: #16324f;
+  --muted: #5f7691;
+  --primary: #2563eb;
+  --primary-2: #7c3aed;
+  --line: rgba(37, 99, 235, 0.12);
+  --shadow: 0 18px 45px rgba(37, 99, 235, 0.14);
+}
+
+body {
+  opacity: 0;
+  transition: opacity 1s ease-in-out; /* 在页面加载时渐显 */
+}
+
+body.page-loaded {
+  opacity: 1; /* 页面加载完毕后显示 */
+}
+
+/* Canvas 动画：渐显和缩放 */
+#theoremCanvas {
+  opacity: 0; /* 初始透明 */
+  transform: scale(0.8); /* 初始时稍微缩小 */
+  transition: opacity 1s ease-in-out, transform 1s ease-in-out; /* 动画效果 */
+}
+
+#theoremCanvas.loaded {
+  opacity: 1; /* 渐显 */
+  transform: scale(1); /* 恢复正常大小 */
+}
+
+/* 如果你想要给卡片加一个动画效果，可以使用类似的过渡 */
+.theorem-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.theorem-card:hover {
+  transform: translateY(-5px); /* 鼠标悬停时卡片向上浮动 */
+  box-shadow: 0 18px 30px rgba(37,99,235,0.16);
+}
+
+.container {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(14px);
+  background: rgba(244, 248, 255, 0.72);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.08);
+}
+
+.topbar {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.page-badge {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(37,99,235,0.08);
+  color: var(--primary);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.hero-section {
+  padding: 48px 0 26px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(37,99,235,0.08);
+  color: var(--primary);
+  border-radius: 999px;
+  font-size: 0.92rem;
+  margin-bottom: 18px;
+  font-weight: 700;
+}
+
+.hero-copy h1 {
+  font-size: clamp(2.1rem, 5vw, 4rem);
+  line-height: 1.06;
+  margin-bottom: 14px;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 1.08rem;
+  max-width: 60ch;
+}
+
+.preview-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.72));
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.preview-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.preview-pill {
+  padding: 8px 12px;
+  background: rgba(6,182,212,0.1);
+  color: #0f766e;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.preview-label {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.preview-card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.preview-card p {
+  color: var(--muted);
+}
+
+.library-section {
+  padding: 18px 0 54px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.section-head h2 {
+  font-size: 1.9rem;
+  margin-bottom: 6px;
+}
+
+.section-head p {
+  color: var(--muted);
+  max-width: 58ch;
+}
+
+.theorems-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.theorem-card {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.72);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.theorem-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 30px rgba(37,99,235,0.16);
+}
+
+.theorem-image {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  background:
+    linear-gradient(180deg, rgba(37,99,235,0.04), rgba(124,58,237,0.04)),
+    #ffffff;
+  padding: 1rem;
+}
+
+.theorem-card-body {
+  padding: 18px 18px 20px;
+}
+
+.card-tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  background: rgba(124,58,237,0.09);
+  color: var(--primary-2);
+}
+
+.theorem-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.theorem-text {
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.62);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.modal-content {
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,250,255,0.94));
+  padding: 28px;
+  border-radius: 28px;
+  max-width: 960px;
+  width: min(960px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.24);
+}
+
+.close-modal {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(37,99,235,0.08);
+  color: var(--primary);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  background: rgba(37,99,235,0.14);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 52px;
+  margin-bottom: 10px;
+}
+
+.modal-pill {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(37,99,235,0.08);
+  color: var(--primary);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.modal-title {
+  color: #2b6cb0;
+  font-size: 1.8rem;
+}
+
+.modal-description {
+  margin-bottom: 1.2rem;
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+.canvas-container {
+  width: 100%;
+  height: 430px;
+  margin: 1.4rem 0;
+  border: 1px solid #dbe7ff;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  display: none;
+  background: linear-gradient(180deg, rgba(37,99,235,0.03), rgba(124,58,237,0.04)), #fafcff;
+}
+
+#theoremCanvas {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.angle-info {
+  justify-content: space-around;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(37,99,235,0.05);
+  border: 1px solid rgba(37,99,235,0.08);
+  border-radius: 18px;
+  display: none;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.angle-item {
+  text-align: center;
+  min-width: 140px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.72);
+}
+
+.angle-item p:first-child {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.angle-value {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.modal-example {
+  background-color: #edf2f7;
+  padding: 1rem;
+  border-radius: 14px;
+  margin-top: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .hero-section,
+  .theorems-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .topbar,
+  .hero-section,
+  .theorems-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-section {
+    display: grid;
+  }
+
+  .theorems-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .canvas-container {
+    height: 300px;
+  }
+
+  .angle-info {
+    flex-direction: column;
+  }
+
+  .modal-content {
+    padding: 22px;
+  }
+
+  .hero-copy h1 {
+    font-size: 2.2rem;
+  }
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--primary);
+  background: rgba(255,255,255,0.8);
+  border: 1px solid rgba(37,99,235,0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.mode-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(37,99,235,0.14);
+}
+
+/* dark mode */
+body.dark-mode {
+  --bg: #0f172a;
+  --card: rgba(30,41,59,0.82);
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --line: rgba(255,255,255,0.08);
+  background:
+    radial-gradient(circle at top left, rgba(59,130,246,0.10), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(124,58,237,0.10), transparent 24%),
+    var(--bg);
+  color: var(--text);
+}
+
+body.dark-mode .page-header {
+  background: rgba(15, 23, 42, 0.75);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+body.dark-mode .preview-card,
+body.dark-mode .theorem-card,
+body.dark-mode .modal-content,
+body.dark-mode .angle-info,
+body.dark-mode .angle-item,
+body.dark-mode .modal-example {
+  background: rgba(30,41,59,0.90);
+  color: var(--text);
+  border-color: rgba(255,255,255,0.08);
+}
+
+body.dark-mode .theorem-image,
+body.dark-mode .canvas-container {
+  background:
+    linear-gradient(180deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08)),
+    #0f172a;
+}
+
+body.dark-mode .subtitle,
+body.dark-mode .preview-card p,
+body.dark-mode .preview-label,
+body.dark-mode .section-head p,
+body.dark-mode .theorem-text,
+body.dark-mode .modal-description,
+body.dark-mode .angle-item p:first-child {
+  color: var(--muted);
+}
+
+body.dark-mode .mode-btn {
+  background: rgba(30,41,59,0.85);
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+body.dark-mode .close-modal {
+  background: rgba(255,255,255,0.08);
+  color: #e2e8f0;
+}
+
+/* colorblind mode */
+body.colorblind-mode {
+  --primary: #005fcc;
+  --primary-2: #6b3fd6;
+  --text: #102a43;
+  --muted: #486581;
+  --line: rgba(0,95,204,0.22);
+}
+
+body.colorblind-mode .theorem-card,
+body.colorblind-mode .preview-card,
+body.colorblind-mode .modal-content,
+body.colorblind-mode .angle-info,
+body.colorblind-mode .angle-item {
+  border: 2px solid rgba(0,95,204,0.18);
+}
+
+body.colorblind-mode .card-tag,
+body.colorblind-mode .page-badge,
+body.colorblind-mode .eyebrow,
+body.colorblind-mode .modal-pill {
+  background: rgba(0,95,204,0.10);
+  color: #005fcc;
+}
+
+body.colorblind-mode .mode-btn {
+  border: 2px solid rgba(0,95,204,0.24);
+}
+
+body.dark-mode.colorblind-mode {
+  --text: #f8fafc;
+  --muted: #cbd5e1;
+  --line: rgba(255,255,255,0.18);
+}
+
+body.dark-mode.colorblind-mode .theorem-card,
+body.dark-mode.colorblind-mode .preview-card,
+body.dark-mode.colorblind-mode .modal-content,
+body.dark-mode.colorblind-mode .angle-info,
+body.dark-mode.colorblind-mode .angle-item {
+  border: 2px solid rgba(255,255,255,0.14);
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 0;
+  }
+
+  .topbar-left,
+  .topbar-actions {
+    width: 100%;
+  }
+}
+    </style>
+</head>
+<body>
+ <header class="page-header">
+  <div class="container topbar">
+    <div class="topbar-left">
+      <a href="UI.html" class="back-link" data-en="← Back to Home" data-zh="← 返回首页">← Back to Home</a>
+      <div class="page-badge" data-en="Interactive Theory Library" data-zh="互动理论资料库">Interactive Theory Library</div>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="mode-btn" onclick="toggleLanguage()" id="langBtn">中文</button>
+      <button class="mode-btn" onclick="toggleDarkMode()" id="themeBtn">🌙 Dark Mode</button>
+      <button class="mode-btn" onclick="toggleColorblindMode()" id="cbBtn">👁 Colorblind Mode</button>
+    </div>
+  </div>
+</header>
+
+  <main class="container">
+    <section class="hero-section">
+      <div class="hero-copy">
+       <span class="eyebrow" data-en="📐 GCSE Geometry • Visual • Interactive" data-zh="📐 GCSE 几何 • 可视化 • 互动式">📐 GCSE Geometry • Visual • Interactive</span>
+<h1 data-en="Circle Theorems Learning Hub" data-zh="圆定理学习中心">Circle Theorems Learning Hub</h1>
+<p class="subtitle"
+   data-en="Explore each circle theorem through clean visuals, interactive diagrams, and live angle relationships. Click a card below to open the theorem demo."
+   data-zh="通过清晰的可视化、互动图形和实时角度关系来探索每一个圆定理。点击下方卡片即可打开定理演示。">
+  Explore each circle theorem through clean visuals, interactive diagrams,
+  and live angle relationships. Click a card below to open the theorem demo.
+</p>
+      </div>
+
+      <div class="hero-preview">
+       <div class="preview-card">
+  <div class="preview-top">
+    <span class="preview-pill" data-en="Featured Topic" data-zh="精选主题">Featured Topic</span>
+    <span class="preview-label" data-en="8 Core Theorems" data-zh="8 个核心定理">8 Core Theorems</span>
+  </div>
+  <h2 data-en="Learn visually, not just by memorising" data-zh="通过可视化学习，而不只是死记硬背">
+    Learn visually, not just by memorising
+  </h2>
+  <p data-en="Open a theorem card, drag points, and watch how the angle rules stay true."
+     data-zh="打开定理卡片，拖动点位，观察角度规律如何始终成立。">
+    Open a theorem card, drag points, and watch how the angle rules stay true.
+  </p>
+</div>
+      </div>
+    </section>
+
+    <section class="library-section">
+      <div class="section-head">
+        <div>
+          <h2 data-en="Theorem Library" data-zh="定理资料库">Theorem Library</h2>
+<p data-en="Choose a theorem to open an interactive explanation and live geometry canvas."
+   data-zh="选择一个定理，打开互动式讲解和实时几何画布。">
+  Choose a theorem to open an interactive explanation and live geometry canvas.
+</p>
+        </div>
+      </div>
+
+<div class="theorems-grid">
+  <div class="theorem-card" data-theorem="1">
+    <img src="imgs/1.png" alt="Angle at the Centre" class="theorem-image">
+    <div class="theorem-card-body">
+      <div class="card-tag" data-en="Theorem 1" data-zh="定理 1">Theorem 1</div>
+      <div class="theorem-title" data-en="Angle at the Centre" data-zh="圆心角定理">Angle at the Centre</div>
+      <p class="theorem-text"
+         data-en="The angle at the centre is twice the angle at the circumference standing on the same arc."
+         data-zh="同弧所对的圆心角等于圆周角的两倍。">
+        The angle at the centre is twice the angle at the circumference standing on the same arc.
+      </p>
+    </div>
+  </div>
+
+  <div class="theorem-card" data-theorem="2">
+    <img src="imgs/2.gif" alt="Angles in a Semicircle" class="theorem-image">
+    <div class="theorem-card-body">
+      <div class="card-tag" data-en="Theorem 2" data-zh="定理 2">Theorem 2</div>
+      <div class="theorem-title" data-en="Angles in a Semicircle" data-zh="半圆中的角">Angles in a Semicircle</div>
+      <p class="theorem-text"
+         data-en="The angle subtended by a diameter at the circumference is always a right angle."
+         data-zh="直径所对的圆周角恒为直角。">
+        The angle subtended by a diameter at the circumference is always a right angle.
+      </p>
+    </div>
+  </div>
+
+  <div class="theorem-card" data-theorem="3">
+    <img src="imgs/3.webp" alt="Angles in the Same Segment" class="theorem-image">
+    <div class="theorem-card-body">
+      <div class="card-tag" data-en="Theorem 3" data-zh="定理 3">Theorem 3</div>
+      <div class="theorem-title" data-en="Angles in the Same Segment" data-zh="同弧定理">Angles in the Same Segment</div>
+      <p class="theorem-text"
+         data-en="Angles subtended by the same arc at the circumference are equal."
+         data-zh="同弧所对的圆周角相等。">
+        Angles subtended by the same arc at the circumference are equal.
+      </p>
+    </div>
+  </div>
+
+  <div class="theorem-card" data-theorem="4">
+    <img src="imgs/4.png" alt="Cyclic Quadrilateral" class="theorem-image">
+    <div class="theorem-card-body">
+      <div class="card-tag" data-en="Theorem 4" data-zh="定理 4">Theorem 4</div>
+      <div class="theorem-title" data-en="Cyclic Quadrilateral" data-zh="圆内接四边形">Cyclic Quadrilateral</div>
+      <p class="theorem-text"
+         data-en="The opposite angles in a cyclic quadrilateral add up to 180 degrees."
+         data-zh="圆内接四边形的对角互补，总和为 180 度。">
+        The opposite angles in a cyclic quadrilateral add up to 180 degrees.
+      </p>
+    </div>
+  </div>
+
+  <div class="theorem-card" data-theorem="5">
+    <img src="imgs/5.gif" alt="Radius to a Tangent" class="theorem-image">
+    <div class="theorem-card-body">
+      <div class="card-tag" data-en="Theorem 5" data-zh="定理 5">Theorem 5</div>
+      <div class="theorem-title" data-en="Radius to a Tangent" data-zh="半径与切线垂直">Radius to a Tangent</div>
+      <p class="theorem-text"
+         data-en="A radius is perpendicular to the tangent at the point of contact."
+         data-zh="半径与切点处的切线互相垂直。">
+        A radius is perpendicular to the tangent at the point of contact.
+      </p>
+    </div>
+  </div>
+
+  <div class="theorem-card" data-theorem="6">
+    <img src="imgs/6.png" alt="Tangents from a Point to a Circle" class="theorem-image">
+    <div class="theorem-card-body">
+      <div class="card-tag" data-en="Theorem 6" data-zh="定理 6">Theorem 6</div>
+      <div class="theorem-title" data-en="Equal Tangents from One Point" data-zh="同一点引出的两条切线相等">Equal Tangents from One Point</div>
+      <p class="theorem-text"
+         data-en="Tangents drawn from the same external point to a circle have equal lengths."
+         data-zh="从圆外同一点引出的两条切线长度相等。">
+        Tangents drawn from the same external point to a circle have equal lengths.
+      </p>
+    </div>
+  </div>
+
+  <div class="theorem-card" data-theorem="7">
+    <img src="imgs/7.png" alt="Angle Bisector of Tangents" class="theorem-image">
+    <div class="theorem-card-body">
+      <div class="card-tag" data-en="Theorem 7" data-zh="定理 7">Theorem 7</div>
+      <div class="theorem-title" data-en="Angle Bisector of Two Tangents" data-zh="圆心连线平分两条切线夹角">Angle Bisector of Two Tangents</div>
+      <p class="theorem-text"
+         data-en="The line from the external point to the centre bisects the angle between the two tangents."
+         data-zh="圆外一点与圆心的连线平分两条切线之间的夹角。">
+        The line from the external point to the centre bisects the angle between the two tangents.
+      </p>
+    </div>
+  </div>
+
+  <div class="theorem-card" data-theorem="8">
+    <img src="imgs/8.webp" alt="Alternate Segment" class="theorem-image">
+    <div class="theorem-card-body">
+      <div class="card-tag" data-en="Theorem 8" data-zh="定理 8">Theorem 8</div>
+      <div class="theorem-title" data-en="Alternate Segment Theorem" data-zh="交替弧定理">Alternate Segment Theorem</div>
+      <p class="theorem-text"
+         data-en="The angle between a tangent and a chord equals the angle in the alternate segment."
+         data-zh="切线与弦所成的角，等于弦在对弧所对的圆周角。">
+        The angle between a tangent and a chord equals the angle in the alternate segment.
+      </p>
+    </div>
+  </div>
+</div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal" id="theoremModal">
+    <div class="modal-content">
+      <button class="close-modal" aria-label="Close">&times;</button>
+
+      <div class="modal-header">
+        <div>
+          <div class="modal-pill" data-en="Interactive View" data-zh="互动视图">Interactive View</div>
+          <h2 class="modal-title" id="modalTitle"></h2>
+        </div>
+      </div>
+
+      <div class="modal-description" id="modalDescription"></div>
+
+      <div class="canvas-container" id="canvasContainer">
+        <canvas id="theoremCanvas"></canvas>
+      </div>
+
+      <div class="angle-info" id="angleInfo">
+        <div class="angle-item" id="angleItem1">
+          <p id="angleLabel1">Angle 1</p>
+          <p class="angle-value" id="angleValue1">0°</p>
+        </div>
+        <div class="angle-item" id="angleItem2">
+          <p id="angleLabel2">Angle 2</p>
+          <p class="angle-value" id="angleValue2">0°</p>
+        </div>
+        <div class="angle-item" id="angleItem3">
+          <p id="angleLabel3">Relationship</p>
+          <p class="angle-value" id="angleValue3">--</p>
+        </div>
+        <div class="angle-item" id="angleItem4">
+          <p id="angleLabel4">Length 1</p>
+          <p class="angle-value" id="angleValue4">0</p>
+        </div>
+      </div>
+
+      <div class="modal-example" id="modalExample"></div>
+    </div>
+  </div>
+
+    <script>
+window.addEventListener("load", () => {
+  document.body.classList.add("page-loaded"); // 页面渐显
+  document.getElementById("theoremCanvas").classList.add("loaded"); // canvas 渐显和缩放
+});
+
+        // 定理基础数据
+        const theoremData = {
+
+1:{
+title:{
+en:"Circle Theorem 1 - Angle at the Centre",
+zh:"圆定理1 - 圆心角定理"
+},
+description:{
+en:"The angle subtended at the centre of a circle by an arc is twice the angle subtended at the circumference by the same arc. Drag points A, B, C to explore.",
+zh:"同一弧所对的圆心角是圆周角的两倍。拖动 A、B、C 点观察角度变化。"
+},
+example:{
+en:"If the central angle is 120°, the circumference angle is 60°.",
+zh:"如果圆心角为120°，那么对应的圆周角为60°。"
+}
+},
+
+2:{
+title:{
+en:"Circle Theorem 2 - Angles in a Semicircle",
+zh:"圆定理2 - 半圆中的角"
+},
+description:{
+en:"The angle subtended by a diameter at the circumference is always 90°. Drag point C to test.",
+zh:"直径所对的圆周角恒为90°。拖动点C观察变化。"
+},
+example:{
+en:"A triangle formed in a semicircle is always a right triangle.",
+zh:"半圆中的三角形一定是直角三角形。"
+}
+},
+
+3:{
+title:{
+en:"Circle Theorem 3 - Angles in the Same Segment",
+zh:"圆定理3 - 同弧定理"
+},
+description:{
+en:"Angles subtended by the same arc at the circumference are equal.",
+zh:"同弧所对的圆周角相等。"
+},
+example:{
+en:"Angles ACB and ADB are equal because they stand on the same arc.",
+zh:"角ACB与ADB相等，因为它们对应同一弧。"
+}
+},
+
+4:{
+title:{
+en:"Circle Theorem 4 - Cyclic Quadrilateral",
+zh:"圆定理4 - 圆内接四边形"
+},
+description:{
+en:"Opposite angles in a cyclic quadrilateral sum to 180°.",
+zh:"圆内接四边形的对角之和为180°。"
+},
+example:{
+en:"If angle A = 70°, angle C = 110°.",
+zh:"如果角A为70°，则角C为110°。"
+}
+},
+
+5:{
+title:{
+en:"Circle Theorem 5 - Radius and Tangent",
+zh:"圆定理5 - 半径与切线垂直"
+},
+description:{
+en:"The radius is perpendicular to the tangent at the point of contact.",
+zh:"半径在切点处与切线垂直。"
+},
+example:{
+en:"Angle between the radius and the tangent is always 90°.",
+zh:"半径与切线形成的角恒为90°。"
+}
+},
+
+6:{
+title:{
+en:"Circle Theorem 6 - Equal Tangents",
+zh:"圆定理6 - 等长切线"
+},
+description:{
+en:"Tangents drawn from the same external point have equal lengths.",
+zh:"从同一点引出的两条切线长度相等。"
+},
+example:{
+en:"If PA and PB are tangents, then PA = PB.",
+zh:"如果PA和PB为切线，则PA = PB。"
+}
+},
+
+7:{
+title:{
+en:"Circle Theorem 7 - Tangent Angle Bisector",
+zh:"圆定理7 - 切线夹角平分"
+},
+description:{
+en:"The line joining the external point and the centre bisects the angle between the two tangents.",
+zh:"圆外一点到圆心的连线平分两条切线之间的夹角。"
+},
+example:{
+en:"Line OP divides angle APB into two equal angles.",
+zh:"OP将角APB平分。"
+}
+},
+
+8:{
+title:{
+en:"Circle Theorem 8 - Alternate Segment Theorem",
+zh:"圆定理8 - 交替弧定理"
+},
+description:{
+en:"The angle between a tangent and a chord equals the angle in the alternate segment.",
+zh:"切线与弦形成的角等于对弧所对的圆周角。"
+},
+example:{
+en:"Angle between tangent and chord equals angle in opposite arc.",
+zh:"切线与弦的角等于对弧所对角。"
+}
+}
+
+};
+
+function t(en, zh) {
+    const lang = localStorage.getItem("language") || "en";
+    return lang === "zh" ? zh : en;
+}
+
+        // 全局变量
+        const modal = document.getElementById('theoremModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalExample = document.getElementById('modalExample');
+        const canvasContainer = document.getElementById('canvasContainer');
+        const angleInfo = document.getElementById('angleInfo');
+        const closeModal = document.querySelector('.close-modal');
+        
+        // 角度/长度显示元素
+        const angleLabel1 = document.getElementById('angleLabel1');
+        const angleLabel2 = document.getElementById('angleLabel2');
+        const angleLabel3 = document.getElementById('angleLabel3');
+        const angleLabel4 = document.getElementById('angleLabel4');
+        const angleValue1 = document.getElementById('angleValue1');
+        const angleValue2 = document.getElementById('angleValue2');
+        const angleValue3 = document.getElementById('angleValue3');
+        const angleValue4 = document.getElementById('angleValue4');
+
+        // Canvas变量
+        let canvas, ctx;
+        let isDragging = false;
+        let dragPoint = null;
+        let hoverPoint = null;
+        let circle = {
+            x: 0, y: 0, radius: 0,
+            points: { A: {}, B: {}, C: {}, D: {}, P: {} } // 扩展点支持所有定理
+        };
+        let activeTheorem = 1; // 当前激活的定理
+        let canvasInited = false;
+
+        // 关闭模态框
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // 卡片点击事件
+        document.querySelectorAll('.theorem-card').forEach(card => {
+            card.addEventListener('click', () => {
+                activeTheorem = parseInt(card.dataset.theorem);
+                const data = theoremData[activeTheorem];
+                
+                // 显示模态框并重置内容
+                modal.style.display = 'flex';
+                void modal.offsetWidth; // 强制重绘
+                const lang = localStorage.getItem("language") || "en";
+
+modalTitle.textContent = data.title[lang];
+modalDescription.textContent = data.description[lang];
+modalExample.textContent = data.example[lang];
+                
+                // 重置点数据
+                circle.points = { A: {}, B: {}, C: {}, D: {}, P: {} };
+                
+                // 根据定理类型显示对应内容
+                if (activeTheorem >= 1 && activeTheorem <= 8) {
+                    canvasContainer.style.display = 'block';
+                    angleInfo.style.display = 'flex';
+                    modalExample.style.display = 'none';
+                    
+                    // 初始化Canvas
+                    if (!canvasInited) {
+                        initCanvas();
+                        canvasInited = true;
+                    }
+                    
+                    // 调用对应定理的绘制函数
+                    drawTheorem(activeTheorem);
+                } else {
+                    canvasContainer.style.display = 'none';
+                    angleInfo.style.display = 'none';
+                    modalExample.style.display = 'block';
+                    modalExample.textContent = `Example: ${data.example}`;
+                }
+            });
+        });
+
+        // 初始化Canvas
+        function initCanvas() {
+            canvas = document.getElementById('theoremCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // 绑定鼠标事件
+            canvas.addEventListener('mousedown', startDrag);
+            canvas.addEventListener('mousemove', drag);
+            canvas.addEventListener('mouseup', stopDrag);
+            canvas.addEventListener('mouseleave', stopDrag);
+        }
+
+        // 通用工具函数：获取圆周上的点
+        function getPointOnCircle(centerX, centerY, radius, angleDeg) {
+            const angleRad = (angleDeg * Math.PI) / 180;
+            return {
+                x: centerX + radius * Math.cos(angleRad),
+                y: centerY + radius * Math.sin(angleRad)
+            };
+        }
+
+        // 通用工具函数：计算两点间角度
+        function calculateAngleBetweenPoints(p1, p2, center) {
+            const angle1 = Math.atan2(p1.y - center.y, p1.x - center.x) * 180 / Math.PI;
+            const angle2 = Math.atan2(p2.y - center.y, p2.x - center.x) * 180 / Math.PI;
+            let diff = Math.abs(angle1 - angle2);
+            return diff > 180 ? 360 - diff : diff;
+        }
+
+        // 通用工具函数：计算角平分线位置
+        function getAngleLabelPosition(vertex, p1, p2, offset) {
+            const vec1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
+            const vec2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
+            const len1 = Math.sqrt(vec1.x*vec1.x + vec1.y*vec1.y);
+            const len2 = Math.sqrt(vec2.x*vec2.x + vec2.y*vec2.y);
+            
+            if (len1 === 0 || len2 === 0) return { x: vertex.x + offset, y: vertex.y - offset };
+            
+            const normVec1 = { x: vec1.x/len1, y: vec1.y/len1 };
+            const normVec2 = { x: vec2.x/len2, y: vec2.y/len2 };
+            const bisectorVec = { x: normVec1.x + normVec2.x, y: normVec1.y + normVec2.y };
+            const bisectorLen = Math.sqrt(bisectorVec.x*bisectorVec.x + bisectorVec.y*bisectorVec.y);
+            const normBisector = { x: bisectorVec.x/bisectorLen, y: bisectorVec.y/bisectorLen };
+            
+            return {
+                x: vertex.x + normBisector.x * offset,
+                y: vertex.y + normBisector.y * offset
+            };
+        }
+
+        // 通用工具函数：计算两点间距离
+        function calculateDistance(p1, p2) {
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            return Math.sqrt(dx*dx + dy*dy);
+        }
+
+        function calculateAngle(A, B, C) {
+
+    const BAx = A.x - B.x;
+    const BAy = A.y - B.y;
+
+    const BCx = C.x - B.x;
+    const BCy = C.y - B.y;
+
+    const dot = BAx * BCx + BAy * BCy;
+
+    const magBA = Math.sqrt(BAx * BAx + BAy * BAy);
+    const magBC = Math.sqrt(BCx * BCx + BCy * BCy);
+
+    const cosAngle = dot / (magBA * magBC);
+
+    const angle = Math.acos(Math.max(-1, Math.min(1, cosAngle)));
+
+    return angle * 180 / Math.PI;
+}
+
+function drawTriangleAngleArc(A, B, C, radius = 40) {
+
+    let startAngle = Math.atan2(A.y - B.y, A.x - B.x);
+    let endAngle = Math.atan2(C.y - B.y, C.x - B.x);
+
+    // 计算角度差
+    let diff = endAngle - startAngle;
+
+    // 规范到 -π 到 π
+    while (diff > Math.PI) diff -= 2 * Math.PI;
+    while (diff < -Math.PI) diff += 2 * Math.PI;
+
+    ctx.beginPath();
+    ctx.arc(
+        B.x,
+        B.y,
+        radius,
+        startAngle,
+        startAngle + diff,
+        diff < 0
+    );
+
+    ctx.strokeStyle = "#f59e0b";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+function getCircleAngle(point) {
+    let angle = Math.atan2(point.y - circle.y, point.x - circle.x);
+    if (angle < 0) angle += Math.PI * 2;
+    return angle;
+}
+
+// 判断 target 是否落在 start->end 的逆时针弧段内
+function isAngleBetweenCCW(target, start, end) {
+    if (end < start) end += Math.PI * 2;
+    if (target < start) target += Math.PI * 2;
+    return target >= start && target <= end;
+}
+
+        // 通用工具函数：绘制直角符号
+function drawRightAngleMarker(vertex, p1, p2, size = 15) {
+
+    const v1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
+    const v2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
+
+    const len1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+    const len2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+
+    if (len1 === 0 || len2 === 0) return;
+
+    const n1 = { x: v1.x / len1, y: v1.y / len1 };
+    const n2 = { x: v2.x / len2, y: v2.y / len2 };
+
+    const pA = {
+        x: vertex.x + n1.x * size,
+        y: vertex.y + n1.y * size
+    };
+
+    const pB = {
+        x: vertex.x + n2.x * size,
+        y: vertex.y + n2.y * size
+    };
+
+    const pC = {
+        x: pA.x + n2.x * size,
+        y: pA.y + n2.y * size
+    };
+
+    ctx.beginPath();
+    ctx.moveTo(pA.x, pA.y);
+    ctx.lineTo(pC.x, pC.y);
+    ctx.lineTo(pB.x, pB.y);
+
+    ctx.strokeStyle = '#e53e3e';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+        // 通用工具函数：绘制角度弧
+        function drawAngleArc(centerX, centerY, radius, p1, p2, color) {
+    let angle1 = Math.atan2(p1.y - centerY, p1.x - centerX);
+    let angle2 = Math.atan2(p2.y - centerY, p2.x - centerX);
+
+    // 计算从 angle1 到 angle2 的有向最小夹角，范围 [-PI, PI]
+    let delta = angle2 - angle1;
+    while (delta > Math.PI) delta -= 2 * Math.PI;
+    while (delta < -Math.PI) delta += 2 * Math.PI;
+
+    ctx.beginPath();
+    ctx.arc(
+        centerX,
+        centerY,
+        radius,
+        angle1,
+        angle1 + delta,
+        delta < 0
+    );
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+}
+
+        // 通用工具函数：绘制点
+        function drawPoint(point, label) {
+    if (point.x === undefined || point.y === undefined) return;
+
+    const isActive = dragPoint === label;
+    const isHover = hoverPoint === label;
+
+    const baseRadius = 8;
+    const radius = isActive ? 10 : (isHover ? 9 : baseRadius);
+
+    // 外圈高亮
+    if (isActive) {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, radius + 6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(66, 153, 225, 0.25)';
+        ctx.fill();
+    } else if (isHover) {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, radius + 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(72, 187, 120, 0.18)';
+        ctx.fill();
+    }
+
+    // 点本体
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = isActive ? '#3182ce' : (isHover ? '#38a169' : '#48bb78');
+    ctx.fill();
+
+    // 白色描边
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 标签
+    ctx.fillStyle = '#000';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, point.x + 12, point.y - 12);
+}
+        function movePointOnCircle(x, y) {
+
+    const dx = x - circle.x;
+    const dy = y - circle.y;
+
+    const distance = Math.sqrt(dx*dx + dy*dy);
+
+    if (distance === 0) {
+        return {x: circle.x, y: circle.y};
+    }
+
+    return {
+        x: circle.x + (dx / distance) * circle.radius,
+        y: circle.y + (dy / distance) * circle.radius
+    };
+}
+
+        // 定理绘制入口函数
+        function drawTheorem(theoremId) {
+            switch(theoremId) {
+                case 1: drawTheorem1(); break;
+                case 2: drawTheorem2(); break;
+                case 3: drawTheorem3(); break;
+                case 4: drawTheorem4(); break;
+                case 5: drawTheorem5(); break;
+                case 6: drawTheorem6(); break;
+                case 7: drawTheorem7(); break;
+                case 8: drawTheorem8(); break;
+            }
+        }
+
+        function calculateTriangleAngle(A, B, C) {
+        const BAx = A.x - B.x;
+        const BAy = A.y - B.y;
+
+        const BCx = C.x - B.x;
+        const BCy = C.y - B.y;
+
+        const dot = BAx * BCx + BAy * BCy;
+
+        const magBA = Math.sqrt(BAx * BAx + BAy * BAy);
+        const magBC = Math.sqrt(BCx * BCx + BCy * BCy);
+
+        const cosAngle = dot / (magBA * magBC);
+
+        return Math.acos(cosAngle) * 180 / Math.PI;
+        }
+
+        // ---------------------- 定理1：圆心角是圆周角2倍 ----------------------
+        function drawTheorem1() {
+            // 初始化画布和圆参数
+            const containerRect = canvasContainer.getBoundingClientRect();
+            canvas.width = containerRect.width;
+            canvas.height = containerRect.height;
+            circle.x = canvas.width / 2;
+            circle.y = canvas.height / 2;
+            circle.radius = Math.min(canvas.width, canvas.height) * 0.4;
+            
+            // 初始化点
+            if (Object.keys(circle.points.A).length === 0) {
+                circle.points.A = getPointOnCircle(circle.x, circle.y, circle.radius, 120);
+                circle.points.B = getPointOnCircle(circle.x, circle.y, circle.radius, 240);
+                circle.points.C = getPointOnCircle(circle.x, circle.y, circle.radius, 30);
+            }
+
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制圆
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#2b6cb0';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 绘制圆心
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#e53e3e';
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.font = '16px Arial';
+            ctx.fillText('O', circle.x + 10, circle.y - 10);
+            
+            // 绘制点
+            drawPoint(circle.points.A, 'A');
+            drawPoint(circle.points.B, 'B');
+            drawPoint(circle.points.C, 'C');
+            
+            // 绘制连线
+            ctx.strokeStyle = '#718096';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(circle.x, circle.y);
+            ctx.lineTo(circle.points.A.x, circle.points.A.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(circle.x, circle.y);
+            ctx.lineTo(circle.points.B.x, circle.points.B.y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(circle.points.A.x, circle.points.A.y);
+            ctx.lineTo(circle.points.C.x, circle.points.C.y);
+            ctx.lineTo(circle.points.B.x, circle.points.B.y);
+            ctx.strokeStyle = '#9f7aea';
+            ctx.stroke();
+            
+            // 计算角度
+            const centerAngle = calculateAngleBetweenPoints(circle.points.A, circle.points.B, {x: circle.x, y: circle.y});
+            const circumferenceAngle = centerAngle / 2;
+            
+            // 更新角度显示
+angleLabel1.textContent = t("Circumference Angle (∠ACB)", "圆周角 (∠ACB)");
+angleLabel2.textContent = t("Central Angle (∠AOB)", "圆心角 (∠AOB)");
+angleLabel3.textContent = t("Relationship", "关系");
+angleLabel4.textContent = "";
+            angleValue1.textContent = `${circumferenceAngle.toFixed(1)}°`;
+            angleValue2.textContent = `${centerAngle.toFixed(1)}°`;
+            angleValue3.textContent = `${centerAngle.toFixed(1)}° = 2 × ${circumferenceAngle.toFixed(1)}°`;
+            angleValue4.textContent = "";
+            
+            // 绘制角度弧
+            drawAngleArc(circle.x, circle.y, circle.radius/4, circle.points.A, circle.points.B, '#e53e3e');
+            drawAngleArc(circle.points.C.x, circle.points.C.y, circle.radius/5, circle.points.A, circle.points.B, '#48bb78');
+
+            // 绘制角度标注
+            ctx.font = '14px Arial';
+            ctx.fontWeight = 'bold';
+            const aobLabelPos = getAngleLabelPosition({x: circle.x, y: circle.y}, circle.points.A, circle.points.B, circle.radius / 3);
+            ctx.fillStyle = '#e53e3e';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${t("∠AOB", "∠AOB")} = ${centerAngle.toFixed(1)}°`, aobLabelPos.x, aobLabelPos.y);
+            
+            const acbLabelPos = getAngleLabelPosition(circle.points.C, circle.points.A, circle.points.B, circle.radius / 4);
+            ctx.fillStyle = '#48bb78';
+            ctx.fillText(`${t("∠ACB", "∠ACB")} = ${circumferenceAngle.toFixed(1)}°`, acbLabelPos.x, acbLabelPos.y);
+        }
+        // ---------------------- 定理2：半圆上的圆周角为直角 ----------------------
+        function drawTheorem2() {
+            const containerRect = canvasContainer.getBoundingClientRect();
+            canvas.width = containerRect.width;
+            canvas.height = containerRect.height;
+            circle.x = canvas.width / 2;
+            circle.y = canvas.height / 2;
+            circle.radius = Math.min(canvas.width, canvas.height) * 0.4;
+            
+            // 初始化点（AB为直径）
+            if (Object.keys(circle.points.A).length === 0) {
+                circle.points.A = { x: circle.x - circle.radius, y: circle.y };
+                circle.points.B = { x: circle.x + circle.radius, y: circle.y };
+                circle.points.C = { x: circle.x, y: circle.y - circle.radius };
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制圆
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#2b6cb0';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 绘制圆心
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#e53e3e';
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.font = '16px Arial';
+            ctx.fillText('O', circle.x + 10, circle.y - 10);
+            
+            // 绘制点
+            drawPoint(circle.points.A, 'A');
+            drawPoint(circle.points.B, 'B');
+            drawPoint(circle.points.C, 'C');
+            
+            // 绘制直径和连线
+            ctx.strokeStyle = '#718096';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(circle.points.A.x, circle.points.A.y);
+            ctx.lineTo(circle.points.B.x, circle.points.B.y);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(circle.points.A.x, circle.points.A.y);
+            ctx.lineTo(circle.points.C.x, circle.points.C.y);
+            ctx.lineTo(circle.points.B.x, circle.points.B.y);
+            ctx.strokeStyle = '#9f7aea';
+            ctx.stroke();
+            
+            // 更新角度显示
+            const rightAngle = 90.0;
+angleLabel1.textContent = t("∠ACB (Circumference Angle)", "∠ACB（圆周角）");
+angleLabel2.textContent = t("∠AOB (Central Angle)", "∠AOB（圆心角）");
+angleLabel3.textContent = t("Relationship", "关系");
+angleLabel4.textContent = "";
+            angleValue1.textContent = `${rightAngle.toFixed(1)}°`;
+            angleValue2.textContent = "180.0°";
+angleValue3.textContent = t("∠ACB = 90° (Right Angle)", "∠ACB = 90°（直角）");
+            angleValue4.textContent = "";
+            
+            // 强化绘制直角符号（确保显示）
+            drawRightAngleMarker(circle.points.C, circle.points.A, circle.points.B, 20); // 增大尺寸确保可见
+            
+            // 绘制角度标注
+            ctx.font = '14px Arial';
+            ctx.fontWeight = 'bold';
+            ctx.fillStyle = '#48bb78';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const acbLabelPos = getAngleLabelPosition(circle.points.C, circle.points.A, circle.points.B, circle.radius / 4);
+            ctx.fillText(`∠ACB = ${rightAngle.toFixed(1)}°`, acbLabelPos.x, acbLabelPos.y);
+            
+            // 绘制直径标注
+            ctx.fillStyle = '#2b6cb0';
+            const diameterLabelPos = {
+                x: circle.x,
+                y: circle.y - 20
+            };
+ctx.fillText(t("Diameter AB", "直径 AB"), diameterLabelPos.x, diameterLabelPos.y);
+        }
+
+        // ---------------------- 定理3：同弧所对圆周角相等 ----------------------
+        function drawTheorem3() {
+            const containerRect = canvasContainer.getBoundingClientRect();
+            canvas.width = containerRect.width;
+            canvas.height = containerRect.height;
+            circle.x = canvas.width / 2;
+            circle.y = canvas.height / 2;
+            circle.radius = Math.min(canvas.width, canvas.height) * 0.4;
+            
+            // 初始化点
+            if (Object.keys(circle.points.A).length === 0) {
+                circle.points.A = getPointOnCircle(circle.x, circle.y, circle.radius, 100);
+                circle.points.B = getPointOnCircle(circle.x, circle.y, circle.radius, 260);
+                circle.points.C = getPointOnCircle(circle.x, circle.y, circle.radius, 30);
+                circle.points.D = getPointOnCircle(circle.x, circle.y, circle.radius, 330);
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制圆
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#2b6cb0';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 绘制圆心
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#e53e3e';
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.font = '16px Arial';
+            ctx.fillText('O', circle.x + 10, circle.y - 10);
+            
+            // 绘制点
+            drawPoint(circle.points.A, 'A');
+            drawPoint(circle.points.B, 'B');
+            drawPoint(circle.points.C, 'C');
+            drawPoint(circle.points.D, 'D');
+            
+            // 绘制连线
+            ctx.strokeStyle = '#9f7aea';
+            ctx.lineWidth = 2;
+            // ∠ACB
+            ctx.beginPath();
+            ctx.moveTo(circle.points.A.x, circle.points.A.y);
+            ctx.lineTo(circle.points.C.x, circle.points.C.y);
+            ctx.lineTo(circle.points.B.x, circle.points.B.y);
+            ctx.stroke();
+            // ∠ADB
+            ctx.beginPath();
+            ctx.moveTo(circle.points.A.x, circle.points.A.y);
+            ctx.lineTo(circle.points.D.x, circle.points.D.y);
+            ctx.lineTo(circle.points.B.x, circle.points.B.y);
+            ctx.stroke();
+            
+            // 计算角度（同弧相等）
+            const angleACB = calculateTriangleAngle(circle.points.A, circle.points.C, circle.points.B);
+            const angleADB = calculateTriangleAngle(circle.points.A, circle.points.D, circle.points.B);
+
+            const avgAngle = (angleACB + angleADB) / 2;
+            
+            // 更新角度显示
+angleLabel1.textContent = "∠ACB";
+angleLabel2.textContent = "∠ADB";
+angleLabel3.textContent = t("Relationship", "关系");
+angleLabel4.textContent = "";
+            angleValue1.textContent = `${avgAngle.toFixed(1)}°`;
+            angleValue2.textContent = `${avgAngle.toFixed(1)}°`;
+angleValue3.textContent = t("∠ACB = ∠ADB (Same Segment)", "∠ACB = ∠ADB（同弧定理）");
+            angleValue4.textContent = "";
+            
+            // 绘制角度弧和标注
+            drawAngleArc(circle.points.C.x, circle.points.C.y, circle.radius/5, circle.points.A, circle.points.B, '#48bb78');
+            drawAngleArc(circle.points.D.x, circle.points.D.y, circle.radius/5, circle.points.A, circle.points.B, '#48bb78');
+            
+            ctx.font = '14px Arial';
+            ctx.fontWeight = 'bold';
+            ctx.fillStyle = '#48bb78';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const acbLabelPos = getAngleLabelPosition(circle.points.C, circle.points.A, circle.points.B, circle.radius / 4);
+            ctx.fillText(`∠ACB = ${avgAngle.toFixed(1)}°`, acbLabelPos.x, acbLabelPos.y);
+            
+            const adbLabelPos = getAngleLabelPosition(circle.points.D, circle.points.A, circle.points.B, circle.radius / 4);
+            ctx.fillText(`∠ADB = ${avgAngle.toFixed(1)}°`, adbLabelPos.x, adbLabelPos.y);
+        }
+
+        // ---------------------- 定理4：圆内接四边形对角和为180° ----------------------
+ function drawTheorem4() {
+    const containerRect = canvasContainer.getBoundingClientRect();
+    canvas.width = containerRect.width;
+    canvas.height = containerRect.height;
+    circle.x = canvas.width / 2;
+    circle.y = canvas.height / 2;
+    circle.radius = Math.min(canvas.width, canvas.height) * 0.4;
+
+    // 初始化四边形顶点
+    if (Object.keys(circle.points.A).length === 0) {
+        circle.points.A = getPointOnCircle(circle.x, circle.y, circle.radius, 45);
+        circle.points.B = getPointOnCircle(circle.x, circle.y, circle.radius, 135);
+        circle.points.C = getPointOnCircle(circle.x, circle.y, circle.radius, 225);
+        circle.points.D = getPointOnCircle(circle.x, circle.y, circle.radius, 315);
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 绘制圆
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = '#2b6cb0';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 绘制圆心
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#e53e3e';
+    ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.font = '16px Arial';
+    ctx.fillText('O', circle.x + 10, circle.y - 10);
+
+    // 绘制点
+    drawPoint(circle.points.A, 'A');
+    drawPoint(circle.points.B, 'B');
+    drawPoint(circle.points.C, 'C');
+    drawPoint(circle.points.D, 'D');
+
+    // 绘制四边形
+    ctx.strokeStyle = '#9f7aea';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(circle.points.A.x, circle.points.A.y);
+    ctx.lineTo(circle.points.B.x, circle.points.B.y);
+    ctx.lineTo(circle.points.C.x, circle.points.C.y);
+    ctx.lineTo(circle.points.D.x, circle.points.D.y);
+    ctx.closePath();
+    ctx.stroke();
+
+    // 根据真实位置计算内角
+    const angleA = calculateAngle(circle.points.D, circle.points.A, circle.points.B);
+    const angleB = calculateAngle(circle.points.A, circle.points.B, circle.points.C);
+    const angleC = calculateAngle(circle.points.B, circle.points.C, circle.points.D);
+    const angleD = calculateAngle(circle.points.C, circle.points.D, circle.points.A);
+
+    // 更新显示
+angleLabel1.textContent = "∠A + ∠C";
+angleLabel2.textContent = "∠B + ∠D";
+angleLabel3.textContent = t("Relationship", "关系");
+angleLabel4.textContent = "";
+
+    angleValue1.textContent = `${angleA.toFixed(1)}° + ${angleC.toFixed(1)}° = ${(angleA + angleC).toFixed(1)}°`;
+    angleValue2.textContent = `${angleB.toFixed(1)}° + ${angleD.toFixed(1)}° = ${(angleB + angleD).toFixed(1)}°`;
+angleValue3.textContent = t("Opposite angles sum to 180°", "对角和为 180°");
+    angleValue4.textContent = "";
+
+    // 画四个角弧
+    drawAngleArc(circle.points.A.x, circle.points.A.y, 25, circle.points.D, circle.points.B, '#e53e3e');
+    drawAngleArc(circle.points.B.x, circle.points.B.y, 25, circle.points.A, circle.points.C, '#48bb78');
+    drawAngleArc(circle.points.C.x, circle.points.C.y, 25, circle.points.B, circle.points.D, '#e53e3e');
+    drawAngleArc(circle.points.D.x, circle.points.D.y, 25, circle.points.C, circle.points.A, '#48bb78');
+
+    // 角度标注
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.fillStyle = '#e53e3e';
+    const aLabelPos = getAngleLabelPosition(circle.points.A, circle.points.D, circle.points.B, circle.radius / 5);
+    ctx.fillText(`${angleA.toFixed(1)}°`, aLabelPos.x, aLabelPos.y);
+
+    const cLabelPos = getAngleLabelPosition(circle.points.C, circle.points.B, circle.points.D, circle.radius / 5);
+    ctx.fillText(`${angleC.toFixed(1)}°`, cLabelPos.x, cLabelPos.y);
+
+    ctx.fillStyle = '#48bb78';
+    const bLabelPos = getAngleLabelPosition(circle.points.B, circle.points.A, circle.points.C, circle.radius / 5);
+    ctx.fillText(`${angleB.toFixed(1)}°`, bLabelPos.x, bLabelPos.y);
+
+    const dLabelPos = getAngleLabelPosition(circle.points.D, circle.points.C, circle.points.A, circle.radius / 5);
+    ctx.fillText(`${angleD.toFixed(1)}°`, dLabelPos.x, dLabelPos.y);
+}
+
+        // ---------------------- 定理5：半径与切线垂直 ----------------------
+function drawTheorem5() {
+
+    const containerRect = canvasContainer.getBoundingClientRect();
+    canvas.width = containerRect.width;
+    canvas.height = containerRect.height;
+
+    circle.x = canvas.width / 2;
+    circle.y = canvas.height / 2;
+    circle.radius = Math.min(canvas.width, canvas.height) * 0.4;
+
+    // ⭐ 初始化 P 点
+    if (Object.keys(circle.points.P).length === 0) {
+        circle.points.P = getPointOnCircle(circle.x, circle.y, circle.radius, 0);
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const O = { x: circle.x, y: circle.y };
+    const P = circle.points.P;
+
+    // ===== 画圆 =====
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = "#2b6cb0";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ===== 半径方向 =====
+    const dx = P.x - O.x;
+    const dy = P.y - O.y;
+
+    // ===== 切线方向 (垂直) =====
+    const tx = -dy;
+    const ty = dx;
+
+    const len = Math.sqrt(tx * tx + ty * ty);
+
+    const ux = tx / len;
+    const uy = ty / len;
+
+    const L = circle.radius * 1.5;
+
+    const T1 = {
+        x: P.x + ux * L,
+        y: P.y + uy * L
+    };
+
+    const T2 = {
+        x: P.x - ux * L,
+        y: P.y - uy * L
+    };
+
+    // ===== 画切线 =====
+    ctx.beginPath();
+    ctx.moveTo(T1.x, T1.y);
+    ctx.lineTo(T2.x, T2.y);
+    ctx.strokeStyle = "#e53e3e";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ===== 画半径 OP =====
+    ctx.beginPath();
+    ctx.moveTo(O.x, O.y);
+    ctx.lineTo(P.x, P.y);
+    ctx.strokeStyle = "#38a169";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ===== 直角标记 =====
+    drawRightAngleMarker(P, O, T1, 20);
+
+    // ===== 点 =====
+    drawPoint(P, "P");
+
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = "#e53e3e";
+    ctx.fill();
+    ctx.fillStyle = "#000";
+    ctx.fillText("O", circle.x + 10, circle.y - 10);
+
+    // ===== 信息显示 =====
+angleLabel1.textContent = t("Angle", "角度");
+angleLabel2.textContent = "";
+angleLabel3.textContent = t("Relationship", "关系");
+angleLabel4.textContent = "";
+
+    angleValue1.textContent = "90°";
+    angleValue2.textContent = "";
+angleValue3.textContent = t("OP ⟂ Tangent", "OP ⟂ 切线");
+    angleValue4.textContent = "";
+}
+
+
+        // ---------------------- 定理6：外点到圆的两条切线长度相等 ----------------------
+function drawTheorem6() {
+
+    const containerRect = canvasContainer.getBoundingClientRect();
+    canvas.width = containerRect.width;
+    canvas.height = containerRect.height;
+
+    circle.x = canvas.width / 2;
+    circle.y = canvas.height / 2;
+    circle.radius = Math.min(canvas.width, canvas.height) * 0.35;
+
+    // 初始化 P
+    if (Object.keys(circle.points.P).length === 0) {
+        circle.points.P = {
+            x: circle.x + circle.radius * 1.8,
+            y: circle.y - circle.radius * 0.5
+        };
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const O = { x: circle.x, y: circle.y };
+    const P = circle.points.P;
+
+    // ===== 画圆 =====
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = "#2b6cb0";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ===== OP 向量 =====
+    const dx = P.x - O.x;
+    const dy = P.y - O.y;
+
+    const d = Math.sqrt(dx*dx + dy*dy);
+
+    // 如果 P 在圆内，不画切线
+    if (d <= circle.radius) {
+
+        drawPoint(P, "P");
+
+        angleValue1.textContent = "--";
+        angleValue2.textContent = "--";
+angleValue3.textContent = t("P must be outside the circle", "点 P 必须在圆外");
+        angleValue4.textContent = "--";
+
+        return;
+    }
+
+    // ===== 计算切点 =====
+
+    const angleOP = Math.atan2(dy, dx);
+
+    const alpha = Math.acos(circle.radius / d);
+
+    const angleA = angleOP + alpha;
+    const angleB = angleOP - alpha;
+
+    const A = {
+        x: O.x + circle.radius * Math.cos(angleA),
+        y: O.y + circle.radius * Math.sin(angleA)
+    };
+
+    const B = {
+        x: O.x + circle.radius * Math.cos(angleB),
+        y: O.y + circle.radius * Math.sin(angleB)
+    };
+
+    circle.points.A = A;
+    circle.points.B = B;
+
+    // ===== 画半径 =====
+
+    ctx.beginPath();
+    ctx.moveTo(O.x, O.y);
+    ctx.lineTo(A.x, A.y);
+    ctx.moveTo(O.x, O.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "#999";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // ===== 画 OP =====
+ctx.beginPath();
+ctx.moveTo(O.x, O.y);
+ctx.lineTo(P.x, P.y);
+ctx.strokeStyle = "#38a169";
+ctx.lineWidth = 2;
+ctx.stroke();
+
+    // ===== 画切线 PA PB =====
+
+    ctx.beginPath();
+    ctx.moveTo(P.x, P.y);
+    ctx.lineTo(A.x, A.y);
+    ctx.moveTo(P.x, P.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "#e53e3e";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ===== 画直角标 =====
+
+    drawRightAngleMarker(A, O, P, 20);
+    drawRightAngleMarker(B, O, P, 20);
+
+    // ===== 画点 =====
+
+    drawPoint(P, "P");
+    drawPoint(A, "A");
+    drawPoint(B, "B");
+
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = "#e53e3e";
+    ctx.fill();
+
+    ctx.fillStyle = "#000";
+    ctx.fillText("O", circle.x + 10, circle.y - 10);
+
+    // ===== 计算长度 =====
+
+    const PA = calculateDistance(P, A);
+    const PB = calculateDistance(P, B);
+
+    // ===== 计算中点 =====
+
+const midPA = {
+    x: (P.x + A.x) / 2,
+    y: (P.y + A.y) / 2
+};
+
+const midPB = {
+    x: (P.x + B.x) / 2,
+    y: (P.y + B.y) / 2
+};
+
+// ===== 在图上写长度 =====
+
+ctx.font = "14px Arial";
+ctx.fillStyle = "#2563eb";
+ctx.textAlign = "center";
+
+ctx.fillText(
+    "PA = " + PA.toFixed(1),
+    midPA.x,
+    midPA.y
+);
+
+ctx.fillText(
+    "PB = " + PB.toFixed(1),
+    midPB.x,
+    midPB.y
+);
+
+    // ===== 显示 =====
+
+angleLabel1.textContent = "PA";
+angleLabel2.textContent = "PB";
+angleLabel3.textContent = t("Relationship", "关系");
+angleLabel4.textContent = t("Difference", "差值");
+
+    angleValue1.textContent = PA.toFixed(1);
+    angleValue2.textContent = PB.toFixed(1);
+angleValue3.textContent = "PA = PB";
+    angleValue4.textContent = Math.abs(PA - PB).toFixed(4);
+}
+
+        // ---------------------- 定理7：外点到圆心的线平分切线夹角 ----------------------
+function drawTheorem7() {
+
+    const containerRect = canvasContainer.getBoundingClientRect();
+    canvas.width = containerRect.width;
+    canvas.height = containerRect.height;
+
+    circle.x = canvas.width / 2;
+    circle.y = canvas.height / 2;
+    circle.radius = Math.min(canvas.width, canvas.height) * 0.35;
+
+    // 初始化 P
+    if (Object.keys(circle.points.P).length === 0) {
+        circle.points.P = {
+            x: circle.x + circle.radius * 1.8,
+            y: circle.y - circle.radius * 0.5
+        };
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const O = { x: circle.x, y: circle.y };
+    const P = circle.points.P;
+
+    // ===== 画圆 =====
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = "#2b6cb0";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    const dx = P.x - O.x;
+    const dy = P.y - O.y;
+
+    const d = Math.sqrt(dx*dx + dy*dy);
+
+    if (d <= circle.radius) {
+
+        drawPoint(P, "P");
+
+angleValue3.textContent = t("P must be outside the circle", "点 P 必须在圆外");
+        return;
+    }
+
+    // ===== 计算切点 =====
+
+    const angleOP = Math.atan2(dy, dx);
+    const alpha = Math.acos(circle.radius / d);
+
+    const angleA = angleOP + alpha;
+    const angleB = angleOP - alpha;
+
+    const A = {
+        x: O.x + circle.radius * Math.cos(angleA),
+        y: O.y + circle.radius * Math.sin(angleA)
+    };
+
+    const B = {
+        x: O.x + circle.radius * Math.cos(angleB),
+        y: O.y + circle.radius * Math.sin(angleB)
+    };
+
+    circle.points.A = A;
+    circle.points.B = B;
+
+    // ===== 画切线 =====
+
+    ctx.beginPath();
+    ctx.moveTo(P.x, P.y);
+    ctx.lineTo(A.x, A.y);
+    ctx.moveTo(P.x, P.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "#e53e3e";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ===== 画 OP =====
+
+    ctx.beginPath();
+    ctx.moveTo(O.x, O.y);
+    ctx.lineTo(P.x, P.y);
+    ctx.strokeStyle = "#38a169";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ===== 画 OA 和 OB =====
+
+ctx.beginPath();
+ctx.moveTo(O.x, O.y);
+ctx.lineTo(A.x, A.y);
+ctx.moveTo(O.x, O.y);
+ctx.lineTo(B.x, B.y);
+ctx.strokeStyle = "#888";
+ctx.lineWidth = 1.5;
+ctx.stroke();
+
+// ===== 画角弧 =====
+
+drawTriangleAngleArc(O, P, A, 40);
+drawTriangleAngleArc(O, P, B, 60);
+
+    // ===== 画点 =====
+
+    drawPoint(P, "P");
+    drawPoint(A, "A");
+    drawPoint(B, "B");
+
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = "#e53e3e";
+    ctx.fill();
+    ctx.fillStyle = "#000";
+    ctx.fillText("O", circle.x + 10, circle.y - 10);
+
+    // ===== 计算角 =====
+
+    const angle1 = calculateAngle(A, P, O);
+    const angle2 = calculateAngle(O, P, B);
+
+    // ===== 在图上显示角度 =====
+
+ctx.font = '14px Arial';
+ctx.fontWeight = 'bold';
+ctx.fillStyle = '#f59e0b';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+
+// ∠APO
+const pos1 = getAngleLabelPosition(P, A, O, 70);
+ctx.fillText(angle1.toFixed(1) + "°", pos1.x, pos1.y);
+
+// ∠OPB
+const pos2 = getAngleLabelPosition(P, O, B, 90);
+ctx.fillText(angle2.toFixed(1) + "°", pos2.x, pos2.y);
+
+    // ===== 显示 =====
+
+angleLabel1.textContent = "∠APO";
+angleLabel2.textContent = "∠OPB";
+angleLabel3.textContent = t("Relationship", "关系");
+angleLabel4.textContent = t("Difference", "差值");
+
+    angleValue1.textContent = angle1.toFixed(1) + "°";
+    angleValue2.textContent = angle2.toFixed(1) + "°";
+angleValue3.textContent = t("OP bisects ∠APB", "OP 平分 ∠APB");
+    angleValue4.textContent = "0.00";
+}
+
+        // ---------------------- 定理8：交替段定理 ----------------------
+function drawTheorem8() {
+    if (!canvas || !ctx || !canvasContainer) return;
+    if (!circle) circle = {};
+    if (!circle.points) circle.points = {};
+    circle.points.A = circle.points.A || {};
+    circle.points.B = circle.points.B || {};
+    circle.points.C = circle.points.C || {};
+
+    // ----------------- 设置画布 -----------------
+    const containerRect = canvasContainer.getBoundingClientRect();
+    canvas.width = containerRect.width;
+    canvas.height = containerRect.height;
+
+    circle.x = canvas.width / 2;
+    circle.y = canvas.height / 2;
+    circle.radius = Math.min(canvas.width, canvas.height) * 0.4;
+
+    const O = { x: circle.x, y: circle.y };
+    const r = circle.radius;
+
+    // ----------------- 初始化圆上点 -----------------
+    if (!circle.points.A.x) {
+        circle.points.A = getPointOnCircle(circle.x, circle.y, r, 40);
+        circle.points.B = getPointOnCircle(circle.x, circle.y, r, 200);
+        circle.points.C = getPointOnCircle(circle.x, circle.y, r, 300);
+    }
+
+    const A = circle.points.A;
+    const B = circle.points.B;
+    const C = circle.points.C;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // ----------------- 画圆 -----------------
+    ctx.beginPath();
+    ctx.arc(O.x, O.y, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "#2b6cb0";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ----------------- 计算切线 -----------------
+    const dx = A.x - O.x;
+    const dy = A.y - O.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const tx = -dy / len;
+    const ty = dx / len;
+    const L = r * 1.5;
+
+    const T1 = { x: A.x + tx * L, y: A.y + ty * L };
+    const T2 = { x: A.x - tx * L, y: A.y - ty * L };
+
+    // 新增 O2 点（切线另一端）
+    const O2 = { x: A.x - tx * L * 0.6, y: A.y - ty * L * 0.6 }; // 适当缩短长度
+    const O1 = { x: A.x + tx * L * 0.6, y: A.y + ty * L * 0.6 };
+
+    // ----------------- 画切线 -----------------
+    ctx.beginPath();
+    ctx.moveTo(T1.x, T1.y);
+    ctx.lineTo(T2.x, T2.y);
+    ctx.strokeStyle = "#e53e3e";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ----------------- 画弦 -----------------
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "#2563eb";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // ----------------- 画三角形 -----------------
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y);
+    ctx.lineTo(C.x, C.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.closePath();
+    ctx.strokeStyle = "#888";
+    ctx.stroke();
+
+    // ----------------- 计算角 -----------------
+    const anglePAB = calculateAngle(T1, A, B);  // ∠PAB
+    const angleACB = calculateAngle(A, C, B);   // ∠ACB
+    const angleABC = calculateAngle(A, B, C);   // ∠ABC
+    const angleCAO2 = calculateAngle(C, A, O2); // ∠CAO2（切线另一端角）
+
+    // ----------------- 画角弧 -----------------
+    drawAngleArc(A.x, A.y, 40, T1, B, "#f59e0b");    // ∠PAB
+    drawAngleArc(C.x, C.y, 40, A, B, "#f59e0b");     // ∠ACB
+    drawAngleArc(B.x, B.y, 40, A, C, "#16a34a");     // ∠ABC
+    drawAngleArc(A.x, A.y, 40, C, O2, "#10b981");    // ∠CAO2
+
+    // ----------------- 标注角度 -----------------
+    ctx.fillStyle = "#f59e0b";
+    ctx.font = "16px Arial";
+
+    ctx.fillText(anglePAB.toFixed(1) + "°", getAngleLabelPosition(A, T1, B, 70).x, getAngleLabelPosition(A, T1, B, 70).y);
+    ctx.fillText(angleACB.toFixed(1) + "°", getAngleLabelPosition(C, A, B, 70).x, getAngleLabelPosition(C, A, B, 70).y);
+    ctx.fillText(angleABC.toFixed(1) + "°", getAngleLabelPosition(B, A, C, 70).x, getAngleLabelPosition(B, A, C, 70).y);
+    ctx.fillText(angleCAO2.toFixed(1) + "°", getAngleLabelPosition(A, C, O2, 70).x, getAngleLabelPosition(A, C, O2, 70).y);
+
+    // ----------------- 更新角度信息 -----------------
+    if (angleLabel1) angleLabel1.textContent = "∠BAO1";
+    if (angleLabel2) angleLabel2.textContent = "∠ACB";
+    if (angleLabel3) angleLabel3.textContent = "∠ABC";
+    if (angleLabel4) angleLabel4.textContent = t("Relationship", "关系");
+
+    if (angleValue1) angleValue1.textContent = anglePAB.toFixed(1) + "°";
+    if (angleValue2) angleValue2.textContent = angleACB.toFixed(1) + "°";
+    if (angleValue3) angleValue3.textContent = angleABC.toFixed(1) + "°";
+    if (angleValue4) angleValue4.textContent = "∠ABC = ∠CAO2 ∠ACB = ∠BAO1";
+
+    // ----------------- 画点 -----------------
+    drawPoint(A, "A");
+    drawPoint(B, "B");
+    drawPoint(C, "C");
+    drawPoint(O2, "O2");
+    drawPoint(O1, "O1");
+}
+        // ---------------------- 拖动相关函数 ----------------------
+        function getClickedPoint(x, y) {
+            const tolerance = 15;
+            const points = circle.points;
+            
+            switch(activeTheorem) {
+                case 1:
+                    if (distanceToPoint(x, y, points.A) < tolerance) return 'A';
+                    if (distanceToPoint(x, y, points.B) < tolerance) return 'B';
+                    if (distanceToPoint(x, y, points.C) < tolerance) return 'C';
+                    break;
+                case 2:
+                    // 修改：支持检测A、B、C点的点击
+                    if (distanceToPoint(x, y, points.A) < tolerance) return 'A';
+                    if (distanceToPoint(x, y, points.B) < tolerance) return 'B';
+                    if (distanceToPoint(x, y, points.C) < tolerance) return 'C';
+                    break;
+                case 3:
+                    if (distanceToPoint(x, y, points.A) < tolerance) return 'A';
+                    if (distanceToPoint(x, y, points.B) < tolerance) return 'B';
+                    if (distanceToPoint(x, y, points.C) < tolerance) return 'C';
+                    if (distanceToPoint(x, y, points.D) < tolerance) return 'D';
+                    break;
+                case 4:
+                    if (distanceToPoint(x, y, points.A) < tolerance) return 'A';
+                    if (distanceToPoint(x, y, points.B) < tolerance) return 'B';
+                    if (distanceToPoint(x, y, points.C) < tolerance) return 'C';
+                    if (distanceToPoint(x, y, points.D) < tolerance) return 'D';
+                    break;
+                case 5:
+                    if (distanceToPoint(x, y, points.P) < tolerance) return 'P';
+                    break;
+                case 6:
+                case 7:
+                    if (distanceToPoint(x, y, points.P) < tolerance) return 'P';
+                    break;
+                case 8:
+                    if (distanceToPoint(x, y, points.A) < tolerance) return 'A';
+                    if (distanceToPoint(x, y, points.B) < tolerance) return 'B';
+                    if (distanceToPoint(x, y, points.C) < tolerance) return 'C';
+                    break;
+            }
+            return null;
+        }
+
+        function distanceToPoint(x, y, point) {
+    if (point.x === undefined || point.y === undefined) return Infinity;
+    const dx = x - point.x;
+    const dy = y - point.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+        function startDrag(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    dragPoint = getClickedPoint(x, y);
+    isDragging = dragPoint !== null;
+
+    if (isDragging) {
+        hoverPoint = dragPoint;
+        canvas.style.cursor = 'grabbing';
+    }
+}
+
+function drag(e) {
+    const rect = canvas.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+
+    // 没在拖动时：处理 hover 高亮
+    if (!isDragging) {
+        hoverPoint = getClickedPoint(x, y);
+        canvas.style.cursor = hoverPoint ? 'grab' : 'default';
+        drawTheorem(activeTheorem);
+        return;
+    }
+
+    // 正在拖动，但没有有效拖动点
+    if (!dragPoint) return;
+
+    // 根据定理处理拖动逻辑
+    switch(activeTheorem) {
+        case 1: {
+
+            const newPos = movePointOnCircle(x, y);
+
+            const A = circle.points.A;
+            const B = circle.points.B;
+            const C = circle.points.C;
+
+            if (dragPoint === 'C') {
+                const sideOriginal =
+                    (B.x - A.x) * (C.y - A.y) -
+                    (B.y - A.y) * (C.x - A.x);
+
+                const sideNew =
+                    (B.x - A.x) * (newPos.y - A.y) -
+                    (B.y - A.y) * (newPos.x - A.x);
+
+                if (sideOriginal * sideNew < 0) return;
+            }
+
+            circle.points[dragPoint].x = newPos.x;
+            circle.points[dragPoint].y = newPos.y;
+
+            break;
+        }
+
+        case 4: {
+
+            const newPos = movePointOnCircle(x, y);
+
+            const A = circle.points.A;
+            const B = circle.points.B;
+            const C = circle.points.C;
+            const D = circle.points.D;
+
+            let P = circle.points[dragPoint];
+            let lineStart, lineEnd;
+
+            if (dragPoint === 'A' || dragPoint === 'C') {
+                lineStart = B;
+                lineEnd = D;
+            } else if (dragPoint === 'B' || dragPoint === 'D') {
+                lineStart = A;
+                lineEnd = C;
+            }
+
+            const sideOriginal =
+                (lineEnd.x - lineStart.x) * (P.y - lineStart.y) -
+                (lineEnd.y - lineStart.y) * (P.x - lineStart.x);
+
+            const sideNew =
+                (lineEnd.x - lineStart.x) * (newPos.y - lineStart.y) -
+                (lineEnd.y - lineStart.y) * (newPos.x - lineStart.x);
+
+            if (sideOriginal * sideNew < 0) return;
+
+            circle.points[dragPoint].x = newPos.x;
+            circle.points[dragPoint].y = newPos.y;
+
+            break;
+        }
+
+        case 3: {
+            const dx3 = x - circle.x;
+            const dy3 = y - circle.y;
+            const distance3 = Math.sqrt(dx3 * dx3 + dy3 * dy3);
+
+            if (distance3 === 0) return;
+
+            const newX = circle.x + (dx3 / distance3) * circle.radius;
+            const newY = circle.y + (dy3 / distance3) * circle.radius;
+
+            const A = circle.points.A;
+            const B = circle.points.B;
+
+            const sideOriginal =
+                (B.x - A.x) * (circle.points[dragPoint].y - A.y) -
+                (B.y - A.y) * (circle.points[dragPoint].x - A.x);
+
+            const sideNew =
+                (B.x - A.x) * (newY - A.y) -
+                (B.y - A.y) * (newX - A.x);
+
+            if (sideOriginal * sideNew < 0) return;
+
+            circle.points[dragPoint].x = newX;
+            circle.points[dragPoint].y = newY;
+
+            break;
+        }
+
+        case 2: {
+            if (dragPoint === 'C') {
+                const dx2 = x - circle.x;
+                const dy2 = y - circle.y;
+                const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                if (distance2 === 0) return;
+
+                circle.points.C.x = circle.x + (dx2 / distance2) * circle.radius;
+                circle.points.C.y = circle.y + (dy2 / distance2) * circle.radius;
+            } else if (dragPoint === 'A' || dragPoint === 'B') {
+                const dx2 = x - circle.x;
+                const dy2 = y - circle.y;
+                const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                if (distance2 === 0) return;
+
+                const draggedX = circle.x + (dx2 / distance2) * circle.radius;
+                const draggedY = circle.y + (dy2 / distance2) * circle.radius;
+
+                circle.points[dragPoint].x = draggedX;
+                circle.points[dragPoint].y = draggedY;
+
+                const oppositePoint = dragPoint === 'A' ? 'B' : 'A';
+                circle.points[oppositePoint].x = 2 * circle.x - draggedX;
+                circle.points[oppositePoint].y = 2 * circle.y - draggedY;
+            }
+            break;
+        }
+
+        case 5: {
+            const newPos = movePointOnCircle(x, y);
+
+            circle.points.P.x = newPos.x;
+            circle.points.P.y = newPos.y;
+
+            break;
+        }
+
+        case 6:
+        case 7:
+            circle.points.P.x = x;
+            circle.points.P.y = y;
+
+            const opDistance = calculateDistance(circle.points.P, {x: circle.x, y: circle.y});
+            if (opDistance > circle.radius) {
+                const angle = Math.asin(circle.radius / opDistance);
+                circle.points.A = {
+                    x: circle.x + circle.radius * Math.cos(angle),
+                    y: circle.y + circle.radius * Math.sin(angle)
+                };
+                circle.points.B = {
+                    x: circle.x + circle.radius * Math.cos(-angle),
+                    y: circle.y + circle.radius * Math.sin(-angle)
+                };
+            }
+            break;
+
+        case 8: {
+            const newPos = movePointOnCircle(x, y);
+
+            circle.points[dragPoint].x = newPos.x;
+            circle.points[dragPoint].y = newPos.y;
+
+            break;
+        }
+    }
+
+    drawTheorem(activeTheorem);
+}
+        
+
+ function stopDrag() {
+    isDragging = false;
+    dragPoint = null;
+    canvas.style.cursor = hoverPoint ? 'grab' : 'default';
+    drawTheorem(activeTheorem);
+}
+
+function applyLanguage(lang) {
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+
+  document.querySelectorAll("[data-en][data-zh]").forEach(el => {
+    el.textContent = el.getAttribute(lang === "zh" ? "data-zh" : "data-en");
+  });
+
+  const langBtn = document.getElementById("langBtn");
+  if (langBtn) {
+    langBtn.textContent = lang === "zh" ? "EN" : "中文";
+  }
+
+  localStorage.setItem("language", lang);
+  updateModeButtons(lang);
+}
+
+function toggleLanguage() {
+    const current = localStorage.getItem("language") || "en";
+    const next = current === "en" ? "zh" : "en";
+    applyLanguage(next);
+
+    if (modal.style.display === "flex") {
+        const data = theoremData[activeTheorem];
+        modalTitle.textContent = data.title[next];
+        modalDescription.textContent = data.description[next];
+        modalExample.textContent = data.example[next];
+        drawTheorem(activeTheorem);
+    }
+}
+
+function updateModeButtons(lang) {
+  const currentLang = lang || localStorage.getItem("language") || "en";
+  const isDark = document.body.classList.contains("dark-mode");
+  const isColorblind = document.body.classList.contains("colorblind-mode");
+
+  const themeBtn = document.getElementById("themeBtn");
+  const cbBtn = document.getElementById("cbBtn");
+
+  if (themeBtn) {
+    themeBtn.textContent =
+      currentLang === "zh"
+        ? (isDark ? "☀️ 明亮模式" : "🌙 暗夜模式")
+        : (isDark ? "☀️ Light Mode" : "🌙 Dark Mode");
+  }
+
+  if (cbBtn) {
+    cbBtn.textContent =
+      currentLang === "zh"
+        ? (isColorblind ? "👁 普通模式" : "👁 色盲模式")
+        : (isColorblind ? "👁 Standard Mode" : "👁 Colorblind Mode");
+  }
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("dark-mode") ? "dark" : "light"
+  );
+  updateModeButtons(localStorage.getItem("language") || "en");
+}
+
+function toggleColorblindMode() {
+  document.body.classList.toggle("colorblind-mode");
+  localStorage.setItem(
+    "colorblind",
+    document.body.classList.contains("colorblind-mode") ? "on" : "off"
+  );
+  updateModeButtons(localStorage.getItem("language") || "en");
+}
+
+window.addEventListener("load", () => {
+  const savedTheme = localStorage.getItem("theme");
+  const savedLanguage = localStorage.getItem("language") || "en";
+  const savedColorblind = localStorage.getItem("colorblind");
+
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+  }
+
+  if (savedColorblind === "on") {
+    document.body.classList.add("colorblind-mode");
+  }
+
+  applyLanguage(savedLanguage);
+});
+    </script>
+</body>
+</html>
