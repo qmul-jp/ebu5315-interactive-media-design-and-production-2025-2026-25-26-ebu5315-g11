@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Circle Theorems Quiz Hub</title>
+<link rel="stylesheet" href="style-quiz.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="../Homepage/Homepage.html">
+        <span class="brand-badge">◯</span>
+        <span class="brand-text" data-en="Circle Theorems Learning Hub" data-zh="圆定理学习中心">Circle Theorems Learning Hub</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="../Homepage/Homepage.html" data-en="Home" data-zh="首页">Home</a>
+        <a href="../Game＆Learn/Game-Circle Part.html" data-en="Learn" data-zh="学习">Learn</a>
+        <a href="../Game＆Learn/Game-Play Part.html" data-en="Game" data-zh="游戏">Game</a>
+        <a href="quiz.html" data-en="Quiz" data-zh="测验">Quiz</a>
+      </nav>
+
+<div class="nav-actions">
+  <div class="font-controls" aria-label="Font size controls">
+    <button class="font-btn" id="fontDownBtn" type="button">A-</button>
+    <button class="font-btn" id="fontResetBtn" type="button">A</button>
+    <button class="font-btn" id="fontUpBtn" type="button">A+</button>
+  </div>
+
+  <button class="btn btn-outline" onclick="toggleLanguage()" id="langBtn">中文</button>
+  <a class="btn btn-primary" href="../Game＆Learn/Game-Circle Part.html" data-en="Start Learning" data-zh="开始学习">Start Learning</a>
+  <button class="btn btn-outline" onclick="toggleDarkMode()" id="themeBtn">🌙 Dark Mode</button>
+  <button class="btn btn-outline" onclick="toggleColorblindMode()" id="cbBtn">👁 Colorblind Mode</button>
+  <a class="btn btn-primary" href="../Homepage/Homepage.html" data-en="Back Home" data-zh="返回首页">Back Home</a>
+</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow" data-en="📝 GCSE-friendly • Image Quiz • Instant Feedback" data-zh="📝 适合 GCSE • 图片测验 • 即时反馈">
+            📝 GCSE-friendly • Image Quiz • Instant Feedback
+          </div>
+
+          <h1>
+            <span data-en="Test your " data-zh="测试你的 ">Test your </span>
+            <span class="highlight" data-en="Circle Theorems" data-zh="圆定理">Circle Theorems</span>
+            <span data-en=" understanding." data-zh=" 理解程度。"> understanding.</span>
+          </h1>
+
+          <p data-en="Practise key circle theorems with question images, image-based options, timed mock tests, and full result reviews."
+             data-zh="通过题目图片、图片选项、限时模拟测试和完整结果回顾来练习核心圆定理。">
+            Practise key circle theorems with question images, image-based options, timed mock tests, and full result reviews.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#quizArea" data-en="Start Quiz" data-zh="开始测验">Start Quiz</a>
+            <a class="btn btn-outline" href="../Homepage/Homepage.html" data-en="Back to Homepage" data-zh="返回首页">Back to Homepage</a>
+          </div>
+
+          <div class="quick-stats">
+            <div class="stat-card">
+              <strong>5</strong>
+              <span data-en="Practice questions" data-zh="练习题数量">Practice questions</span>
+            </div>
+            <div class="stat-card">
+              <strong>2</strong>
+              <span data-en="Quiz modes" data-zh="测验模式">Quiz modes</span>
+            </div>
+            <div class="stat-card">
+              <strong>4</strong>
+              <span data-en="Image options each" data-zh="每题四个图片选项">Image options each</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="main-card">
+            <div class="card-top">
+              <span class="pill" data-en="Quiz Preview" data-zh="测验预览">Quiz Preview</span>
+              <span class="muted" data-en="Image-Based Questions" data-zh="图片化题目">Image-Based Questions</span>
+            </div>
+
+            <h2 class="hero-preview-title" data-en="Choose your mode and begin" data-zh="选择模式后开始测验">Choose your mode and begin</h2>
+            <p class="hero-preview-text"
+               data-en="Use practice mode for unlimited time, or switch to mock test mode for timed questions."
+               data-zh="练习模式不限时，模拟测试模式则包含每题倒计时。">
+              Use practice mode for unlimited time, or switch to mock test mode for timed questions.
+            </p>
+
+            <div class="preview-list">
+              <div class="preview-item">
+                <strong data-en="Image Questions" data-zh="图片题目">Image Questions</strong>
+                <span class="muted" data-en="Each theorem question can show a diagram." data-zh="每道定理题都可以展示图示。">Each theorem question can show a diagram.</span>
+              </div>
+              <div class="preview-item">
+                <strong data-en="Image Options" data-zh="图片选项">Image Options</strong>
+                <span class="muted" data-en="Each answer choice can also be shown as an image card." data-zh="每个答案选项也能显示成图片卡片。">Each answer choice can also be shown as an image card.</span>
+              </div>
+              <div class="preview-item">
+                <strong data-en="Result Review" data-zh="结果回顾">Result Review</strong>
+                <span class="muted" data-en="Check your grade and review incorrect answers after finishing." data-zh="完成后查看等级并回顾错题。">Check your grade and review incorrect answers after finishing.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="quiz-section" id="quizArea">
+      <div class="container">
+        <div class="mode-switch-wrap">
+          <div class="mode-switch-grid">
+            <div class="mode-card active" id="practiceModeCard" onclick="setQuizMode('practice')">
+              <span class="pill" data-en="Mode A" data-zh="模式 A">Mode A</span>
+              <h3 style="margin-top:12px;" data-en="Practice Mode" data-zh="练习模式">Practice Mode</h3>
+              <p class="mode-desc"
+                 data-en="No timer. Best for revision and careful understanding."
+                 data-zh="没有倒计时，适合复习和认真理解。">
+                No timer. Best for revision and careful understanding.
+              </p>
+            </div>
+
+            <div class="mode-card" id="mockModeCard" onclick="setQuizMode('mock')">
+              <span class="pill" data-en="Mode B" data-zh="模式 B">Mode B</span>
+              <h3 style="margin-top:12px;" data-en="Mock Test Mode" data-zh="模拟测试模式">Mock Test Mode</h3>
+              <p class="mode-desc"
+                 data-en="Each question has a timer. Best for timed exam practice."
+                 data-zh="每道题都有计时，更适合模拟考试训练。">
+                Each question has a timer. Best for timed exam practice.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="quiz-layout">
+          <aside class="info-card">
+            <h2 data-en="Quiz Overview" data-zh="测验概览">Quiz Overview</h2>
+            <p class="muted"
+               data-en="Track your progress, score, mode, and time from here."
+               data-zh="在这里查看你的进度、分数、模式和计时。">
+              Track your progress, score, mode, and time from here.
+            </p>
+
+            <div class="info-list">
+              <div class="info-row">
+                <small data-en="Current Question" data-zh="当前题目">Current Question</small>
+                <strong id="progressText">1 / 5</strong>
+              </div>
+              <div class="info-row">
+                <small data-en="Correct Answers" data-zh="答对数量">Correct Answers</small>
+                <strong id="scoreText">0</strong>
+              </div>
+              <div class="info-row">
+                <small data-en="Quiz Status" data-zh="测验状态">Quiz Status</small>
+                <strong id="statusText">Not finished</strong>
+              </div>
+              <div class="info-row">
+                <small data-en="Current Mode" data-zh="当前模式">Current Mode</small>
+                <strong id="modeText">Practice Mode</strong>
+              </div>
+            </div>
+
+            <div class="timer-wrap" id="timerWrap">
+              <div class="timer-head">
+                <span data-en="Time Left" data-zh="剩余时间">Time Left</span>
+                <strong id="timerText">20s</strong>
+              </div>
+              <div class="timer-bar">
+                <div class="timer-fill" id="timerFill"></div>
+              </div>
+            </div>
+          </aside>
+
+          <div>
+            <div class="quiz-card">
+              <div class="progress-wrap">
+                <div class="progress-head">
+                  <strong data-en="Quiz Progress" data-zh="测验进度">Quiz Progress</strong>
+                  <span class="muted" id="progressPercent">20%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" id="progressFill"></div>
+                </div>
+              </div>
+
+              <div class="question-nav" id="questionNav"></div>
+
+              <div class="question-header">
+                <h2 class="question-title" id="questionTitle">Question 1</h2>
+                <p class="question-text" id="questionSubtitle">Choose the correct answer below.</p>
+              </div>
+
+              <div class="question-box">
+                <h3 id="questionText"></h3>
+              </div>
+
+              <div class="image-box" id="imageBox">
+                <img id="questionImage" class="question-image" alt="Question Image">
+              </div>
+
+              <div class="options" id="optionsContainer"></div>
+
+              <div class="feedback" id="feedbackText"></div>
+              <div class="explanation-box" id="explanationBox"></div>
+
+              <div class="quiz-actions">
+                <button class="btn btn-outline" id="prevBtn" type="button">Previous</button>
+                <button class="btn btn-primary" id="nextBtn" type="button">Next</button>
+                <button class="btn btn-outline" id="restartBtn" type="button">Restart</button>
+              </div>
+            </div>
+
+            <div class="result-card" id="resultCard">
+              <span class="pill" data-en="Final Result" data-zh="最终结果">Final Result</span>
+              <h2 id="resultTitle" style="margin-top:12px;" data-en="Quiz Completed" data-zh="测验完成">Quiz Completed</h2>
+              <div class="result-score" id="finalScore">0 / 5</div>
+              <div class="grade-badge" id="gradeBadge">Excellent</div>
+              <p class="muted" id="resultComment"></p>
+              <div class="hero-actions" style="margin-top:18px; margin-bottom:0;">
+                <button class="btn btn-primary" type="button" onclick="restartQuiz()" data-en="Try Again" data-zh="再试一次">Try Again</button>
+                <a class="btn btn-outline" href="../Homepage/Homepage.html" data-en="Back to Home" data-zh="返回首页">Back to Home</a>
+              </div>
+            </div>
+
+            <div class="review-card" id="reviewCard">
+              <span class="pill" data-en="Wrong Answers Review" data-zh="错题回顾">Wrong Answers Review</span>
+              <h2 style="margin-top:12px;" data-en="Review your incorrect questions" data-zh="查看你的错题">Review your incorrect questions</h2>
+              <div class="review-list" id="reviewList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container"
+         data-en="© 2026 Circle Theorems Learning Hub · Quiz module for interactive GCSE geometry revision."
+         data-zh="© 2026 圆定理学习中心 · 用于 GCSE 几何互动复习的测验模块。">
+      © 2026 Circle Theorems Learning Hub · Quiz module for interactive GCSE geometry revision.
+    </div>
+  </footer>
+
+  <script>
+    const QUIZ_TIME = 20;
+    let timer = QUIZ_TIME;
+    let timerInterval = null;
+    let quizMode = "practice";
+const sounds = {
+  click: new Audio("quizsounds/click.mp3"),
+  correct: new Audio("quizsounds/correct.mp3"),
+  wrong: new Audio("quizsounds/wrong.mp3"),
+  finish: new Audio("quizsounds/finish.mp3")
+};
+
+Object.values(sounds).forEach(sound => {
+  sound.preload = "auto";
+});
+
+function playSound(name) {
+  const sound = sounds[name];
+  if (!sound) return;
+  sound.currentTime = 0;
+  sound.play().catch(() => {});
+}
+    const quizData = [
+      {
+        question: {
+          en: "Which statement is correct about the angle at the centre and the angle at the circumference standing on the same arc?",
+          zh: "关于同弧所对的圆心角和圆周角，哪一个说法是正确的？"
+        },
+        image: "quizimgs/q1.png",
+        options: {
+          en: [
+            { text: "The angle at the centre is half the angle at the circumference.", image: "quizimgs/q1_a.png" },
+            { text: "The angle at the centre is twice the angle at the circumference.", image: "quizimgs/q1_b.png" },
+            { text: "The two angles are always equal.", image: "quizimgs/q1_c.png" },
+            { text: "The angle at the circumference is always 90°.", image: "quizimgs/q1_d.png" }
+          ],
+          zh: [
+            { text: "圆心角是圆周角的一半。", image: "quizimgs/q1_a.png" },
+            { text: "圆心角是圆周角的两倍。", image: "quizimgs/q1_b.png" },
+            { text: "这两个角总是相等。", image: "quizimgs/q1_c.png" },
+            { text: "圆周角总是 90°。", image: "quizimgs/q1_d.png" }
+          ]
+        },
+        answer: 1,
+        explanation: {
+          en: "For the same arc, the angle at the centre is always twice the angle at the circumference.",
+          zh: "对于同一条弧，圆心角总是圆周角的两倍。"
+        }
+      },
+      {
+        question: {
+          en: "What is always true for an angle in a semicircle?",
+          zh: "半圆中的角总是满足什么性质？"
+        },
+        image: "quizimgs/q2.png",
+        options: {
+          en: [
+            { text: "It is 45°.", image: "quizimgs/q2_a.png" },
+            { text: "It is equal to the angle at the centre.", image: "quizimgs/q2_b.png" },
+            { text: "It is a right angle.", image: "quizimgs/q2_c.png" },
+            { text: "It is supplementary to the radius.", image: "quizimgs/q2_d.png" }
+          ],
+          zh: [
+            { text: "它等于 45°。", image: "quizimgs/q2_a.png" },
+            { text: "它等于圆心角。", image: "quizimgs/q2_b.png" },
+            { text: "它是直角。", image: "quizimgs/q2_c.png" },
+            { text: "它与半径互补。", image: "quizimgs/q2_d.png" }
+          ]
+        },
+        answer: 2,
+        explanation: {
+          en: "The angle subtended by a diameter at the circumference is always 90°.",
+          zh: "直径所对的圆周角恒为 90°。"
+        }
+      },
+      {
+        question: {
+          en: "If two angles stand on the same arc in the same segment, then they are:",
+          zh: "如果两个圆周角在同弧上，那么它们："
+        },
+        image: "quizimgs/q3.png",
+        options: {
+          en: [
+            { text: "Equal", image: "quizimgs/q3_a.png" },
+            { text: "Supplementary", image: "quizimgs/q3_b.png" },
+            { text: "Double each other", image: "quizimgs/q3_c.png" },
+            { text: "Always obtuse", image: "quizimgs/q3_d.png" }
+          ],
+          zh: [
+            { text: "相等", image: "quizimgs/q3_a.png" },
+            { text: "互补", image: "quizimgs/q3_b.png" },
+            { text: "互为两倍", image: "quizimgs/q3_c.png" },
+            { text: "总是钝角", image: "quizimgs/q3_d.png" }
+          ]
+        },
+        answer: 0,
+        explanation: {
+          en: "Angles in the same segment are equal because they stand on the same arc.",
+          zh: "同弧所对的圆周角相等，因为它们对应同一条弧。"
+        }
+      },
+      {
+        question: {
+          en: "What is true about opposite angles in a cyclic quadrilateral?",
+          zh: "圆内接四边形的对角有什么性质？"
+        },
+        image: "quizimgs/q4.png",
+        options: {
+          en: [
+            { text: "They are always equal.", image: "quizimgs/q4_a.png" },
+            { text: "They add up to 90°.", image: "quizimgs/q4_b.png" },
+            { text: "They add up to 180°.", image: "quizimgs/q4_c.png" },
+            { text: "They are both acute.", image: "quizimgs/q4_d.png" }
+          ],
+          zh: [
+            { text: "它们总是相等。", image: "quizimgs/q4_a.png" },
+            { text: "它们相加等于 90°。", image: "quizimgs/q4_b.png" },
+            { text: "它们相加等于 180°。", image: "quizimgs/q4_c.png" },
+            { text: "它们都为锐角。", image: "quizimgs/q4_d.png" }
+          ]
+        },
+        answer: 2,
+        explanation: {
+          en: "In a cyclic quadrilateral, opposite angles are supplementary, so they add up to 180°.",
+          zh: "在圆内接四边形中，对角互补，因此它们相加等于 180°。"
+        }
+      },
+      {
+        question: {
+          en: "The angle between a tangent and a chord is equal to:",
+          zh: "切线与弦所成的角等于："
+        },
+        image: "quizimgs/q5.png",
+        options: {
+          en: [
+            { text: "The angle in the alternate segment.", image: "quizimgs/q5_a.png" },
+            { text: "The angle at the centre.", image: "quizimgs/q5_b.png" },
+            { text: "Half the radius.", image: "quizimgs/q5_c.png" },
+            { text: "An exterior angle of a quadrilateral.", image: "quizimgs/q5_d.png" }
+          ],
+          zh: [
+            { text: "对弧所对的圆周角。", image: "quizimgs/q5_a.png" },
+            { text: "圆心角。", image: "quizimgs/q5_b.png" },
+            { text: "半径的一半。", image: "quizimgs/q5_c.png" },
+            { text: "四边形的外角。", image: "quizimgs/q5_d.png" }
+          ]
+        },
+        answer: 0,
+        explanation: {
+          en: "By the alternate segment theorem, the angle between a tangent and a chord equals the angle in the alternate segment.",
+          zh: "根据交替弧定理，切线与弦所成的角等于对弧所对的圆周角。"
+        }
+      }
+    ];
+
+    let currentQuestion = 0;
+    let selectedAnswers = new Array(quizData.length).fill(null);
+    let submittedQuestions = new Array(quizData.length).fill(false);
+
+    const questionNav = document.getElementById("questionNav");
+    const questionTitle = document.getElementById("questionTitle");
+    const questionSubtitle = document.getElementById("questionSubtitle");
+    const questionText = document.getElementById("questionText");
+    const optionsContainer = document.getElementById("optionsContainer");
+    const feedbackText = document.getElementById("feedbackText");
+    const explanationBox = document.getElementById("explanationBox");
+    const progressText = document.getElementById("progressText");
+    const scoreText = document.getElementById("scoreText");
+    const statusText = document.getElementById("statusText");
+    const modeText = document.getElementById("modeText");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const resultCard = document.getElementById("resultCard");
+    const finalScore = document.getElementById("finalScore");
+    const resultComment = document.getElementById("resultComment");
+    const gradeBadge = document.getElementById("gradeBadge");
+    const reviewCard = document.getElementById("reviewCard");
+    const reviewList = document.getElementById("reviewList");
+    const timerText = document.getElementById("timerText");
+    const timerFill = document.getElementById("timerFill");
+    const timerWrap = document.getElementById("timerWrap");
+    const progressFill = document.getElementById("progressFill");
+    const progressPercent = document.getElementById("progressPercent");
+    const imageBox = document.getElementById("imageBox");
+    const questionImage = document.getElementById("questionImage");
+
+    function getLang() {
+      return localStorage.getItem("language") || "en";
+    }
+
+    function t(en, zh) {
+      return getLang() === "zh" ? zh : en;
+    }
+
+function setQuizMode(mode) {
+  playSound("click");
+      quizMode = mode;
+      document.getElementById("practiceModeCard").classList.toggle("active", mode === "practice");
+      document.getElementById("mockModeCard").classList.toggle("active", mode === "mock");
+      modeText.textContent = mode === "practice"
+        ? t("Practice Mode", "练习模式")
+        : t("Mock Test Mode", "模拟测试模式");
+
+      timerWrap.style.display = mode === "mock" ? "block" : "none";
+      clearInterval(timerInterval);
+      renderQuiz();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+
+      if (quizMode !== "mock") {
+        timerText.textContent = t("Unlimited", "不限时");
+        timerFill.style.width = "100%";
+        timerFill.style.background = "linear-gradient(135deg, var(--primary), var(--primary-2))";
+        return;
+      }
+
+      timer = QUIZ_TIME;
+      updateTimerUI();
+
+      if (submittedQuestions[currentQuestion]) return;
+
+      timerInterval = setInterval(() => {
+        timer--;
+        updateTimerUI();
+
+        if (timer <= 0) {
+          clearInterval(timerInterval);
+          autoSubmitTimeout();
+        }
+      }, 1000);
+    }
+
+    function updateTimerUI() {
+      timerText.textContent = `${timer}s`;
+      const percent = Math.max(0, (timer / QUIZ_TIME) * 100);
+      timerFill.style.width = `${percent}%`;
+
+      if (percent <= 30) {
+        timerFill.style.background = "linear-gradient(135deg, #dc2626, #f97316)";
+      } else if (percent <= 60) {
+        timerFill.style.background = "linear-gradient(135deg, #d97706, #f59e0b)";
+      } else {
+        timerFill.style.background = "linear-gradient(135deg, var(--primary), var(--primary-2))";
+      }
+    }
+
+function autoSubmitTimeout() {
+  if (submittedQuestions[currentQuestion]) return;
+  selectedAnswers[currentQuestion] = null;
+  submittedQuestions[currentQuestion] = true;
+
+  playSound("wrong");
+  renderFeedback(true);
+  renderQuiz();
+  checkFinish();
+}
+    function buildQuestionNav() {
+      questionNav.innerHTML = "";
+      quizData.forEach((_, index) => {
+        const btn = document.createElement("button");
+        btn.textContent = index + 1;
+        if (index === currentQuestion) btn.classList.add("active");
+
+        if (submittedQuestions[index]) {
+          const correct = selectedAnswers[index] === quizData[index].answer;
+          btn.classList.add(correct ? "correct" : "wrong");
+        }
+
+btn.addEventListener("click", () => {
+  playSound("click");
+  currentQuestion = index;
+  renderQuiz();
+});
+
+        questionNav.appendChild(btn);
+      });
+    }
+
+    function getScore() {
+      let score = 0;
+      quizData.forEach((q, i) => {
+        if (submittedQuestions[i] && selectedAnswers[i] === q.answer) {
+          score++;
+        }
+      });
+      return score;
+    }
+
+    function updateSidePanel() {
+      progressText.textContent = `${currentQuestion + 1} / ${quizData.length}`;
+      scoreText.textContent = getScore();
+      const finished = submittedQuestions.every(Boolean);
+      statusText.textContent = finished ? t("Completed", "已完成") : t("Not finished", "未完成");
+      modeText.textContent = quizMode === "practice" ? t("Practice Mode", "练习模式") : t("Mock Test Mode", "模拟测试模式");
+
+      const progress = ((submittedQuestions.filter(Boolean).length) / quizData.length) * 100;
+      progressFill.style.width = `${progress}%`;
+      progressPercent.textContent = `${Math.round(progress)}%`;
+    }
+
+    function renderQuestionImage(src) {
+      if (!src) {
+        imageBox.classList.remove("show");
+        questionImage.removeAttribute("src");
+        return;
+      }
+
+      questionImage.onload = () => {
+        imageBox.classList.add("show");
+      };
+
+      questionImage.onerror = () => {
+        imageBox.classList.remove("show");
+      };
+
+      questionImage.src = src;
+    }
+
+    function renderOptionImage(src) {
+      return `
+        <div class="option-img-wrap">
+          <img class="option-img" src="${src}" alt="option image" onerror="this.style.display='none'; this.parentElement.style.minHeight='40px';">
+        </div>
+      `;
+    }
+function animateOption(button, type) {
+  if (!button) return;
+
+  button.classList.remove("animate-correct", "animate-wrong");
+  void button.offsetWidth;
+
+  if (type === "correct") {
+    button.classList.add("animate-correct");
+  } else if (type === "wrong") {
+    button.classList.add("animate-wrong");
+  }
+}
+
+function animateScore() {
+  const scoreEl = document.getElementById("scoreText");
+  if (!scoreEl) return;
+
+  scoreEl.classList.remove("score-pop");
+  void scoreEl.offsetWidth;
+  scoreEl.classList.add("score-pop");
+}
+    function renderQuiz() {
+      const lang = getLang();
+      const q = quizData[currentQuestion];
+
+      buildQuestionNav();
+      updateSidePanel();
+
+      questionTitle.textContent = `${t("Question", "题目")} ${currentQuestion + 1}`;
+      questionSubtitle.textContent = quizMode === "practice"
+        ? t("Choose the correct answer below.", "请从下方选择正确答案。")
+        : t("Answer before the timer ends.", "请在倒计时结束前作答。");
+
+      questionText.textContent = q.question[lang];
+      renderQuestionImage(q.image);
+
+      optionsContainer.innerHTML = "";
+
+      q.options[lang].forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+
+        const isSubmitted = submittedQuestions[currentQuestion];
+        const chosen = selectedAnswers[currentQuestion] === index;
+
+const optionLetters = ["A", "B", "C", "D"];
+
+btn.innerHTML = `
+  <div class="option-content">
+    <span class="option-prefix">${optionLetters[index]}</span>
+    <div class="option-label">${option.text}</div>
+  </div>
+`;
+
+        if (isSubmitted) {
+          btn.disabled = true;
+          if (index === q.answer) btn.classList.add("correct");
+          if (chosen && index !== q.answer) btn.classList.add("wrong");
+        }
+
+btn.addEventListener("click", () => {
+  if (submittedQuestions[currentQuestion]) return;
+
+  selectedAnswers[currentQuestion] = index;
+  submittedQuestions[currentQuestion] = true;
+  clearInterval(timerInterval);
+
+  const isCorrect = index === q.answer;
+
+  if (isCorrect) {
+    playSound("correct");
+    animateOption(btn, "correct");
+    animateScore();
+  } else {
+    playSound("wrong");
+    animateOption(btn, "wrong");
+  }
+
+  renderFeedback(false);
+
+  setTimeout(() => {
+    renderQuiz();
+    checkFinish();
+  }, 320);
+});
+
+        optionsContainer.appendChild(btn);
+      });
+
+      renderFeedback(false);
+
+      prevBtn.textContent = t("Previous", "上一题");
+      nextBtn.textContent = currentQuestion === quizData.length - 1 ? t("Finish", "完成") : t("Next", "下一题");
+      restartBtn.textContent = t("Restart", "重新开始");
+
+      prevBtn.disabled = currentQuestion === 0;
+
+      if (!submittedQuestions[currentQuestion]) {
+        startTimer();
+      } else {
+        clearInterval(timerInterval);
+        if (quizMode === "mock") {
+          timerText.textContent = submittedQuestions.every(Boolean) ? t("Done", "完成") : `${timer}s`;
+        } else {
+          timerText.textContent = t("Unlimited", "不限时");
+        }
+      }
+    }
+
+    function renderFeedback(timeout = false) {
+      const answered = submittedQuestions[currentQuestion];
+      if (!answered) {
+        feedbackText.textContent = "";
+        feedbackText.className = "feedback";
+        explanationBox.className = "explanation-box";
+        explanationBox.textContent = "";
+        return;
+      }
+
+      const q = quizData[currentQuestion];
+      const lang = getLang();
+      const correct = selectedAnswers[currentQuestion] === q.answer;
+
+      if (timeout) {
+        feedbackText.textContent = t("Time is up.", "时间到了。");
+        feedbackText.className = "feedback wrong";
+      } else {
+        feedbackText.textContent = correct
+          ? t("Correct. Well done.", "回答正确，做得很好。")
+          : t("Incorrect. Review the explanation below.", "回答错误，请查看下方解析。");
+        feedbackText.className = `feedback ${correct ? "correct" : "wrong"}`;
+      }
+
+      explanationBox.className = "explanation-box show";
+      explanationBox.textContent = q.explanation[lang];
+    }
+
+    function getGrade(score) {
+      if (score === 5) return { en: "Excellent", zh: "优秀" };
+      if (score === 4) return { en: "Great", zh: "很好" };
+      if (score === 3) return { en: "Good", zh: "良好" };
+      if (score === 2) return { en: "Keep Practising", zh: "继续练习" };
+      return { en: "Review Again", zh: "需要再复习" };
+    }
+
+    function buildReviewList() {
+      reviewList.innerHTML = "";
+      const lang = getLang();
+
+      const wrongItems = quizData
+        .map((q, i) => ({ q, i }))
+        .filter(item => submittedQuestions[item.i] && selectedAnswers[item.i] !== item.q.answer);
+
+      if (wrongItems.length === 0) {
+        const div = document.createElement("div");
+        div.className = "review-item";
+        div.innerHTML = `
+          <h4>${t("No incorrect answers", "没有错题")}</h4>
+          <p class="review-question">${t("You answered every question correctly.", "你答对了所有题目。")}</p>
+        `;
+        reviewList.appendChild(div);
+        return;
+      }
+
+      wrongItems.forEach(({ q, i }) => {
+        const yourAnswer = selectedAnswers[i] === null
+          ? t("No answer", "未作答")
+          : q.options[lang][selectedAnswers[i]].text;
+
+        const correctAnswer = q.options[lang][q.answer].text;
+
+        const div = document.createElement("div");
+        div.className = "review-item";
+        div.innerHTML = `
+          <h4>${t("Question", "题目")} ${i + 1}</h4>
+          <p class="review-question">${q.question[lang]}</p>
+          <p class="review-answer">
+            ${t("Your answer:", "你的答案：")}
+            <strong class="wrong-text">${yourAnswer}</strong>
+          </p>
+          <p class="review-answer">
+            ${t("Correct answer:", "正确答案：")}
+            <strong class="correct-text">${correctAnswer}</strong>
+          </p>
+          <p class="review-answer">${q.explanation[lang]}</p>
+        `;
+        reviewList.appendChild(div);
+      });
+    }
+
+    function checkFinish() {
+      const finished = submittedQuestions.every(Boolean);
+      if (!finished) return;
+
+      clearInterval(timerInterval);
+
+      const score = getScore();
+      const lang = getLang();
+      const grade = getGrade(score);
+
+      finalScore.textContent = `${score} / ${quizData.length}`;
+      gradeBadge.textContent = grade[lang];
+
+      if (score === quizData.length) {
+        resultComment.textContent = t(
+          "Excellent work. You answered every question correctly.",
+          "太棒了。你答对了所有题目。"
+        );
+      } else if (score >= 4) {
+        resultComment.textContent = t(
+          "Great job. Your understanding is strong.",
+          "做得很好。你的理解已经很扎实了。"
+        );
+      } else if (score >= 3) {
+        resultComment.textContent = t(
+          "Good job. You understand the main ideas, but there is still room to improve.",
+          "做得不错。你已经掌握主要概念，但还有提升空间。"
+        );
+      } else {
+        resultComment.textContent = t(
+          "Keep practising. Review the theorem library and try again.",
+          "继续加油。先复习定理资料库，再来尝试一次。"
+        );
+      }
+
+resultCard.classList.add("show");
+reviewCard.classList.add("show");
+buildReviewList();
+playSound("finish");
+    }
+
+    function restartQuiz() {
+      clearInterval(timerInterval);
+      currentQuestion = 0;
+      timer = QUIZ_TIME;
+      selectedAnswers = new Array(quizData.length).fill(null);
+      submittedQuestions = new Array(quizData.length).fill(false);
+      resultCard.classList.remove("show");
+      reviewCard.classList.remove("show");
+      renderQuiz();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    prevBtn.addEventListener("click", () => {
+  playSound("click");
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuiz();
+      }
+    });
+
+nextBtn.addEventListener("click", () => {
+  playSound("click");
+      if (currentQuestion < quizData.length - 1) {
+        currentQuestion++;
+        renderQuiz();
+      } else {
+        checkFinish();
+        document.getElementById("resultCard").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+
+    restartBtn.addEventListener("click", () => {
+  playSound("click");
+  restartQuiz();
+});
+
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+
+      document.querySelectorAll("[data-en][data-zh]").forEach(el => {
+        el.textContent = el.getAttribute(lang === "zh" ? "data-zh" : "data-en");
+      });
+
+      const langBtn = document.getElementById("langBtn");
+      if (langBtn) {
+        langBtn.textContent = lang === "zh" ? "EN" : "中文";
+      }
+
+      localStorage.setItem("language", lang);
+      updateModeButtons(lang);
+      renderQuiz();
+      if (submittedQuestions.every(Boolean)) checkFinish();
+    }
+
+    function toggleLanguage() {
+      const current = localStorage.getItem("language") || "en";
+      const next = current === "en" ? "zh" : "en";
+      applyLanguage(next);
+    }
+
+    function setFontScale(scale) {
+  const safeScale = Math.max(0.9, Math.min(1.2, Number(scale.toFixed(2))));
+  localStorage.setItem("fontScale", safeScale);
+  document.documentElement.style.setProperty("--font-scale", safeScale);
+}
+
+const savedFontScale = Number(localStorage.getItem("fontScale") || 1);
+document.documentElement.style.setProperty("--font-scale", savedFontScale);
+
+document.getElementById("fontDownBtn").addEventListener("click", () => {
+  setFontScale((Number(localStorage.getItem("fontScale") || 1)) - 0.05);
+});
+
+document.getElementById("fontResetBtn").addEventListener("click", () => {
+  setFontScale(1);
+});
+
+document.getElementById("fontUpBtn").addEventListener("click", () => {
+  setFontScale((Number(localStorage.getItem("fontScale") || 1)) + 0.05);
+});
+
+    function updateModeButtons(lang) {
+      const currentLang = lang || localStorage.getItem("language") || "en";
+      const isDark = document.body.classList.contains("dark-mode");
+      const isColorblind = document.body.classList.contains("colorblind-mode");
+
+      const themeBtn = document.getElementById("themeBtn");
+      const cbBtn = document.getElementById("cbBtn");
+
+      if (themeBtn) {
+        themeBtn.textContent =
+          currentLang === "zh"
+            ? (isDark ? "☀️ 明亮模式" : "🌙 暗夜模式")
+            : (isDark ? "☀️ Light Mode" : "🌙 Dark Mode");
+      }
+
+      if (cbBtn) {
+        cbBtn.textContent =
+          currentLang === "zh"
+            ? (isColorblind ? "👁 普通模式" : "👁 色盲模式")
+            : (isColorblind ? "👁 Standard Mode" : "👁 Colorblind Mode");
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+      localStorage.setItem(
+        "theme",
+        document.body.classList.contains("dark-mode") ? "dark" : "light"
+      );
+      updateModeButtons(localStorage.getItem("language") || "en");
+    }
+
+    function toggleColorblindMode() {
+      document.body.classList.toggle("colorblind-mode");
+      localStorage.setItem(
+        "colorblind",
+        document.body.classList.contains("colorblind-mode") ? "on" : "off"
+      );
+      updateModeButtons(localStorage.getItem("language") || "en");
+    }
+
+    window.addEventListener("load", () => {
+      document.body.classList.add("page-loaded");
+
+      const savedTheme = localStorage.getItem("theme");
+      const savedLanguage = localStorage.getItem("language") || "en";
+      const savedColorblind = localStorage.getItem("colorblind");
+
+      if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+      }
+
+      if (savedColorblind === "on") {
+        document.body.classList.add("colorblind-mode");
+      }
+
+      setQuizMode("practice");
+      renderQuiz();
+      applyLanguage(savedLanguage);
+    });
+  </script>
+</body>
+</html>
