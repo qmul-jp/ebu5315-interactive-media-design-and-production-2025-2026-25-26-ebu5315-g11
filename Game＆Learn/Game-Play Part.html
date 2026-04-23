@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Circle Flight Challenge</title>
+<link rel="stylesheet" href="style-play.css">
+</head>
+<body>
+<header class="page-header">
+  <div class="container topbar">
+<a class="brand" href="../Homepage/Homepage.html">
+  <span class="brand-badge">◯</span>
+  <span class="brand-text" data-en="Circle Theorems Learning Hub" data-zh="圆定理学习中心">
+    Circle Theorems Learning Hub
+  </span>
+</a>
+
+    <nav class="topbar-nav">
+      <a href="../Homepage/Homepage.html" data-en="Home" data-zh="首页">Home</a>
+      <a href="../Game＆Learn/Game-Circle Part.html" data-en="Theory" data-zh="理论">Theory</a>
+      <a href="../Quiz/Quiz.html" data-en="Quiz" data-zh="测试">Quiz</a>
+    </nav>
+
+<div class="topbar-actions">
+  <div class="font-controls" aria-label="Font size controls">
+    <button class="font-btn" id="fontDownBtn" type="button">A-</button>
+    <button class="font-btn" id="fontResetBtn" type="button">A</button>
+    <button class="font-btn" id="fontUpBtn" type="button">A+</button>
+  </div>
+
+  <button class="mode-btn" onclick="toggleLanguage()" id="langBtn">中文</button>
+  <button class="mode-btn" onclick="toggleDarkMode()" id="themeBtn">🌙 Dark Mode</button>
+  <button class="mode-btn" onclick="toggleColorblindMode()" id="cbBtn">👁 Colorblind Mode</button>
+</div>
+</header>
+
+  <main>
+    <section class="game-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow" data-en="✈️ GCSE Game Mode • Visual • Challenge" data-zh="✈️ GCSE 游戏模式 • 可视化 • 挑战">
+            ✈️ GCSE Game Mode • Visual • Challenge
+          </div>
+          <h1>
+            <span data-en="Turn revision into a " data-zh="把复习变成一场 ">Turn revision into a </span>
+            <span class="highlight" data-en="live flight challenge" data-zh="实时飞行挑战">live flight challenge</span>
+          </h1>
+          <p data-en="Answer circle theorem questions by piloting different planes, shooting the correct target, and unlocking stronger aircraft as you progress." data-zh="驾驶不同飞机完成圆定理题目，击中正确目标，并在通关过程中逐步解锁更强的机型。">
+            Answer circle theorem questions by piloting different planes, shooting the correct target, and unlocking stronger aircraft as you progress.
+          </p>
+          <div class="quick-stats">
+            <div class="stat">
+              <strong>5</strong>
+              <span data-en="Rounds per run" data-zh="每局回合数">Rounds per run</span>
+            </div>
+            <div class="stat">
+              <strong>4</strong>
+              <span data-en="Unlockable planes" data-zh="可解锁飞机">Unlockable planes</span>
+            </div>
+            <div class="stat">
+              <strong>3</strong>
+              <span data-en="Accessibility toggles" data-zh="辅助切换功能">Accessibility toggles</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-card-top">
+            <span class="hero-pill" data-en="Featured gameplay" data-zh="玩法亮点">Featured gameplay</span>
+            <span class="subtle" data-en="Score + survival" data-zh="答题 + 生存">Score + survival</span>
+          </div>
+          <h2 data-en="Fast answers, clear feedback, same visual language" data-zh="更快答题，更清晰反馈，同一套视觉语言">
+            Fast answers, clear feedback, same visual language
+          </h2>
+          <p data-en="This page now uses the same glass-card layout, rounded controls, bilingual copy, and theme switches as the home and theory pages." data-zh="这个页面现在和首页、理论页使用同样的玻璃卡片布局、圆角控件、双语文案以及主题切换。">
+            This page now uses the same glass-card layout, rounded controls, bilingual copy, and theme switches as the home and theory pages.
+          </p>
+          <ul class="hero-list">
+            <li data-en="Choose a plane with different HP levels" data-zh="选择不同血量的飞机">Choose a plane with different HP levels</li>
+            <li data-en="Click the correct answer target to clear each round" data-zh="点击正确答案目标通过每一关">Click the correct answer target to clear each round</li>
+            <li data-en="Use language, dark mode, and colorblind mode at any time" data-zh="可随时切换语言、暗夜模式与色盲模式">Use language, dark mode, and colorblind mode at any time</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="game-main">
+      <div class="container game-shell">
+        <aside class="game-sidebar">
+          <div class="brand">
+            <div>
+              <h2 data-en="Circle Flight Challenge" data-zh="圆定理飞行挑战">Circle Flight Challenge</h2>
+              <div class="sub" data-en="Shoot the correct answer and survive all five rounds." data-zh="击中正确答案，并坚持完成 5 个回合。">Shoot the correct answer and survive all five rounds.</div>
+            </div>
+            <a class="btn btn-primary" href="#playArea" data-en="Jump to game" data-zh="开始挑战">Jump to game</a>
+          </div>
+
+          <section class="panel-card">
+            <h3 data-en="Current progress" data-zh="当前进度">Current progress</h3>
+            <div class="status-grid">
+              <div class="status-box">
+                <div class="status-label" data-en="Unlocked planes" data-zh="已解锁飞机">Unlocked planes</div>
+                <div class="status-value" id="unlockCount">1 / 4</div>
+              </div>
+              <div class="status-box">
+                <div class="status-label" data-en="Current question" data-zh="当前题目">Current question</div>
+                <div class="status-value" id="questionCounter">1 / 5</div>
+              </div>
+              <div class="status-box">
+                <div class="status-label" data-en="Current HP" data-zh="当前血量">Current HP</div>
+                <div class="hp-hearts" id="hpHearts"></div>
+              </div>
+              <div class="status-box">
+                <div class="status-label" data-en="Selected plane" data-zh="当前飞机">Selected plane</div>
+                <div class="status-value" id="selectedPlaneName">Plane 1</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel-card">
+            <h3 data-en="Plane selection" data-zh="飞机选择">Plane selection</h3>
+            <p class="panel-subtext" data-en="Higher-tier planes have more HP. Locked planes can be unlocked by clearing the current run or via the demo payment flow." data-zh="更高阶飞机拥有更高血量。锁定飞机可通过通关或演示支付流程提前解锁。">
+              Higher-tier planes have more HP. Locked planes can be unlocked by clearing the current run or via the demo payment flow.
+            </p>
+            <div class="fleet-grid" id="fleetGrid"></div>
+          </section>
+
+          <section class="panel-card">
+            <h3 data-en="How to play" data-zh="玩法说明">How to play</h3>
+            <div class="legend">
+              <div><strong data-en="Move:" data-zh="移动：">Move:</strong> <span data-en="A / D or ← / →" data-zh="键盘 A / D 或 ← / →">A / D or ← / →</span></div>
+              <div><strong data-en="Attack:" data-zh="攻击：">Attack:</strong> <span data-en="Click the target you believe is correct" data-zh="点击你认为正确的目标">Click the target you believe is correct</span></div>
+              <div><strong data-en="Lose HP when:" data-zh="扣血条件：">Lose HP when:</strong> <span data-en="You hit the wrong answer, an enemy escapes, or an enemy hits your plane" data-zh="打错答案、敌人飞走，或敌人撞到飞机">You hit the wrong answer, an enemy escapes, or an enemy hits your plane</span></div>
+              <div><strong data-en="Wave rule:" data-zh="波次规则：">Wave rule:</strong> <span data-en="Each round shows 3 answer targets; clear the wave to move on" data-zh="每回合出现 3 个答案目标，清空后进入下一题">Each round shows 3 answer targets; clear the wave to move on</span></div>
+              <div><strong data-en="Unlock rule:" data-zh="解锁规则：">Unlock rule:</strong> <span data-en="Finish the run to unlock the next plane automatically" data-zh="通关当前流程后自动解锁下一架飞机">Finish the run to unlock the next plane automatically</span></div>
+            </div>
+          </section>
+
+          <section class="mini-tip">
+            <div class="card-tag" data-en="Study tip" data-zh="学习提示">Study tip</div>
+            <div class="section-copy" data-en="Use this mode after reviewing the theorem library. It works best as a quick retrieval challenge before the quiz section." data-zh="建议先看完定理资料库再来玩。它很适合作为进入测验前的快速检索挑战。">
+              Use this mode after reviewing the theorem library. It works best as a quick retrieval challenge before the quiz section.
+            </div>
+          </section>
+        </aside>
+
+        <section class="game-panel" id="playArea">
+          <div class="panel-head">
+            <div>
+              <h2 data-en="Live play area" data-zh="实时游戏区">Live play area</h2>
+              <p class="section-copy" data-en="One question image appears at a time. Shoot the correct answer target to move forward." data-zh="每次显示一张题目图片。击中正确答案目标即可进入下一题。">
+                One question image appears at a time. Shoot the correct answer target to move forward.
+              </p>
+            </div>
+            <span class="card-tag" data-en="Game + revision" data-zh="游戏 + 复习">Game + revision</span>
+          </div>
+
+          <div class="play-layout">
+            <div class="stage-column">
+              <div class="stage-topbar">
+                <div class="question-wrap">
+                  <div class="question-box">
+                    <img id="questionImage" class="question-img" alt="Question image" />
+                    <div class="question-copy">
+                      <h3 data-en="Current theorem question" data-zh="当前定理题目">Current theorem question</h3>
+                      <p data-en="Keep the question in view while you fly, then click the enemy carrying the correct answer." data-zh="一边保持题目可见，一边驾驶飞机，然后点击携带正确答案的敌人。">
+                        Keep the question in view while you fly, then click the enemy carrying the correct answer.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="hud-right">
+                  <div class="hud-pill" id="waveText">Question 1</div>
+                  <div class="hud-pill" id="healthText">HP 2</div>
+                </div>
+              </div>
+
+              <div class="stage-wrap">
+                <canvas id="gameCanvas"></canvas>
+
+                <div class="overlay show" id="startOverlay">
+                  <div class="overlay-card">
+                    <h2 data-en="Ready for takeoff" data-zh="准备起飞">Ready for takeoff</h2>
+                    <p data-en="Each round shows three answer targets. Hit the correct one, avoid mistakes, and clear all five rounds to unlock the next plane." data-zh="每回合会出现三个答案目标。击中正确答案、避免失误，并完成五个回合来解锁下一架飞机。">
+                      Each round shows three answer targets. Hit the correct one, avoid mistakes, and clear all five rounds to unlock the next plane.
+                    </p>
+                    <div class="btn-row" style="justify-content:center;">
+                      <button class="btn btn-primary" id="startGameBtn" data-en="Start game" data-zh="开始游戏">Start game</button>
+                      <button class="btn btn-secondary" id="resetProgressBtn" data-en="Reset progress" data-zh="重置进度">Reset progress</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="overlay" id="resultOverlay">
+                  <div class="overlay-card">
+                    <h2 id="resultTitle">Success</h2>
+                    <p id="resultMessage">You unlocked the next plane.</p>
+                    <div class="btn-row" style="justify-content:center;">
+                      <button class="btn btn-primary" id="playAgainBtn" data-en="Play again" data-zh="再玩一次">Play again</button>
+                      <button class="btn btn-secondary" id="closeResultBtn" data-en="Close" data-zh="关闭">Close</button>
+                    </div>
+                  </div>
+                </div>
+
+
+                <div class="overlay" id="planeSelectOverlay">
+                  <div class="overlay-card">
+                    <h2 id="planeSelectTitle" data-en="Choose your next plane" data-zh="选择下一架飞机">Choose your next plane</h2>
+                    <p id="planeSelectMessage" data-en="You cleared the current run. Pick any unlocked plane, then continue to the next challenge." data-zh="你已完成当前关卡。请选择一架已解锁飞机，然后继续下一轮挑战。">
+                      You cleared the current run. Pick any unlocked plane, then continue to the next challenge.
+                    </p>
+                    <div class="overlay-plane-grid" id="overlayPlaneGrid"></div>
+                    <div class="btn-row" style="justify-content:center;">
+                      <button class="btn btn-primary" id="continueWithPlaneBtn" data-en="Continue with this plane" data-zh="使用该飞机继续">Continue with this plane</button>
+                      <button class="btn btn-secondary" id="closePlaneSelectBtn" data-en="Back to start" data-zh="返回开始界面">Back to start</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="qr-modal" id="qrModal">
+                  <div class="qr-card">
+                    <h2 id="qrTitle">Unlock plane</h2>
+                    <p id="qrDescription" data-en="Scan a code and then click “I’ve completed payment” to unlock this plane in the current browser as a front-end demo flow." data-zh="扫码后点击“我已完成支付”，即可在当前浏览器中以前端演示方式解锁该飞机。">
+                      Scan a code and then click “I’ve completed payment” to unlock this plane in the current browser as a front-end demo flow.
+                    </p>
+                    <div class="qr-grid" id="qrGrid"></div>
+                    <div class="hint" id="qrHint" data-en="This is a front-end demo only. Unlock status is stored locally in the browser." data-zh="这是纯前端演示，解锁状态会保存在当前浏览器本地。">
+                      This is a front-end demo only. Unlock status is stored locally in the browser.
+                    </div>
+                    <div class="btn-row" style="justify-content:center; margin-top:16px;">
+                      <button class="btn btn-warn" id="confirmUnlockBtn" data-en="I've completed payment" data-zh="我已完成支付">I've completed payment</button>
+                      <button class="btn btn-secondary" id="closeQrBtn" data-en="Close" data-zh="关闭">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-bar">
+            <div class="msg" id="bottomMessage">Click “Start game” to enter the first round.</div>
+            <div class="btn-row">
+              <button class="btn btn-secondary" id="restartBtn" data-en="Restart this run" data-zh="重新开始本局">Restart this run</button>
+              <button class="btn btn-warn" id="payUnlockBtn" data-en="Unlock next plane" data-zh="提前解锁下一架">Unlock next plane</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "plane_quiz_game_progress_v2";
+
+    const i18n = {
+      en: {
+        pageTitle: "Circle Flight Challenge",
+        plane: (id) => `Plane ${id}`,
+        wave: (n) => `Question ${n}`,
+        hp: (n) => `HP ${n}`,
+        startHint: 'Click “Start game” to enter the first round.',
+        clickEnemyHint: "Click the target carrying the correct answer.",
+        gameStarted: "Game started. Shoot the correct answer target.",
+        progressReset: "Progress reset. Only Plane 1 remains unlocked.",
+        allUnlocked: "All planes are already unlocked.",
+        earlyUnlock: "{plane} has been unlocked early.",
+        enemyEscaped: "An enemy escaped. You lost 1 HP.",
+        enemyCollided: "An enemy hit your plane. You lost 1 HP.",
+        wrongEnemyShot: "Wrong answer target hit. You lost 1 HP.",
+        correctEnemyHit: "Correct answer hit. Preparing the next question.",
+        sessionFinished: "Run complete. Result panel is now open.",
+        gameFailed: "Challenge failed. You can restart this run.",
+        loseZeroHp: "HP reached zero. Wrong answers, escapes, and collisions all cost HP.",
+        winTitle: "Run cleared",
+        loseTitle: "Challenge failed",
+        unlockNext: "You unlocked {plane}. You can keep replaying with your current plane too.",
+        allPlanesClear: "You cleared all four planes. Amazing work!",
+        loseMessage: "Your HP dropped to zero. Restart to try again.",
+        qrTitle: "Unlock {plane} early",
+        qrItemPlane: "{plane} unlock code",
+        qrItemGeneral: "General payment code",
+        missingImage: "Image missing",
+        locked: "Locked",
+        unlockedChip: (hp) => `HP ${hp}`,
+        planeReady: (hp) => `Ready to use · ${hp} HP`,
+        planeLockedHint: "Clear the previous plane or unlock it from the demo payment flow",
+        planeLockedDuringRun: "You cannot change planes while a run is in progress.",
+        choosePlaneAfterWin: "Run cleared. Choose your next plane to continue.",
+        returnToStartHint: "Result panel closed. You can start again from the current plane.",
+        continueWithPlane: "{plane} selected. Press start to begin the next run.",
+        questionImageAlt: "Question image",
+        paymentAlt: "payment QR code",
+        unlockCount: (count, total) => `${count} / ${total}`,
+        questionCounter: (index, total) => `${index} / ${total}`,
+      },
+      zh: {
+        pageTitle: "圆定理飞行挑战",
+        plane: (id) => `飞机 ${id}`,
+        wave: (n) => `第 ${n} 题`,
+        hp: (n) => `血量 ${n}`,
+        startHint: '点击“开始游戏”进入第一题。',
+        clickEnemyHint: "点击携带正确答案的目标。",
+        gameStarted: "游戏开始，点击正确答案目标。",
+        progressReset: "进度已重置，目前只保留飞机 1。",
+        allUnlocked: "全部飞机都已经解锁。",
+        earlyUnlock: "{plane} 已提前解锁。",
+        enemyEscaped: "有敌人逃脱，扣 1 点血量。",
+        enemyCollided: "敌人撞到了飞机，扣 1 点血量。",
+        wrongEnemyShot: "击中了错误答案，扣 1 点血量。",
+        correctEnemyHit: "命中正确答案，正在进入下一题。",
+        sessionFinished: "本局已完成，结果面板已打开。",
+        gameFailed: "挑战失败，你可以重新开始本局。",
+        loseZeroHp: "血量归零。打错答案、敌人逃脱和碰撞都会扣血。",
+        winTitle: "通关成功",
+        loseTitle: "挑战失败",
+        unlockNext: "你已解锁 {plane}，也可以继续使用当前飞机重复挑战。",
+        allPlanesClear: "你已经通关全部 4 架飞机，太厉害了！",
+        loseMessage: "你的血量已归零，请重新开始本局。",
+        qrTitle: "提前解锁 {plane}",
+        qrItemPlane: "{plane} 解锁码",
+        qrItemGeneral: "通用付款码",
+        missingImage: "图片缺失",
+        locked: "未解锁",
+        unlockedChip: (hp) => `血量 ${hp}`,
+        planeReady: (hp) => `可使用 · ${hp} 点血量`,
+        planeLockedHint: "通关上一架飞机或通过演示支付流程提前解锁",
+        planeLockedDuringRun: "游戏进行中，暂时不能切换飞机。",
+        choosePlaneAfterWin: "本轮通关，请先选择下一架飞机再继续。",
+        returnToStartHint: "已关闭结果面板，你可以使用当前飞机重新开始。",
+        continueWithPlane: "已选择 {plane}，点击开始即可进入下一轮。",
+        questionImageAlt: "题目图片",
+        paymentAlt: "付款二维码",
+        unlockCount: (count, total) => `${count} / ${total}`,
+        questionCounter: (index, total) => `${index} / ${total}`,
+      }
+    };
+
+    function getLang() {
+      return localStorage.getItem("language") || "en";
+    }
+
+    function translate(key, vars = {}) {
+      const lang = getLang();
+      const dictionary = i18n[lang] || i18n.en;
+      const value = dictionary[key];
+      const raw = typeof value === "function" ? value(...Object.values(vars)) : value;
+      if (typeof raw !== "string") return key;
+      return raw.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? "");
+    }
+
+    function setFontScale(scale) {
+  const safeScale = Math.max(0.9, Math.min(1.2, Number(scale.toFixed(2))));
+  localStorage.setItem("fontScale", safeScale);
+  document.documentElement.style.setProperty("--font-scale", safeScale);
+}
+
+const savedFontScale = Number(localStorage.getItem("fontScale") || 1);
+document.documentElement.style.setProperty("--font-scale", savedFontScale);
+
+document.getElementById("fontDownBtn").addEventListener("click", () => {
+  setFontScale((Number(localStorage.getItem("fontScale") || 1)) - 0.05);
+});
+
+document.getElementById("fontResetBtn").addEventListener("click", () => {
+  setFontScale(1);
+});
+
+document.getElementById("fontUpBtn").addEventListener("click", () => {
+  setFontScale((Number(localStorage.getItem("fontScale") || 1)) + 0.05);
+});
+
+    const planeConfig = [
+      { id: 1, hp: 2, image: "gameimgs/flight 1.png", qr: "gameimgs/pay1.png" },
+      { id: 2, hp: 3, image: "gameimgs/flight 2.png", qr: "gameimgs/pay1.png" },
+      { id: 3, hp: 4, image: "gameimgs/flight 3.png", qr: "gameimgs/pay1.png" },
+      { id: 4, hp: 5, image: "gameimgs/flight 4.png", qr: "gameimgs/pay1.png" }
+    ];
+
+    const questions = [
+      {
+        questionImage: "gameimgs/Q1.jpg",
+        answers: [
+          { image: "gameimgs/Q1A.jpg", correct: true },
+          { image: "gameimgs/Q1B.jpg", correct: false },
+          { image: "gameimgs/Q1C.jpg", correct: false }
+        ]
+      },
+      {
+        questionImage: "gameimgs/Q2.jpg",
+        answers: [
+          { image: "gameimgs/Q2A.jpg", correct: false },
+          { image: "gameimgs/Q2B.jpg", correct: true },
+          { image: "gameimgs/Q2C.jpg", correct: false }
+        ]
+      },
+      {
+        questionImage: "gameimgs/Q3.jpg",
+        answers: [
+          { image: "gameimgs/Q3A.jpg", correct: false },
+          { image: "gameimgs/Q3B.jpg", correct: false },
+          { image: "gameimgs/Q3C.jpg", correct: true }
+        ]
+      },
+      {
+        questionImage: "gameimgs/Q4.jpg",
+        answers: [
+          { image: "gameimgs/Q4A.jpg", correct: true },
+          { image: "gameimgs/Q4B.jpg", correct: false },
+          { image: "gameimgs/Q4C.jpg", correct: false }
+        ]
+      },
+      {
+        questionImage: "gameimgs/Q5.jpg",
+        answers: [
+          { image: "gameimgs/Q5A.jpg", correct: false },
+          { image: "gameimgs/Q5B.jpg", correct: true },
+          { image: "gameimgs/Q5C.jpg", correct: false }
+        ]
+      }
+    ];
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const stageWrap = document.querySelector(".stage-wrap");
+
+    const fleetGrid = document.getElementById("fleetGrid");
+    const unlockCount = document.getElementById("unlockCount");
+    const questionCounter = document.getElementById("questionCounter");
+    const selectedPlaneName = document.getElementById("selectedPlaneName");
+    const hpHearts = document.getElementById("hpHearts");
+    const questionImage = document.getElementById("questionImage");
+    const waveText = document.getElementById("waveText");
+    const healthText = document.getElementById("healthText");
+    const bottomMessage = document.getElementById("bottomMessage");
+    const startOverlay = document.getElementById("startOverlay");
+    const resultOverlay = document.getElementById("resultOverlay");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultMessage = document.getElementById("resultMessage");
+    const qrModal = document.getElementById("qrModal");
+    const qrGrid = document.getElementById("qrGrid");
+    const qrTitle = document.getElementById("qrTitle");
+    const planeSelectOverlay = document.getElementById("planeSelectOverlay");
+    const overlayPlaneGrid = document.getElementById("overlayPlaneGrid");
+    const continueWithPlaneBtn = document.getElementById("continueWithPlaneBtn");
+
+    const keys = { left: false, right: false };
+
+    let progress = loadProgress();
+    let selectedPlaneId = progress.selectedPlaneId || 1;
+    let paidTargetPlaneId = null;
+    let pendingNextPlaneChoice = null;
+    let uiState = {
+      bottomKey: "startHint",
+      bottomVars: {},
+      resultTitleKey: "winTitle",
+      resultMessageKey: "unlockNext",
+      resultMessageVars: { plane: "" }
+    };
+
+    let gameState = {
+      running: false,
+      gameOver: false,
+      cleared: false,
+      currentQuestion: 0,
+      hp: 2,
+      maxHp: 2,
+      plane: null,
+      enemies: [],
+      bullets: [],
+      stars: [],
+      planeImg: null
+    };
+
+    function getDefaultProgress() {
+      return { unlockedPlanes: [1], selectedPlaneId: 1 };
+    }
+
+    function loadProgress() {
+      // Do not persist unlock progress across page reloads.
+      // Keep only themes/language in localStorage.
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {}
+      return getDefaultProgress();
+    }
+
+    function saveProgress() {
+      // Intentionally left blank: unlock state resets whenever the page is reopened.
+    }
+
+    function getPlaneName(id) {
+      return translate("plane", { id });
+    }
+
+    function setBottomMessage(key, vars = {}) {
+      uiState.bottomKey = key;
+      uiState.bottomVars = vars;
+      bottomMessage.textContent = translate(key, vars);
+    }
+
+    function setResultMessage(titleKey, messageKey, vars = {}) {
+      uiState.resultTitleKey = titleKey;
+      uiState.resultMessageKey = messageKey;
+      uiState.resultMessageVars = vars;
+      resultTitle.textContent = translate(titleKey, vars);
+      resultMessage.textContent = translate(messageKey, vars);
+    }
+
+    function isPlaneUnlocked(id) {
+      return progress.unlockedPlanes.includes(id);
+    }
+
+    function unlockPlane(id) {
+      if (!progress.unlockedPlanes.includes(id)) {
+        progress.unlockedPlanes.push(id);
+        progress.unlockedPlanes.sort((a, b) => a - b);
+        saveProgress();
+      }
+    }
+
+    function getPlaneConfig(id) {
+      return planeConfig.find((p) => p.id === id) || planeConfig[0];
+    }
+
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      document.title = i18n[lang].pageTitle;
+
+      document.querySelectorAll("[data-en][data-zh]").forEach((el) => {
+        el.textContent = el.getAttribute(lang === "zh" ? "data-zh" : "data-en");
+      });
+
+      const langBtn = document.getElementById("langBtn");
+      if (langBtn) {
+        langBtn.textContent = lang === "zh" ? "EN" : "中文";
+      }
+
+      localStorage.setItem("language", lang);
+      updateModeButtons(lang);
+      refreshDynamicTexts();
+      renderFleet();
+    }
+
+    function toggleLanguage() {
+      const next = getLang() === "en" ? "zh" : "en";
+      applyLanguage(next);
+    }
+
+    function updateModeButtons(lang) {
+      const currentLang = lang || getLang();
+      const isDark = document.body.classList.contains("dark-mode");
+      const isColorblind = document.body.classList.contains("colorblind-mode");
+
+      const themeBtn = document.getElementById("themeBtn");
+      const cbBtn = document.getElementById("cbBtn");
+
+      if (themeBtn) {
+        themeBtn.textContent =
+          currentLang === "zh"
+            ? (isDark ? "☀️ 明亮模式" : "🌙 暗夜模式")
+            : (isDark ? "☀️ Light Mode" : "🌙 Dark Mode");
+      }
+
+      if (cbBtn) {
+        cbBtn.textContent =
+          currentLang === "zh"
+            ? (isColorblind ? "👁 普通模式" : "👁 色盲模式")
+            : (isColorblind ? "👁 Standard Mode" : "👁 Colorblind Mode");
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+      localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+      updateModeButtons(getLang());
+    }
+
+    function toggleColorblindMode() {
+      document.body.classList.toggle("colorblind-mode");
+      localStorage.setItem("colorblind", document.body.classList.contains("colorblind-mode") ? "on" : "off");
+      updateModeButtons(getLang());
+    }
+
+    function refreshDynamicTexts() {
+      const currentQuestionNumber = gameState.currentQuestion + 1;
+      questionCounter.textContent = translate("questionCounter", { index: currentQuestionNumber, total: questions.length });
+      waveText.textContent = translate("wave", { n: currentQuestionNumber });
+      healthText.textContent = translate("hp", { n: gameState.hp || getPlaneConfig(selectedPlaneId).hp });
+      unlockCount.textContent = translate("unlockCount", { count: progress.unlockedPlanes.length, total: planeConfig.length });
+      selectedPlaneName.textContent = getPlaneName(selectedPlaneId);
+      questionImage.alt = translate("questionImageAlt");
+      setBottomMessage(uiState.bottomKey, uiState.bottomVars);
+      setResultMessage(uiState.resultTitleKey, uiState.resultMessageKey, uiState.resultMessageVars);
+
+      if (paidTargetPlaneId) {
+        qrTitle.textContent = translate("qrTitle", { plane: getPlaneName(paidTargetPlaneId) });
+      }
+    }
+
+
+    function getNextUnlockTargetId() {
+      return planeConfig.find((p) => !isPlaneUnlocked(p.id))?.id || null;
+    }
+
+    function closePlaneSelection() {
+      planeSelectOverlay.classList.remove("show");
+      pendingNextPlaneChoice = null;
+    }
+
+    function renderOverlayPlaneChoices() {
+      overlayPlaneGrid.innerHTML = "";
+      planeConfig.forEach((plane) => {
+        if (!isPlaneUnlocked(plane.id)) return;
+        const card = document.createElement("div");
+        const isSelected = pendingNextPlaneChoice === plane.id;
+        card.className = `plane-card${isSelected ? " selected" : ""}`;
+        card.innerHTML = `
+          <img class="plane-thumb" src="${plane.image}" alt="${getPlaneName(plane.id)}" onerror="this.style.opacity='0.3'; this.alt='${translate("missingImage")}';">
+          <div class="plane-meta">
+            <strong>${getPlaneName(plane.id)}</strong>
+            <span class="chip unlock">${translate("unlockedChip", { hp: plane.hp })}</span>
+          </div>
+          <div class="sub">${translate("planeReady", { hp: plane.hp })}</div>
+        `;
+        card.addEventListener("click", () => {
+          pendingNextPlaneChoice = plane.id;
+          renderOverlayPlaneChoices();
+        });
+        overlayPlaneGrid.appendChild(card);
+      });
+      continueWithPlaneBtn.disabled = !pendingNextPlaneChoice;
+      continueWithPlaneBtn.style.opacity = pendingNextPlaneChoice ? "1" : "0.6";
+      continueWithPlaneBtn.style.cursor = pendingNextPlaneChoice ? "pointer" : "not-allowed";
+    }
+
+    function openPlaneSelectionOverlay(defaultPlaneId) {
+      pendingNextPlaneChoice = defaultPlaneId || selectedPlaneId;
+      renderOverlayPlaneChoices();
+      planeSelectOverlay.classList.add("show");
+      setBottomMessage("choosePlaneAfterWin");
+    }
+
+
+    function renderFleet() {
+      fleetGrid.innerHTML = "";
+      planeConfig.forEach((plane) => {
+        const card = document.createElement("div");
+        const unlocked = isPlaneUnlocked(plane.id);
+        card.className = `plane-card${selectedPlaneId === plane.id ? " selected" : ""}${unlocked ? "" : " locked"}`;
+        card.innerHTML = `
+          <img class="plane-thumb" src="${plane.image}" alt="${getPlaneName(plane.id)}" onerror="this.style.opacity='0.3'; this.alt='${translate("missingImage")}';">
+          <div class="plane-meta">
+            <strong>${getPlaneName(plane.id)}</strong>
+            <span class="chip ${unlocked ? "unlock" : "pay"}">${unlocked ? translate("unlockedChip", { hp: plane.hp }) : translate("locked")}</span>
+          </div>
+          <div class="sub">${unlocked ? translate("planeReady", { hp: plane.hp }) : translate("planeLockedHint")}</div>
+        `;
+        if (gameState.running) {
+          card.classList.add("disabled");
+        }
+
+        card.addEventListener("click", () => {
+          if (gameState.running) {
+            setBottomMessage("planeLockedDuringRun");
+            return;
+          }
+          if (unlocked) {
+            selectedPlaneId = plane.id;
+            progress.selectedPlaneId = plane.id;
+            saveProgress();
+            renderFleet();
+            updateSideInfo();
+            initGame(false);
+          } else {
+            openQrModal(plane.id);
+          }
+        });
+        fleetGrid.appendChild(card);
+      });
+      unlockCount.textContent = translate("unlockCount", { count: progress.unlockedPlanes.length, total: planeConfig.length });
+    }
+
+    function updateSideInfo() {
+      selectedPlaneName.textContent = getPlaneName(selectedPlaneId);
+      renderHearts(gameState.hp || getPlaneConfig(selectedPlaneId).hp);
+    }
+
+    function renderHearts(count) {
+      hpHearts.innerHTML = "";
+      for (let i = 0; i < count; i += 1) {
+        const heart = document.createElement("span");
+        heart.className = "heart";
+        hpHearts.appendChild(heart);
+      }
+      healthText.textContent = translate("hp", { n: count });
+    }
+
+    function openQrModal(planeId) {
+      paidTargetPlaneId = planeId;
+      const plane = getPlaneConfig(planeId);
+      qrTitle.textContent = translate("qrTitle", { plane: getPlaneName(plane.id) });
+      qrGrid.innerHTML = `
+        <div class="qr-item">
+          <img src="${plane.qr}" alt="${getPlaneName(plane.id)} ${translate("paymentAlt")}" onerror="this.style.opacity='0.3'; this.alt='${translate("missingImage")}';">
+          <div class="hint">${translate("qrItemPlane", { plane: getPlaneName(plane.id) })}</div>
+        </div>
+        <div class="qr-item">
+          <img src="gameimgs/pay2.png" alt="${translate("paymentAlt")}" onerror="this.style.opacity='0.3'; this.alt='${translate("missingImage")}';">
+          <div class="hint">${translate("qrItemGeneral")}</div>
+        </div>
+      `;
+      qrModal.classList.add("show");
+    }
+
+    function closeQrModal() {
+      qrModal.classList.remove("show");
+      paidTargetPlaneId = null;
+    }
+
+    function loadImage(src) {
+      const img = new Image();
+      img.dataset.failed = "false";
+      img.onload = () => { img.dataset.failed = "false"; };
+      img.onerror = () => {
+        img.dataset.failed = "true";
+        console.warn("Image failed to load:", src);
+      };
+      img.src = src;
+      return img;
+    }
+
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const width = stageWrap.clientWidth;
+      const height = stageWrap.clientHeight;
+      canvas.width = Math.max(1, Math.floor(width * dpr));
+      canvas.height = Math.max(1, Math.floor(height * dpr));
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function initStars() {
+      const width = stageWrap.clientWidth;
+      const height = stageWrap.clientHeight;
+      gameState.stars = Array.from({ length: 80 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: Math.random() * 2 + 1,
+        speed: Math.random() * 1.5 + 0.4
+      }));
+    }
+
+    function initGame(resetQuestion = true) {
+      resizeCanvas();
+      const width = stageWrap.clientWidth;
+      const height = stageWrap.clientHeight;
+      const cfg = getPlaneConfig(selectedPlaneId);
+      gameState.maxHp = cfg.hp;
+      gameState.hp = cfg.hp;
+      const planeSize = Math.max(60, Math.min(74, Math.round(Math.min(width, height) * 0.15)));
+      gameState.plane = {
+        x: width / 2,
+        y: height - Math.max(58, planeSize * 0.9),
+        width: planeSize,
+        height: planeSize,
+        speed: Math.max(6, Math.round(width * 0.008))
+      };
+      gameState.bullets = [];
+      gameState.enemies = [];
+      gameState.gameOver = false;
+      gameState.cleared = false;
+      if (resetQuestion) gameState.currentQuestion = 0;
+      questionImage.src = questions[gameState.currentQuestion].questionImage;
+      questionCounter.textContent = translate("questionCounter", { index: gameState.currentQuestion + 1, total: questions.length });
+      waveText.textContent = translate("wave", { n: gameState.currentQuestion + 1 });
+      setBottomMessage("clickEnemyHint");
+      renderHearts(gameState.hp);
+      gameState.planeImg = loadImage(cfg.image);
+      initStars();
+      spawnWave();
+      updateSideInfo();
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function spawnWave() {
+      const width = stageWrap.clientWidth;
+      const height = stageWrap.clientHeight;
+      const q = questions[gameState.currentQuestion];
+      const answers = shuffle(q.answers);
+      const enemySize = Math.max(86, Math.min(112, Math.round(Math.min(width, height) * 0.22)));
+      const spawnY = Math.max(76, Math.round(height * 0.18));
+      const slots = [width * 0.22, width * 0.5, width * 0.78];
+      gameState.enemies = answers.map((ans, i) => ({
+        x: slots[i],
+        y: spawnY,
+        width: enemySize,
+        height: enemySize,
+        speed: 0.45 + Math.random() * 0.16,
+        image: loadImage(ans.image),
+        correct: ans.correct,
+        alive: true
+      }));
+    }
+
+    function nextWave() {
+      gameState.currentQuestion += 1;
+      if (gameState.currentQuestion >= questions.length) {
+        winGame();
+        return;
+      }
+      questionImage.src = questions[gameState.currentQuestion].questionImage;
+      questionCounter.textContent = translate("questionCounter", { index: gameState.currentQuestion + 1, total: questions.length });
+      waveText.textContent = translate("wave", { n: gameState.currentQuestion + 1 });
+      spawnWave();
+    }
+
+    function winGame() {
+      gameState.running = false;
+      gameState.cleared = true;
+      const nextPlaneId = selectedPlaneId + 1;
+      if (nextPlaneId <= planeConfig.length) {
+        unlockPlane(nextPlaneId);
+        setResultMessage("winTitle", "unlockNext", { plane: getPlaneName(nextPlaneId) });
+        renderFleet();
+        openPlaneSelectionOverlay(isPlaneUnlocked(nextPlaneId) ? nextPlaneId : selectedPlaneId);
+      } else {
+        setResultMessage("winTitle", "allPlanesClear");
+        renderFleet();
+        resultOverlay.classList.add("show");
+        setBottomMessage("sessionFinished");
+      }
+    }
+
+    function loseGame(reasonKey = "loseZeroHp") {
+      gameState.running = false;
+      gameState.gameOver = true;
+      setResultMessage("loseTitle", "loseMessage");
+      resultOverlay.classList.add("show");
+      setBottomMessage(reasonKey);
+    }
+
+    function takeDamage(amount, reasonKey) {
+      gameState.hp -= amount;
+      if (gameState.hp < 0) gameState.hp = 0;
+      renderHearts(gameState.hp);
+      if (reasonKey) setBottomMessage(reasonKey);
+      if (gameState.hp <= 0) loseGame("loseZeroHp");
+    }
+
+    function enemyCollidesPlane(enemy) {
+      const p = gameState.plane;
+      return !(
+        enemy.x + enemy.width / 2 < p.x - p.width / 2 ||
+        enemy.x - enemy.width / 2 > p.x + p.width / 2 ||
+        enemy.y + enemy.height / 2 < p.y - p.height / 2 ||
+        enemy.y - enemy.height / 2 > p.y + p.height / 2
+      );
+    }
+
+    function updateStars() {
+      const height = stageWrap.clientHeight;
+      const width = stageWrap.clientWidth;
+      gameState.stars.forEach((star) => {
+        star.y += star.speed;
+        if (star.y > height) {
+          star.y = -4;
+          star.x = Math.random() * width;
+        }
+      });
+    }
+
+    function drawStars() {
+      gameState.stars.forEach((star) => {
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue("--stage-star") || "rgba(255,255,255,0.9)";
+        ctx.fillRect(star.x, star.y, star.size, star.size);
+      });
+    }
+
+    function updateGame() {
+      if (!gameState.running) return;
+
+      const width = stageWrap.clientWidth;
+      const height = stageWrap.clientHeight;
+      if (keys.left) gameState.plane.x -= gameState.plane.speed;
+      if (keys.right) gameState.plane.x += gameState.plane.speed;
+      gameState.plane.x = Math.max(gameState.plane.width / 2, Math.min(width - gameState.plane.width / 2, gameState.plane.x));
+
+      updateStars();
+
+      gameState.bullets.forEach((bullet) => {
+        bullet.y -= bullet.speed;
+        if (bullet.target) {
+          const dx = bullet.target.x - bullet.x;
+          const dy = bullet.target.y - bullet.y;
+          const len = Math.hypot(dx, dy) || 1;
+          bullet.x += (dx / len) * 4;
+          bullet.y += (dy / len) * 4;
+        }
+      });
+      gameState.bullets = gameState.bullets.filter((b) => b.y > -30 && b.alive !== false);
+
+      gameState.enemies.forEach((enemy) => {
+        if (!enemy.alive) return;
+
+        enemy.y += enemy.speed;
+
+        if (enemy.y > height + 10) {
+          enemy.alive = false;
+          takeDamage(1, "enemyEscaped");
+        }
+
+        if (enemy.alive && enemyCollidesPlane(enemy)) {
+          enemy.alive = false;
+          takeDamage(1, "enemyCollided");
+          gameState.enemies.forEach((e) => { e.alive = false; });
+        }
+      });
+
+      gameState.bullets.forEach((bullet) => {
+        gameState.enemies.forEach((enemy) => {
+          if (!enemy.alive || bullet.alive === false) return;
+          const hit =
+            Math.abs(bullet.x - enemy.x) < enemy.width * 0.35 &&
+            Math.abs(bullet.y - enemy.y) < enemy.height * 0.35;
+          if (hit) {
+            bullet.alive = false;
+            enemy.alive = false;
+            if (!enemy.correct) {
+              takeDamage(1, "wrongEnemyShot");
+            } else {
+              setBottomMessage("correctEnemyHit");
+            }
+            gameState.enemies.forEach((e) => {
+              if (e !== enemy) e.alive = false;
+            });
+          }
+        });
+      });
+
+      const aliveEnemies = gameState.enemies.filter((e) => e.alive);
+      if (gameState.running && aliveEnemies.length === 0 && !gameState.gameOver && !gameState.cleared) {
+        nextWave();
+      }
+    }
+
+    function drawPlane() {
+      const p = gameState.plane;
+      if (!p) return;
+      if (gameState.planeImg && gameState.planeImg.complete && gameState.planeImg.naturalWidth > 0 && gameState.planeImg.dataset.failed !== "true") {
+        ctx.drawImage(gameState.planeImg, p.x - p.width / 2, p.y - p.height / 2, p.width, p.height);
+      } else {
+        ctx.fillStyle = "#5aa8ff";
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y - 36);
+        ctx.lineTo(p.x - 24, p.y + 26);
+        ctx.lineTo(p.x + 24, p.y + 26);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function drawEnemies() {
+      gameState.enemies.forEach((enemy) => {
+        if (!enemy.alive) return;
+        if (enemy.image && enemy.image.complete && enemy.image.naturalWidth > 0 && enemy.image.dataset.failed !== "true") {
+          ctx.drawImage(enemy.image, enemy.x - enemy.width / 2, enemy.y - enemy.height / 2, enemy.width, enemy.height);
+        } else {
+          ctx.fillStyle = enemy.correct ? "#53dd87" : "#ff7b7b";
+          ctx.fillRect(enemy.x - enemy.width / 2, enemy.y - enemy.height / 2, enemy.width, enemy.height);
+        }
+      });
+    }
+
+    function drawBullets() {
+      gameState.bullets.forEach((b) => {
+        ctx.fillStyle = "#ffd166";
+        ctx.fillRect(b.x - 3, b.y - 10, 6, 18);
+      });
+    }
+
+    function drawGame() {
+      const width = stageWrap.clientWidth;
+      const height = stageWrap.clientHeight;
+      ctx.clearRect(0, 0, width, height);
+      drawStars();
+
+      const styles = getComputedStyle(document.body);
+      ctx.strokeStyle = styles.getPropertyValue("--stage-grid") || "rgba(148, 163, 184, 0.15)";
+      ctx.lineWidth = 1;
+      for (let y = 0; y < height; y += 48) {
+        ctx.beginPath();
+        ctx.moveTo(0, y + 0.5);
+        ctx.lineTo(width, y + 0.5);
+        ctx.stroke();
+      }
+
+      drawEnemies();
+      drawBullets();
+      drawPlane();
+    }
+
+    function gameLoop() {
+      updateGame();
+      drawGame();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function shootAtEnemy(enemy) {
+      if (!gameState.running || !enemy || !enemy.alive) return;
+      const p = gameState.plane;
+      gameState.bullets.push({
+        x: p.x,
+        y: p.y - p.height / 2,
+        speed: 10,
+        target: enemy,
+        alive: true
+      });
+    }
+
+    function getMousePos(event) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+    }
+
+    canvas.addEventListener("click", (event) => {
+      if (!gameState.running) return;
+      const { x, y } = getMousePos(event);
+      const target = gameState.enemies.find((enemy) => (
+        enemy.alive &&
+        x > enemy.x - enemy.width / 2 &&
+        x < enemy.x + enemy.width / 2 &&
+        y > enemy.y - enemy.height / 2 &&
+        y < enemy.y + enemy.height / 2
+      ));
+      if (target) shootAtEnemy(target);
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") keys.left = true;
+      if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") keys.right = true;
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") keys.left = false;
+      if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") keys.right = false;
+    });
+
+    document.getElementById("startGameBtn").addEventListener("click", () => {
+      initGame(true);
+      startOverlay.classList.remove("show");
+      resultOverlay.classList.remove("show");
+      closePlaneSelection();
+      gameState.running = true;
+      setBottomMessage("gameStarted");
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", () => {
+      initGame(true);
+      resultOverlay.classList.remove("show");
+      startOverlay.classList.remove("show");
+      closePlaneSelection();
+      gameState.running = true;
+      setBottomMessage("gameStarted");
+    });
+
+    document.getElementById("playAgainBtn").addEventListener("click", () => {
+      initGame(true);
+      resultOverlay.classList.remove("show");
+      startOverlay.classList.remove("show");
+      closePlaneSelection();
+      gameState.running = true;
+      setBottomMessage("gameStarted");
+    });
+
+    document.getElementById("closeResultBtn").addEventListener("click", () => {
+      resultOverlay.classList.remove("show");
+      gameState.running = false;
+      initGame(false);
+      startOverlay.classList.add("show");
+      setBottomMessage("returnToStartHint");
+    });
+
+    continueWithPlaneBtn.addEventListener("click", () => {
+      if (!pendingNextPlaneChoice) return;
+      selectedPlaneId = pendingNextPlaneChoice;
+      progress.selectedPlaneId = selectedPlaneId;
+      saveProgress();
+      closePlaneSelection();
+      initGame(true);
+      startOverlay.classList.add("show");
+      setBottomMessage("continueWithPlane", { plane: getPlaneName(selectedPlaneId) });
+      renderFleet();
+    });
+
+    document.getElementById("closePlaneSelectBtn").addEventListener("click", () => {
+      closePlaneSelection();
+      gameState.running = false;
+      initGame(false);
+      startOverlay.classList.add("show");
+      setBottomMessage("returnToStartHint");
+    });
+
+    document.getElementById("resetProgressBtn").addEventListener("click", () => {
+      progress = getDefaultProgress();
+      selectedPlaneId = 1;
+      renderFleet();
+      closePlaneSelection();
+      resultOverlay.classList.remove("show");
+      initGame(false);
+      startOverlay.classList.add("show");
+      setBottomMessage("progressReset");
+    });
+
+    document.getElementById("payUnlockBtn").addEventListener("click", () => {
+      const target = planeConfig.find((p) => !isPlaneUnlocked(p.id));
+      if (!target) {
+        setBottomMessage("allUnlocked");
+        return;
+      }
+      openQrModal(target.id);
+    });
+
+    document.getElementById("confirmUnlockBtn").addEventListener("click", () => {
+      if (!paidTargetPlaneId) return;
+      unlockPlane(paidTargetPlaneId);
+      selectedPlaneId = paidTargetPlaneId;
+      progress.selectedPlaneId = selectedPlaneId;
+      saveProgress();
+      renderFleet();
+      updateSideInfo();
+      closeQrModal();
+      initGame(false);
+      setBottomMessage("earlyUnlock", { plane: getPlaneName(selectedPlaneId) });
+    });
+
+    document.getElementById("closeQrBtn").addEventListener("click", closeQrModal);
+
+    window.addEventListener("resize", () => {
+      resizeCanvas();
+      initStars();
+      if (gameState.plane) {
+        gameState.plane.x = Math.min(stageWrap.clientWidth - gameState.plane.width / 2, Math.max(gameState.plane.width / 2, gameState.plane.x));
+        gameState.plane.y = stageWrap.clientHeight - 88;
+      }
+      if (gameState.running) spawnWave();
+    });
+
+    window.addEventListener("load", () => {
+      document.body.classList.add("page-loaded");
+      const savedTheme = localStorage.getItem("theme");
+      const savedLanguage = getLang();
+      const savedColorblind = localStorage.getItem("colorblind");
+
+      if (savedTheme === "dark") document.body.classList.add("dark-mode");
+      if (savedColorblind === "on") document.body.classList.add("colorblind-mode");
+
+      applyLanguage(savedLanguage);
+      resizeCanvas();
+      renderFleet();
+      initGame(true);
+      setBottomMessage("startHint");
+      gameLoop();
+    });
+  </script>
+</body>
+</html>
