@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>圆几何探索 · V2.5.a.8</title>
+  <style>
+    :root {
+      --bg: #f4f8ff;
+      --bg-soft: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(242,247,255,0.88));
+      --card: rgba(255,255,255,0.9);
+      --text: #16324f;
+      --muted: #5f7691;
+      --primary: #2563eb;
+      --primary-2: #7c3aed;
+      --accent: #06b6d4;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --line: rgba(37,99,235,0.12);
+      --shadow: 0 18px 45px rgba(37,99,235,0.14);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(124,58,237,0.14), transparent 24%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background 0.3s ease, color 0.3s ease, opacity 0.8s ease;
+      opacity: 0;
+    }
+
+    body.page-loaded { opacity: 1; }
+
+    body.dark-mode {
+      --bg: #0f172a;
+      --bg-soft: linear-gradient(180deg, rgba(30,41,59,0.96), rgba(17,24,39,0.90));
+      --card: rgba(30,41,59,0.88);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --line: rgba(255,255,255,0.08);
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(124,58,237,0.10), transparent 24%),
+        #0f172a;
+    }
+
+    body.colorblind-mode {
+      --primary: #005fcc;
+      --primary-2: #6b3fd6;
+      --accent: #d97706;
+      --text: #102a43;
+      --muted: #486581;
+      --line: rgba(0,95,204,0.20);
+    }
+
+    body.dark-mode.colorblind-mode {
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --line: rgba(255,255,255,0.18);
+    }
+
+    body.focus-mode .hero,
+    body.focus-mode #highlights,
+    body.focus-mode #modules,
+    body.focus-mode #contact {
+      display: none;
+    }
+
+    body.focus-mode .workspace-grid {
+      grid-template-columns: 1fr 1.1fr;
+    }
+
+    body.focus-mode .workspace-grid > .side-card {
+      display: none;
+    }
+
+    .container {
+      width: min(1340px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 70;
+      backdrop-filter: blur(14px);
+      background: rgba(244,248,255,0.8);
+      border-bottom: 1px solid rgba(37,99,235,0.08);
+    }
+
+    body.dark-mode .site-header {
+      background: rgba(15,23,42,0.82);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      padding: 10px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: var(--shadow);
+    }
+
+    .nav-links, .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover { color: var(--primary); }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(37,99,235,0.14);
+    }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.84);
+      color: var(--primary);
+      border: 1px solid rgba(37,99,235,0.12);
+    }
+
+    .btn-ghost {
+      background: rgba(37,99,235,0.06);
+      color: var(--primary);
+      border: 1px solid rgba(37,99,235,0.10);
+    }
+
+    .btn-danger {
+      background: rgba(220,38,38,0.08);
+      color: var(--danger);
+      border: 1px solid rgba(220,38,38,0.12);
+    }
+
+    body.dark-mode .btn-outline {
+      background: rgba(30,41,59,0.86);
+      color: #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .hero {
+      padding: 48px 0 22px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(37,99,235,0.08);
+      color: var(--primary);
+      border-radius: 999px;
+      font-size: 0.92rem;
+      margin-bottom: 18px;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      line-height: 1.05;
+      margin-bottom: 14px;
+    }
+
+    .highlight {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy p {
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin-bottom: 22px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .card, .stat, .panel, .module-card, .theorem-card, .side-card, .quiz-card, .contact-card, .insight-card, .report-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.72);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    body.dark-mode .card,
+    body.dark-mode .stat,
+    body.dark-mode .panel,
+    body.dark-mode .module-card,
+    body.dark-mode .theorem-card,
+    body.dark-mode .side-card,
+    body.dark-mode .quiz-card,
+    body.dark-mode .contact-card,
+    body.dark-mode .insight-card,
+    body.dark-mode .report-card {
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    body.colorblind-mode .card,
+    body.colorblind-mode .stat,
+    body.colorblind-mode .panel,
+    body.colorblind-mode .module-card,
+    body.colorblind-mode .theorem-card,
+    body.colorblind-mode .side-card,
+    body.colorblind-mode .quiz-card,
+    body.colorblind-mode .contact-card,
+    body.colorblind-mode .insight-card,
+    body.colorblind-mode .report-card {
+      border: 2px solid rgba(0,95,204,0.20);
+    }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(110px, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.28rem;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .hero-card {
+      background: var(--bg-soft);
+      border-radius: 30px;
+      padding: 22px;
+      min-height: 430px;
+    }
+
+    .hero-card h3 {
+      font-size: 1.35rem;
+      margin-bottom: 8px;
+    }
+
+    .hero-card p {
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .insight-card {
+      padding: 16px;
+    }
+
+    .insight-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .insight-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    section {
+      padding: 24px 0 18px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .section-head h2 {
+      font-size: 1.85rem;
+      margin-bottom: 6px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      max-width: 64ch;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .module-card, .theorem-card, .side-card, .quiz-card, .contact-card, .panel, .report-card {
+      padding: 20px 22px;
+    }
+
+    .icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      color: white;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    .module-card h3,
+    .theorem-card h3,
+    .side-card h3,
+    .quiz-card h3,
+    .contact-card h3,
+    .panel h3,
+    .report-card h3 {
+      margin-bottom: 8px;
+    }
+
+    .module-card p,
+    .theorem-card p,
+    .side-card p,
+    .quiz-card p,
+    .contact-card p,
+    .panel p,
+    .report-card p {
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 7px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: rgba(124,58,237,0.09);
+      color: var(--primary-2);
+    }
+
+    .module-card ul, .side-list {
+      list-style: none;
+      margin-top: 12px;
+      color: var(--muted);
+    }
+
+    .module-card li + li,
+    .side-list li + li {
+      margin-top: 8px;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 0.96fr 1.12fr 0.82fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .theorem-toolbar {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .toolbar-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-input, .filter-select, .note-box, .contact-form input, .contact-form textarea {
+      width: 100%;
+      border: 1px solid rgba(37,99,235,0.12);
+      border-radius: 16px;
+      padding: 13px 15px;
+      font: inherit;
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+    }
+
+    body.dark-mode .search-input,
+    body.dark-mode .filter-select,
+    body.dark-mode .note-box,
+    body.dark-mode .contact-form input,
+    body.dark-mode .contact-form textarea {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+    }
+
+    .theorem-list {
+      display: grid;
+      gap: 12px;
+      max-height: 800px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .theorem-card {
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .theorem-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(37,99,235,0.16);
+    }
+
+    .theorem-card.active {
+      border-color: rgba(37,99,235,0.32);
+      outline: 2px solid rgba(37,99,235,0.18);
+    }
+
+    .theorem-card.completed {
+      outline: 2px solid rgba(22,163,74,0.28);
+    }
+
+    .favorite-btn {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(37,99,235,0.12);
+      background: rgba(255,255,255,0.72);
+      cursor: pointer;
+      color: var(--warning);
+      font-size: 1rem;
+    }
+
+    body.dark-mode .favorite-btn {
+      background: rgba(30,41,59,0.82);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .status-learned { background: rgba(22,163,74,0.10); color: var(--success); }
+    .status-review { background: rgba(217,119,6,0.10); color: var(--warning); }
+    .status-neutral { background: rgba(37,99,235,0.08); color: var(--primary); }
+    .status-favorite { background: rgba(245,158,11,0.10); color: var(--warning); }
+
+    .lab-main {
+      display: grid;
+      gap: 16px;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: rgba(37,99,235,0.08);
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .lab-header { padding: 22px 24px; }
+    .lab-header p { color: var(--muted); }
+
+    .info-box {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(37,99,235,0.06);
+      border: 1px solid rgba(37,99,235,0.10);
+    }
+
+    .info-box p { color: var(--muted); }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(37,99,235,0.03), rgba(124,58,237,0.04)),
+        #fafcff;
+      display: block;
+    }
+
+    body.dark-mode canvas {
+      background:
+        linear-gradient(180deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08)),
+        #0f172a;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .control-row label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .control-row input[type="range"] { width: 100%; }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .score-item {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid rgba(37,99,235,0.08);
+      text-align: center;
+    }
+
+    .score-item strong {
+      display: block;
+      color: var(--primary);
+      font-size: 1.15rem;
+      margin-bottom: 4px;
+    }
+
+    .quiz-question {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .option-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .option-btn {
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(37,99,235,0.12);
+      background: rgba(255,255,255,0.82);
+      cursor: pointer;
+      color: var(--text);
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .option-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37,99,235,0.30);
+      background: rgba(37,99,235,0.05);
+    }
+
+    body.dark-mode .option-btn {
+      background: rgba(30,41,59,0.82);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      display: none;
+    }
+
+    .feedback.show { display: block; }
+
+    .feedback.success {
+      background: rgba(22,163,74,0.10);
+      color: var(--success);
+      border: 1px solid rgba(22,163,74,0.18);
+    }
+
+    .feedback.error {
+      background: rgba(220,38,38,0.10);
+      color: var(--danger);
+      border: 1px solid rgba(220,38,38,0.18);
+    }
+
+    .progress-shell {
+      margin-top: 14px;
+      background: rgba(37,99,235,0.08);
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      transition: width 0.3s ease;
+    }
+
+    .mastery-board, .snapshot-board {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mastery-item, .activity-item, .plan-item, .snapshot-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid rgba(37,99,235,0.08);
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .mastery-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .mastery-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(37,99,235,0.10);
+      overflow: hidden;
+    }
+
+    .mastery-fill {
+      height: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+
+    .side-card {
+      display: grid;
+      gap: 16px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .side-section {
+      padding-bottom: 4px;
+      border-bottom: 1px dashed rgba(37,99,235,0.12);
+    }
+
+    .side-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .side-section h4 {
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .activity-item strong,
+    .plan-item strong,
+    .snapshot-item strong {
+      color: var(--text);
+    }
+
+    .activity-meta {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .note-box {
+      min-height: 180px;
+      resize: vertical;
+      margin-top: 12px;
+    }
+
+    .report-card {
+      margin-top: 14px;
+    }
+
+    .contact-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .site-footer {
+      padding: 22px 0 40px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    @media (max-width: 1240px) {
+      .workspace-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .workspace-grid > .side-card {
+        grid-column: 1 / -1;
+      }
+
+      .quick-stats,
+      .scoreboard,
+      .module-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .insight-grid,
+      .workspace-grid,
+      .quick-stats,
+      .scoreboard,
+      .module-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav { align-items: flex-start; }
+      h1 { font-size: 2.55rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#home">
+        <span class="brand-badge">◯</span>
+        <span data-i18n="brand">Circle Theorems Learning Hub</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#home" data-i18n="navHome">Home</a>
+        <a href="#highlights" data-i18n="navHighlights">Highlights</a>
+        <a href="#modules" data-i18n="navModules">Modules</a>
+        <a href="#workspace" data-i18n="navWorkspace">Workspace</a>
+        <a href="#contact" data-i18n="navContact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn btn-outline" id="langBtn">中文</button>
+        <button class="btn btn-outline" id="themeBtn">🌙 Dark</button>
+        <button class="btn btn-outline" id="cbBtn">👁 Colorblind</button>
+        <button class="btn btn-outline" id="focusBtn">🎯 Focus</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow" data-i18n="eyebrow">📐 Revision 8 • Final Small Version • Major Upgrade Ready</div>
+          <h1 data-i18n="heroTitle">Turn the adaptive assistant into a <span class="highlight">presentation-ready platform</span>.</h1>
+          <p data-i18n="heroDesc">Revision 8 consolidates the previous platform work into a stronger final small version: focus mode, milestone roadmap, report snapshots, presentation summary, and a cleaner “pre-major-release” structure.</p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#workspace" data-i18n="heroPrimary">Open Final Workspace</a>
+            <a class="btn btn-outline" href="#modules" data-i18n="heroSecondary">See Final Additions</a>
+          </div>
+
+          <div class="quick-stats">
+            <div class="stat"><strong id="statLearned">0</strong><span data-i18n="statLearned">Learned theorems</span></div>
+            <div class="stat"><strong id="statCorrect">0</strong><span data-i18n="statCorrect">Correct checks</span></div>
+            <div class="stat"><strong id="statReview">0</strong><span data-i18n="statReview">Review queue</span></div>
+            <div class="stat"><strong id="statFavorites">0</strong><span data-i18n="statFavorites">Favorites</span></div>
+            <div class="stat"><strong id="statSnapshots">0</strong><span data-i18n="statSnapshots">Report snapshots</span></div>
+            <div class="stat"><strong id="statProgress">0%</strong><span data-i18n="statProgress">Overall progress</span></div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="eyebrow" style="margin-bottom:12px;" data-i18n="overviewBadge">Release Preparation Overview</div>
+          <h3 data-i18n="overviewTitle">One last small version before the major release</h3>
+          <p data-i18n="overviewDesc">This version does not try to become the final large version yet. Instead, it consolidates guidance, notes, reporting, and presentation tools into a stronger “final small version”.</p>
+
+          <div class="insight-grid">
+            <div class="insight-card">
+              <strong data-i18n="insight1Title">Focus mode</strong>
+              <p data-i18n="insight1Desc">Hide non-essential sections and reduce distractions when demonstrating the core learning workflow.</p>
+            </div>
+            <div class="insight-card">
+              <strong data-i18n="insight2Title">Roadmap milestones</strong>
+              <p data-i18n="insight2Desc">The platform now explains which milestone stage the learner has already reached.</p>
+            </div>
+            <div class="insight-card">
+              <strong data-i18n="insight3Title">Report snapshots</strong>
+              <p data-i18n="insight3Desc">Generated reports can now be captured as dated snapshots for presentation and comparison.</p>
+            </div>
+            <div class="insight-card">
+              <strong data-i18n="insight4Title">Presentation summary</strong>
+              <p data-i18n="insight4Desc">A compact summary turns the current learning state into a more polished showcase layer.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="highlights">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="highlightsTitle">What changed in revision 8</h2>
+            <p data-i18n="highlightsDesc">Revision 7 made the platform adaptive. Revision 8 tightens the experience into a more polished, presentation-ready closing small version before a major upgrade.</p>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <article class="module-card">
+            <div class="icon">🎯</div>
+            <h3 data-i18n="feature1Title">Focus mode</h3>
+            <p data-i18n="feature1Desc">A focused interface hides outer sections and turns the page into a lean study/demo workspace.</p>
+          </article>
+          <article class="module-card">
+            <div class="icon">🧱</div>
+            <h3 data-i18n="feature2Title">Milestone roadmap</h3>
+            <p data-i18n="feature2Desc">The system now groups progress into clearer stages so the learner can see how close they are to a complete platform experience.</p>
+          </article>
+          <article class="module-card">
+            <div class="icon">📸</div>
+            <h3 data-i18n="feature3Title">Report snapshots</h3>
+            <p data-i18n="feature3Desc">The generated report can be captured as a timestamped snapshot, which is ideal for presentations and reflection.</p>
+          </article>
+          <article class="module-card">
+            <div class="icon">🧾</div>
+            <h3 data-i18n="feature4Title">Presentation summary</h3>
+            <p data-i18n="feature4Desc">The right-side dashboard now includes a concise platform summary, making the whole prototype easier to present in one glance.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="modules">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="modulesTitle">Final small-version systems</h2>
+            <p data-i18n="modulesDesc">This version is about consolidation: stronger summary, clearer milestones, cleaner focus mode, and report capture, rather than adding a completely new architecture.</p>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <article class="module-card">
+            <span class="tag" data-i18n="module1Tag">System 1</span>
+            <h3 data-i18n="module1Title">Focus-oriented presentation flow</h3>
+            <p data-i18n="module1Desc">The page can now collapse into a focused demo environment, which makes the core learning workflow easier to showcase.</p>
+            <ul>
+              <li data-i18n="module1Item1">Hide extra outer sections</li>
+              <li data-i18n="module1Item2">Reduce interface clutter</li>
+              <li data-i18n="module1Item3">Keep only the core workspace</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <span class="tag" data-i18n="module2Tag">System 2</span>
+            <h3 data-i18n="module2Title">Milestone roadmap</h3>
+            <p data-i18n="module2Desc">The platform translates raw progress into stage-based milestones so progress looks more meaningful and explainable.</p>
+            <ul>
+              <li data-i18n="module2Item1">Foundation stage</li>
+              <li data-i18n="module2Item2">Guided study stage</li>
+              <li data-i18n="module2Item3">Platform-ready stage</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <span class="tag" data-i18n="module3Tag">System 3</span>
+            <h3 data-i18n="module3Title">Snapshot reporting</h3>
+            <p data-i18n="module3Desc">Instead of only exporting data, the platform can now preserve report snapshots that capture learning state over time.</p>
+            <ul>
+              <li data-i18n="module3Item1">Timestamped report captures</li>
+              <li data-i18n="module3Item2">Supports comparison and demonstration</li>
+              <li data-i18n="module3Item3">Complements JSON export</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <span class="tag" data-i18n="module4Tag">System 4</span>
+            <h3 data-i18n="module4Title">Pre-major-release summary layer</h3>
+            <p data-i18n="module4Desc">This version brings all the previous systems together into a more coherent summary that is easier to explain to others.</p>
+            <ul>
+              <li data-i18n="module4Item1">Sharper recommendation</li>
+              <li data-i18n="module4Item2">Cleaner reporting</li>
+              <li data-i18n="module4Item3">Stronger presentation value</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workspace">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="workspaceTitle">Final small-version workspace</h2>
+            <p data-i18n="workspaceDesc">This workspace keeps search, learning, review, exam, notes, recommendation, mastery, and reporting — but now presents them in a cleaner, more presentation-ready structure.</p>
+          </div>
+        </div>
+
+        <div class="workspace-grid">
+          <div class="panel">
+            <div class="theorem-toolbar">
+              <input class="search-input" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="Search theorem..." />
+              <div class="toolbar-row">
+                <select class="filter-select" id="filterSelect">
+                  <option value="all" data-i18n="filterAll">All</option>
+                  <option value="learned" data-i18n="filterLearned">Learned</option>
+                  <option value="review" data-i18n="filterReview">Review</option>
+                  <option value="favorites" data-i18n="filterFavorites">Favorites</option>
+                  <option value="fresh" data-i18n="filterFresh">Fresh</option>
+                </select>
+              </div>
+            </div>
+            <div class="theorem-list" id="theoremList"></div>
+          </div>
+
+          <div class="lab-main">
+            <div class="panel lab-header">
+              <div class="tag" id="currentTheoremTag">Theorem 1</div>
+              <h3 id="currentTheoremTitle">Angle at the centre</h3>
+              <p id="currentTheoremDesc">The angle at the centre is twice the angle at the circumference standing on the same arc.</p>
+
+              <div class="info-box">
+                <p id="currentTheoremExplain">As the central angle changes, the inscribed angle changes with it and stays exactly half as large.</p>
+              </div>
+
+              <div class="status-row">
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <span class="status-chip status-neutral" id="currentStatusChip" data-i18n="statusCurrent">Current theorem</span>
+                  <span class="status-chip status-review" id="reviewCountChip">0 review</span>
+                  <span class="status-chip status-favorite" id="recommendChip">Next: T1</span>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <button class="btn btn-primary" id="markCompleteBtn" data-i18n="completeBtn">Mark as learned</button>
+                  <button class="btn btn-ghost" id="favoriteCurrentBtn" data-i18n="favoriteBtn">Favorite</button>
+                  <button class="btn btn-outline" id="resetCanvasBtn" data-i18n="resetBtn">Reset lab</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="tab-bar">
+                <button class="tab-btn active" data-tab="learn" data-i18n="tabLearn">Learn</button>
+                <button class="tab-btn" data-tab="review" data-i18n="tabReview">Review</button>
+                <button class="tab-btn" data-tab="exam" data-i18n="tabExam">Exam</button>
+                <button class="tab-btn" data-tab="notes" data-i18n="tabNotes">Notes</button>
+                <button class="tab-btn" data-tab="report" data-i18n="tabReport">Report</button>
+              </div>
+
+              <div class="tab-panel active" id="tab-learn">
+                <canvas id="geometryCanvas" width="700" height="430"></canvas>
+
+                <div class="controls">
+                  <div class="control-row">
+                    <label for="radiusRange" data-i18n="radiusLabel">Radius</label>
+                    <input type="range" id="radiusRange" min="90" max="175" value="130">
+                  </div>
+                  <div class="control-row">
+                    <label for="angleRange" data-i18n="angleLabel">Angle</label>
+                    <input type="range" id="angleRange" min="20" max="160" value="70">
+                  </div>
+                </div>
+
+                <div class="progress-shell">
+                  <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div class="scoreboard" style="margin-top:16px;">
+                  <div class="score-item"><strong id="scoreLearned">0</strong><span data-i18n="scoreLearned">Learned</span></div>
+                  <div class="score-item"><strong id="scoreCorrect">0</strong><span data-i18n="scoreCorrect">Correct</span></div>
+                  <div class="score-item"><strong id="scoreReview">0</strong><span data-i18n="scoreReview">Review queue</span></div>
+                  <div class="score-item"><strong id="scoreFavorites">0</strong><span data-i18n="scoreFavorites">Favorites</span></div>
+                  <div class="score-item"><strong id="scoreProgress">0%</strong><span data-i18n="scoreProgress">Completion</span></div>
+                </div>
+
+                <div class="quiz-card" style="margin-top:16px;">
+                  <h3 data-i18n="quizTitle">Quick theorem check</h3>
+                  <div class="quiz-question" id="quizQuestion">Which statement matches the current theorem?</div>
+                  <div class="option-list" id="quizOptions"></div>
+                  <div class="feedback" id="quizFeedback"></div>
+                </div>
+              </div>
+
+              <div class="tab-panel" id="tab-review">
+                <div class="quiz-card">
+                  <h3 data-i18n="reviewTitle">Targeted review mode</h3>
+                  <p data-i18n="reviewIntro">This mode pulls from the review queue created by incorrect answers.</p>
+                  <div class="status-row" style="margin-bottom:14px;">
+                    <span class="status-chip status-review" id="reviewStatusChip">0 review</span>
+                    <button class="btn btn-outline" id="loadNextReviewBtn" data-i18n="reviewNextBtn">Load next review item</button>
+                  </div>
+                  <div class="quiz-question" id="reviewQuestion">No review question loaded yet.</div>
+                  <div class="option-list" id="reviewOptions"></div>
+                  <div class="feedback" id="reviewFeedback"></div>
+                </div>
+              </div>
+
+              <div class="tab-panel" id="tab-exam">
+                <div class="quiz-card">
+                  <h3 data-i18n="examTitle">Mixed exam mode</h3>
+                  <p data-i18n="examIntro">Answer a short mixed set drawn from all theorems to test cumulative understanding.</p>
+                  <div class="status-row" style="margin-bottom:14px;">
+                    <span class="status-chip status-neutral" id="examProgressChip">0 / 5</span>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                      <button class="btn btn-primary" id="startExamBtn" data-i18n="startExamBtn">Start exam</button>
+                      <button class="btn btn-outline" id="resetExamBtn" data-i18n="resetExamBtn">Reset exam</button>
+                    </div>
+                  </div>
+                  <div class="quiz-question" id="examQuestion">Press “Start exam” to begin.</div>
+                  <div class="option-list" id="examOptions"></div>
+                  <div class="feedback" id="examFeedback"></div>
+                </div>
+              </div>
+
+              <div class="tab-panel" id="tab-notes">
+                <div class="quiz-card">
+                  <h3 data-i18n="notesTitle">Theorem notes</h3>
+                  <p data-i18n="notesIntro">Write reminders, mini-explanations, or questions for the currently selected theorem. Notes save automatically.</p>
+                  <textarea class="note-box" id="notesBox" data-i18n-placeholder="notesPlaceholder" placeholder="Write notes about this theorem..."></textarea>
+                  <div class="status-row">
+                    <span class="status-chip status-favorite" id="notesSavedChip">0 chars</span>
+                    <button class="btn btn-danger" id="clearNoteBtn" data-i18n="clearNoteBtn">Clear note</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-panel" id="tab-report">
+                <div class="report-card">
+                  <h3 data-i18n="reportTitle">Generated platform report</h3>
+                  <p data-i18n="reportIntro">Capture the current report as a snapshot when you want to preserve the state for a presentation or comparison.</p>
+                  <div id="reportBox" class="activity-item"></div>
+                  <div class="status-row">
+                    <span class="status-chip status-neutral" id="snapshotCountChip">0 snapshots</span>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                      <button class="btn btn-primary" id="saveSnapshotBtn" data-i18n="saveSnapshotBtn">Save snapshot</button>
+                      <button class="btn btn-outline" id="refreshReportBtn" data-i18n="refreshReportBtn">Refresh report</button>
+                    </div>
+                  </div>
+                  <div class="snapshot-board" id="snapshotBoard" style="margin-top:16px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-section">
+              <h4 data-i18n="sideTitle1">Recommended next step</h4>
+              <div class="activity-item" id="recommendationBox"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle2">Milestone roadmap</h4>
+              <div class="stack" id="milestoneList"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle3">Mastery board</h4>
+              <div class="mastery-board" id="masteryBoard"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle4">Presentation summary</h4>
+              <div class="activity-item" id="presentationSummary"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle5">Recent activity</h4>
+              <div class="stack" id="activityLog"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle6">Data tools</h4>
+              <p data-i18n="sideDesc6">Export the current learning state as JSON, clear the activity list, or rely on focus mode to simplify the demonstration.</p>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+                <button class="btn btn-outline" id="exportBtn" data-i18n="exportBtn">Export progress</button>
+                <button class="btn btn-danger" id="clearLogBtn" data-i18n="clearLogBtn">Clear log</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="contactTitle">Contact and reflection</h2>
+            <p data-i18n="contactDesc">This closing small version focuses on presentation quality, stronger summaries, and pre-major-release readiness rather than introducing a completely separate architecture.</p>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <h3 data-i18n="contactHeading">Leave a version reflection</h3>
+          <p data-i18n="contactBody">Use this space to describe how the platform became more polished and presentation-ready in this version, and what should enter the next major upgrade.</p>
+          <form class="contact-form" onsubmit="event.preventDefault(); alert(state.currentLang === 'zh' ? '已记录版本反思（演示版）' : 'Version reflection recorded (demo)');">
+            <input type="text" data-i18n-placeholder="contactName" placeholder="Your name">
+            <input type="email" data-i18n-placeholder="contactEmail" placeholder="Your email">
+            <textarea data-i18n-placeholder="contactMsg" placeholder="Write your version reflection..."></textarea>
+            <button class="btn btn-primary" type="submit" data-i18n="contactSubmit">Submit</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container" data-i18n="footerText">© 2026 Circle Theorems Learning Hub · V2.5.a.8 · Final small version before major upgrade</div>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = "ct_v258_state";
+
+    const theoremData = {
+      1: {
+        title: { en: "Angle at the centre", zh: "圆心角定理" },
+        tag: { en: "Theorem 1", zh: "定理 1" },
+        desc: {
+          en: "The angle at the centre is twice the angle at the circumference standing on the same arc.",
+          zh: "同弧所对的圆心角等于圆周角的两倍。"
+        },
+        explain: {
+          en: "As the central angle changes, the inscribed angle changes with it and stays exactly half as large.",
+          zh: "当圆心角变化时，对应圆周角也会变化，并始终保持为圆心角的一半。"
+        },
+        quizQuestion: {
+          en: "Which statement matches the current theorem?",
+          zh: "以下哪句话符合当前定理？"
+        },
+        options: {
+          en: [
+            "The central angle is twice the angle at the circumference on the same arc.",
+            "The angle in a semicircle is always 90°.",
+            "Opposite angles in a cyclic quadrilateral total 180°."
+          ],
+          zh: [
+            "同弧所对的圆心角是圆周角的两倍。",
+            "半圆所对的圆周角恒为 90°。",
+            "圆内接四边形的对角和为 180°。"
+          ]
+        },
+        correct: 0
+      },
+      2: {
+        title: { en: "Angle in a semicircle", zh: "半圆中的角" },
+        tag: { en: "Theorem 2", zh: "定理 2" },
+        desc: {
+          en: "The angle subtended by a diameter at the circumference is always 90°.",
+          zh: "直径所对的圆周角恒为 90°。"
+        },
+        explain: {
+          en: "No matter where the point moves on the semicircle, the triangle keeps a right angle at the circumference.",
+          zh: "无论点在半圆上怎样移动，圆周角始终保持直角。"
+        },
+        quizQuestion: {
+          en: "What remains true in this theorem?",
+          zh: "这个定理中始终成立的是什么？"
+        },
+        options: {
+          en: [
+            "Angles on the same arc are equal.",
+            "The angle from a diameter at the circumference is always 90°.",
+            "The central angle is three times the circumference angle."
+          ],
+          zh: [
+            "同弧所对的角总相等。",
+            "直径所对的圆周角始终是 90°。",
+            "圆心角总是圆周角的三倍。"
+          ]
+        },
+        correct: 1
+      },
+      3: {
+        title: { en: "Same segment theorem", zh: "同弧定理" },
+        tag: { en: "Theorem 3", zh: "定理 3" },
+        desc: {
+          en: "Angles subtended by the same arc at the circumference are equal.",
+          zh: "同弧所对的圆周角相等。"
+        },
+        explain: {
+          en: "Two points on the circumference looking at the same chord create equal angles.",
+          zh: "圆周上两个点只要对着同一条弧或弦，就会形成相等的圆周角。"
+        },
+        quizQuestion: {
+          en: "Which option describes this theorem best?",
+          zh: "哪一项最准确描述了这个定理？"
+        },
+        options: {
+          en: [
+            "Angles in the same segment are equal.",
+            "All central angles are 90°.",
+            "A tangent is parallel to the radius."
+          ],
+          zh: [
+            "同弧所对的圆周角相等。",
+            "所有圆心角都等于 90°。",
+            "切线与半径平行。"
+          ]
+        },
+        correct: 0
+      },
+      4: {
+        title: { en: "Cyclic quadrilateral", zh: "圆内接四边形" },
+        tag: { en: "Theorem 4", zh: "定理 4" },
+        desc: {
+          en: "Opposite angles in a cyclic quadrilateral add up to 180°.",
+          zh: "圆内接四边形的对角互补，总和为 180°。"
+        },
+        explain: {
+          en: "If four points lie on a circle, then each pair of opposite angles always sums to 180°.",
+          zh: "如果四个点都在圆上，那么这四边形的任意一对对角之和都等于 180°。"
+        },
+        quizQuestion: {
+          en: "What is always true for a cyclic quadrilateral?",
+          zh: "对于圆内接四边形，哪一项一定成立？"
+        },
+        options: {
+          en: [
+            "All four angles are equal.",
+            "Opposite angles add up to 180°.",
+            "Every side has equal length."
+          ],
+          zh: [
+            "四个角全部相等。",
+            "对角之和等于 180°。",
+            "四条边长度都相等。"
+          ]
+        },
+        correct: 1
+      }
+    };
+
+    const translations = {
+      en: {
+        brand: "Circle Theorems Learning Hub",
+        navHome: "Home",
+        navHighlights: "Highlights",
+        navModules: "Modules",
+        navWorkspace: "Workspace",
+        navContact: "Contact",
+        eyebrow: "📐 Revision 8 • Final Small Version • Major Upgrade Ready",
+        heroTitle: "Turn the adaptive assistant into a <span class='highlight'>presentation-ready platform</span>.",
+        heroDesc: "Revision 8 consolidates the previous platform work into a stronger final small version: focus mode, milestone roadmap, report snapshots, presentation summary, and a cleaner pre-major-release structure.",
+        heroPrimary: "Open Final Workspace",
+        heroSecondary: "See Final Additions",
+        statLearned: "Learned theorems",
+        statCorrect: "Correct checks",
+        statReview: "Review queue",
+        statFavorites: "Favorites",
+        statSnapshots: "Report snapshots",
+        statProgress: "Overall progress",
+        overviewBadge: "Release Preparation Overview",
+        overviewTitle: "One last small version before the major release",
+        overviewDesc: "This version does not try to become the final large version yet. Instead, it consolidates guidance, notes, reporting, and presentation tools into a stronger final small version.",
+        insight1Title: "Focus mode",
+        insight1Desc: "Hide non-essential sections and reduce distractions when demonstrating the core learning workflow.",
+        insight2Title: "Roadmap milestones",
+        insight2Desc: "The platform now explains which milestone stage the learner has already reached.",
+        insight3Title: "Report snapshots",
+        insight3Desc: "Generated reports can now be captured as dated snapshots for presentation and comparison.",
+        insight4Title: "Presentation summary",
+        insight4Desc: "A compact summary turns the current learning state into a more polished showcase layer.",
+        highlightsTitle: "What changed in revision 8",
+        highlightsDesc: "Revision 7 made the platform adaptive. Revision 8 tightens the experience into a more polished, presentation-ready closing small version before a major upgrade.",
+        feature1Title: "Focus mode",
+        feature1Desc: "A focused interface hides outer sections and turns the page into a lean study/demo workspace.",
+        feature2Title: "Milestone roadmap",
+        feature2Desc: "The system now groups progress into clearer stages so the learner can see how close they are to a complete platform experience.",
+        feature3Title: "Report snapshots",
+        feature3Desc: "The generated report can be captured as a timestamped snapshot, which is ideal for presentations and reflection.",
+        feature4Title: "Presentation summary",
+        feature4Desc: "The right-side dashboard now includes a concise platform summary, making the whole prototype easier to present in one glance.",
+        modulesTitle: "Final small-version systems",
+        modulesDesc: "This version is about consolidation: stronger summary, clearer milestones, cleaner focus mode, and report capture, rather than adding a completely new architecture.",
+        module1Tag: "System 1",
+        module1Title: "Focus-oriented presentation flow",
+        module1Desc: "The page can now collapse into a focused demo environment, which makes the core learning workflow easier to showcase.",
+        module1Item1: "Hide extra outer sections",
+        module1Item2: "Reduce interface clutter",
+        module1Item3: "Keep only the core workspace",
+        module2Tag: "System 2",
+        module2Title: "Milestone roadmap",
+        module2Desc: "The platform translates raw progress into stage-based milestones so progress looks more meaningful and explainable.",
+        module2Item1: "Foundation stage",
+        module2Item2: "Guided study stage",
+        module2Item3: "Platform-ready stage",
+        module3Tag: "System 3",
+        module3Title: "Snapshot reporting",
+        module3Desc: "Instead of only exporting data, the platform can now preserve report snapshots that capture learning state over time.",
+        module3Item1: "Timestamped report captures",
+        module3Item2: "Supports comparison and demonstration",
+        module3Item3: "Complements JSON export",
+        module4Tag: "System 4",
+        module4Title: "Pre-major-release summary layer",
+        module4Desc: "This version brings all the previous systems together into a more coherent summary that is easier to explain to others.",
+        module4Item1: "Sharper recommendation",
+        module4Item2: "Cleaner reporting",
+        module4Item3: "Stronger presentation value",
+        workspaceTitle: "Final small-version workspace",
+        workspaceDesc: "This workspace keeps search, learning, review, exam, notes, recommendation, mastery, and reporting — but now presents them in a cleaner, more presentation-ready structure.",
+        searchPlaceholder: "Search theorem...",
+        filterAll: "All",
+        filterLearned: "Learned",
+        filterReview: "Review",
+        filterFavorites: "Favorites",
+        filterFresh: "Fresh",
+        statusCurrent: "Current theorem",
+        completeBtn: "Mark as learned",
+        favoriteBtn: "Favorite",
+        resetBtn: "Reset lab",
+        tabLearn: "Learn",
+        tabReview: "Review",
+        tabExam: "Exam",
+        tabNotes: "Notes",
+        tabReport: "Report",
+        radiusLabel: "Radius",
+        angleLabel: "Angle",
+        scoreLearned: "Learned",
+        scoreCorrect: "Correct",
+        scoreReview: "Review queue",
+        scoreFavorites: "Favorites",
+        scoreProgress: "Completion",
+        quizTitle: "Quick theorem check",
+        reviewTitle: "Targeted review mode",
+        reviewIntro: "This mode pulls from the review queue created by incorrect answers.",
+        reviewNextBtn: "Load next review item",
+        examTitle: "Mixed exam mode",
+        examIntro: "Answer a short mixed set drawn from all theorems to test cumulative understanding.",
+        startExamBtn: "Start exam",
+        resetExamBtn: "Reset exam",
+        notesTitle: "Theorem notes",
+        notesIntro: "Write reminders, mini-explanations, or questions for the currently selected theorem. Notes save automatically.",
+        notesPlaceholder: "Write notes about this theorem...",
+        clearNoteBtn: "Clear note",
+        reportTitle: "Generated platform report",
+        reportIntro: "Capture the current report as a snapshot when you want to preserve the state for a presentation or comparison.",
+        saveSnapshotBtn: "Save snapshot",
+        refreshReportBtn: "Refresh report",
+        sideTitle1: "Recommended next step",
+        sideTitle2: "Milestone roadmap",
+        sideTitle3: "Mastery board",
+        sideTitle4: "Presentation summary",
+        sideTitle5: "Recent activity",
+        sideTitle6: "Data tools",
+        sideDesc6: "Export the current learning state as JSON, clear the activity list, or rely on focus mode to simplify the demonstration.",
+        exportBtn: "Export progress",
+        clearLogBtn: "Clear log",
+        contactTitle: "Contact and reflection",
+        contactDesc: "This closing small version focuses on presentation quality, stronger summaries, and pre-major-release readiness rather than introducing a completely separate architecture.",
+        contactHeading: "Leave a version reflection",
+        contactBody: "Use this space to describe how the platform became more polished and presentation-ready in this version, and what should enter the next major upgrade.",
+        contactSubmit: "Submit",
+        contactName: "Your name",
+        contactEmail: "Your email",
+        contactMsg: "Write your version reflection...",
+        footerText: "© 2026 Circle Theorems Learning Hub · V2.5.a.8 · Final small version before major upgrade"
+      },
+      zh: {
+        brand: "圆定理学习中心",
+        navHome: "首页",
+        navHighlights: "本版亮点",
+        navModules: "最终小版本系统",
+        navWorkspace: "最终小版本工作区",
+        navContact: "联系反馈",
+        eyebrow: "📐 第 8 次修改 • 最终小版本 • 准备进入大版本升级",
+        heroTitle: "把自适应学习助手进一步升级成<span class='highlight'>适合展示的平台收口版</span>。",
+        heroDesc: "第 8 次修改把前面平台化能力进一步整合收口：加入专注模式、里程碑路线图、报告快照、展示摘要，以及更清晰的“大版本前”结构。",
+        heroPrimary: "打开最终工作区",
+        heroSecondary: "查看最终补强内容",
+        statLearned: "已学定理",
+        statCorrect: "答对检测",
+        statReview: "复习队列",
+        statFavorites: "收藏数量",
+        statSnapshots: "报告快照",
+        statProgress: "总体进度",
+        overviewBadge: "升级前总览",
+        overviewTitle: "第二次大版本升级前的最后一个小版本",
+        overviewDesc: "这一版并不直接跳到最终大版本，而是把前面已有的指导、笔记、报告和展示能力整合成一个更强的收口版本。",
+        insight1Title: "专注模式",
+        insight1Desc: "隐藏非核心区块，减少干扰，让展示和学习流程更加集中。",
+        insight2Title: "里程碑路线图",
+        insight2Desc: "平台会把当前进度解释成若干阶段，让学习过程更有层级感。",
+        insight3Title: "报告快照",
+        insight3Desc: "自动报告现在可以保存为带时间标记的快照，方便展示和对比。",
+        insight4Title: "展示摘要",
+        insight4Desc: "一个更紧凑的右侧摘要层，能让平台状态更容易被别人一眼理解。",
+        highlightsTitle: "第 8 次修改新增了什么",
+        highlightsDesc: "第 7 版已经具备自适应与反思能力，而第 8 版的重点是让它更完整、更适合展示，并作为大版本升级前的最终小版本。",
+        feature1Title: "专注模式",
+        feature1Desc: "专注模式会隐藏外围区块，把页面切换成更精简的学习 / 展示工作区。",
+        feature2Title: "里程碑路线图",
+        feature2Desc: "系统会把当前进度归纳成更明确的阶段，让成长过程更容易说明。",
+        feature3Title: "报告快照",
+        feature3Desc: "自动报告可以保存为带时间的快照，适合做展示和反思记录。",
+        feature4Title: "展示摘要",
+        feature4Desc: "右侧面板现在加入更精炼的平台摘要，使整个平台更容易在答辩时说明。",
+        modulesTitle: "最终小版本系统",
+        modulesDesc: "这一版的重点是收口整合：更强的总结、更清晰的里程碑、更干净的专注模式，以及报告留存，而不是彻底换架构。",
+        module1Tag: "系统 1",
+        module1Title: "面向展示的专注流程",
+        module1Desc: "页面现在可以切换成更专注的演示环境，让核心学习流程更容易展示。",
+        module1Item1: "隐藏外层区块",
+        module1Item2: "减少界面干扰",
+        module1Item3: "只保留核心工作区",
+        module2Tag: "系统 2",
+        module2Title: "里程碑路线图",
+        module2Desc: "平台把原始进度翻译成阶段式里程碑，让成长状态更有解释力。",
+        module2Item1: "基础阶段",
+        module2Item2: "引导学习阶段",
+        module2Item3: "平台完成阶段",
+        module3Tag: "系统 3",
+        module3Title: "快照式报告",
+        module3Desc: "平台不再只有数据导出，还能保存特定时刻的报告快照，记录成长过程。",
+        module3Item1: "带时间戳的报告保存",
+        module3Item2: "便于比较与展示",
+        module3Item3: "与 JSON 导出互补",
+        module4Tag: "系统 4",
+        module4Title: "大版本前的总结层",
+        module4Desc: "这一版把之前的各项能力整合成了一个更容易讲清楚、更适合展示的总结层。",
+        module4Item1: "推荐更清楚",
+        module4Item2: "报告更整洁",
+        module4Item3: "展示价值更强",
+        workspaceTitle: "最终小版本工作区",
+        workspaceDesc: "这里保留了搜索、学习、复习、考试、笔记、推荐、掌握度和报告，并将它们组织得更适合展示和总结。",
+        searchPlaceholder: "搜索定理名称……",
+        filterAll: "全部",
+        filterLearned: "已学",
+        filterReview: "待复习",
+        filterFavorites: "已收藏",
+        filterFresh: "未学习",
+        statusCurrent: "当前定理",
+        completeBtn: "标记为已学会",
+        favoriteBtn: "收藏",
+        resetBtn: "重置实验区",
+        tabLearn: "学习",
+        tabReview: "复习",
+        tabExam: "考试",
+        tabNotes: "笔记",
+        tabReport: "报告",
+        radiusLabel: "半径",
+        angleLabel: "角度",
+        scoreLearned: "已学",
+        scoreCorrect: "答对",
+        scoreReview: "复习队列",
+        scoreFavorites: "收藏",
+        scoreProgress: "完成度",
+        quizTitle: "快速检测",
+        reviewTitle: "针对性复习模式",
+        reviewIntro: "该模式会直接从错误形成的复习队列中提取内容。",
+        reviewNextBtn: "载入下一个复习项目",
+        examTitle: "混合考试模式",
+        examIntro: "回答一组跨定理混合题，用来检测综合理解程度。",
+        startExamBtn: "开始考试",
+        resetExamBtn: "重置考试",
+        notesTitle: "定理笔记",
+        notesIntro: "为当前定理写下提醒、理解说明或疑问。笔记会自动保存。",
+        notesPlaceholder: "写下你对这个定理的理解、疑问或提醒……",
+        clearNoteBtn: "清空笔记",
+        reportTitle: "平台生成报告",
+        reportIntro: "当你需要保留当前学习状态用于展示或对比时，可以把报告保存成快照。",
+        saveSnapshotBtn: "保存快照",
+        refreshReportBtn: "刷新报告",
+        sideTitle1: "推荐下一步",
+        sideTitle2: "里程碑路线图",
+        sideTitle3: "掌握度面板",
+        sideTitle4: "展示摘要",
+        sideTitle5: "最近活动",
+        sideTitle6: "数据工具",
+        sideDesc6: "把当前学习状态导出为 JSON，清空活动记录，或者使用专注模式来简化演示。",
+        exportBtn: "导出进度",
+        clearLogBtn: "清空日志",
+        contactTitle: "联系与反思",
+        contactDesc: "这个收口版更强调展示质量、总结能力和大版本升级前的准备度，而不是再引入一套全新架构。",
+        contactHeading: "留下版本反思",
+        contactBody: "可以在这里说明平台在这一版中是如何变得更整洁、更适合展示的，以及哪些内容应进入下一次大版本升级。",
+        contactSubmit: "提交",
+        contactName: "你的姓名",
+        contactEmail: "你的邮箱",
+        contactMsg: "写下你的版本反思……",
+        footerText: "© 2026 圆定理学习中心 · V2.5.a.8 · 第二次大版本升级前的最终小版本"
+      }
+    };
+
+    function deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    const defaultState = {
+      currentLang: "en",
+      darkMode: false,
+      colorblindMode: false,
+      focusMode: false,
+      currentTheorem: 1,
+      radius: 130,
+      angle: 70,
+      learned: [],
+      favorites: [],
+      correctCount: 0,
+      reviewMap: {},
+      theoremCorrectMap: {},
+      notes: {},
+      answeredPairs: [],
+      activityLog: [],
+      visits: 0,
+      exam: { active: false, order: [], index: 0, score: 0 },
+      snapshots: [],
+      exports: 0
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return deepClone(defaultState);
+        const saved = JSON.parse(raw);
+        return {
+          ...deepClone(defaultState),
+          ...saved,
+          exam: { ...deepClone(defaultState).exam, ...(saved.exam || {}) }
+        };
+      } catch {
+        return deepClone(defaultState);
+      }
+    }
+
+    const state = loadState();
+    state.visits += 1;
+
+    const canvas = document.getElementById("geometryCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function t(key) {
+      return translations[state.currentLang][key] || key;
+    }
+
+    function logActivity(type, en, zh) {
+      state.activityLog.unshift({
+        id: Date.now() + Math.random(),
+        type,
+        message: { en, zh },
+        time: new Date().toLocaleString(state.currentLang === "zh" ? "zh-CN" : "en-GB")
+      });
+      state.activityLog = state.activityLog.slice(0, 10);
+      renderActivityLog();
+      saveState();
+    }
+
+    function applyMode() {
+      document.body.classList.toggle("dark-mode", state.darkMode);
+      document.body.classList.toggle("colorblind-mode", state.colorblindMode);
+      document.body.classList.toggle("focus-mode", state.focusMode);
+
+      document.getElementById("themeBtn").textContent = state.currentLang === "zh"
+        ? (state.darkMode ? "☀️ 亮色" : "🌙 暗夜")
+        : (state.darkMode ? "☀️ Light" : "🌙 Dark");
+      document.getElementById("cbBtn").textContent = state.currentLang === "zh" ? "👁 色盲模式" : "👁 Colorblind";
+      document.getElementById("focusBtn").textContent = state.currentLang === "zh"
+        ? (state.focusMode ? "🎯 退出专注" : "🎯 专注")
+        : (state.focusMode ? "🎯 Exit Focus" : "🎯 Focus");
+    }
+
+    function getMastery(theoremId) {
+      let score = 10;
+      if (state.learned.includes(theoremId)) score += 35;
+      if (state.favorites.includes(theoremId)) score += 10;
+      score += Math.min((state.theoremCorrectMap[theoremId] || 0) * 15, 30);
+      score -= Math.min((state.reviewMap[theoremId]?.mistakes || 0) * 10, 30);
+      if ((state.notes[theoremId] || "").trim()) score += 10;
+      return Math.max(0, Math.min(100, score));
+    }
+
+    function getProgressPercent() {
+      const theoremPart = state.learned.length / 4;
+      const quizPart = Math.min(state.correctCount, 8) / 8;
+      const notePart = Math.min(Object.keys(state.notes).filter(k => state.notes[k].trim()).length, 4) / 4;
+      const snapshotPart = Math.min(state.snapshots.length, 3) / 3;
+      const reviewPenalty = Math.min(Object.keys(state.reviewMap).length, 4) / 4;
+      return Math.max(0, Math.round((theoremPart * 0.30 + quizPart * 0.25 + notePart * 0.15 + snapshotPart * 0.10 + (1 - reviewPenalty) * 0.20) * 100));
+    }
+
+    function getRecommendation() {
+      const reviewIds = Object.keys(state.reviewMap).map(Number);
+      if (reviewIds.length) {
+        const id = reviewIds.sort((a,b) => (state.reviewMap[b].mistakes || 0) - (state.reviewMap[a].mistakes || 0))[0];
+        return {
+          theoremId: id,
+          reasonEn: "This theorem currently has the strongest review pressure because it collected the most unresolved mistakes.",
+          reasonZh: "这个定理当前复习压力最高，因为它累计了最多尚未解决的错误记录。"
+        };
+      }
+
+      const fresh = [1,2,3,4].find(id => !state.learned.includes(id));
+      if (fresh) {
+        return {
+          theoremId: fresh,
+          reasonEn: "This theorem is still unfinished, so completing it will improve overall platform progress most efficiently.",
+          reasonZh: "这个定理还没有完成，因此优先完成它能更有效地提升整体平台进度。"
+        };
+      }
+
+      const weak = [1,2,3,4].map(id => ({ id, score: getMastery(id) })).sort((a,b) => a.score - b.score)[0];
+      return {
+        theoremId: weak.id,
+        reasonEn: "All theorem modules are complete, so the system now recommends reinforcing your current weakest area.",
+        reasonZh: "核心定理都已完成，因此系统建议优先强化当前最薄弱的内容。"
+      };
+    }
+
+    function getMilestones() {
+      return [
+        {
+          done: state.learned.length >= 1,
+          en: "Foundation stage: at least one theorem learned",
+          zh: "基础阶段：至少完成一个定理"
+        },
+        {
+          done: state.correctCount >= 3,
+          en: "Guided study stage: at least three checks passed",
+          zh: "引导学习阶段：至少通过三次检测"
+        },
+        {
+          done: Object.keys(state.notes).filter(k => state.notes[k].trim()).length >= 1,
+          en: "Reflection stage: notes added to the platform",
+          zh: "反思阶段：已经在平台中加入笔记"
+        },
+        {
+          done: state.snapshots.length >= 1,
+          en: "Presentation stage: at least one report snapshot captured",
+          zh: "展示阶段：至少保存一次报告快照"
+        },
+        {
+          done: getProgressPercent() >= 80,
+          en: "Pre-major-release stage: platform is nearly ready for a large upgrade",
+          zh: "大版本前阶段：平台已接近进入大版本升级"
+        }
+      ];
+    }
+
+    function generateReport() {
+      const recommendation = getRecommendation();
+      const strongest = [1,2,3,4].map(id => ({ id, score: getMastery(id) })).sort((a,b) => b.score - a.score)[0];
+      const weakest = [1,2,3,4].map(id => ({ id, score: getMastery(id) })).sort((a,b) => a.score - b.score)[0];
+      const noteCount = Object.keys(state.notes).filter(k => state.notes[k].trim()).length;
+      const reviewCount = Object.keys(state.reviewMap).length;
+
+      if (state.currentLang === "zh") {
+        return `
+<strong>当前平台摘要</strong><br>
+已学定理：${state.learned.length} / 4；答对检测：${state.correctCount}；待复习项目：${reviewCount}；收藏定理：${state.favorites.length}；笔记数量：${noteCount}；报告快照：${state.snapshots.length}。<br><br>
+<strong>当前最强项</strong><br>
+${theoremData[strongest.id].title.zh}（掌握度 ${strongest.score}%）。<br><br>
+<strong>当前最弱项</strong><br>
+${theoremData[weakest.id].title.zh}（掌握度 ${weakest.score}%）。<br><br>
+<strong>建议下一步</strong><br>
+优先进入 ${theoremData[recommendation.theoremId].title.zh}。${recommendation.reasonZh}
+        `.trim();
+      }
+
+      return `
+<strong>Current platform summary</strong><br>
+Learned theorems: ${state.learned.length} / 4; correct checks: ${state.correctCount}; review items: ${reviewCount}; favorites: ${state.favorites.length}; notes: ${noteCount}; report snapshots: ${state.snapshots.length}.<br><br>
+<strong>Current strongest area</strong><br>
+${theoremData[strongest.id].title.en} (mastery ${strongest.score}%).<br><br>
+<strong>Current weakest area</strong><br>
+${theoremData[weakest.id].title.en} (mastery ${weakest.score}%).<br><br>
+<strong>Suggested next step</strong><br>
+Prioritise ${theoremData[recommendation.theoremId].title.en}. ${recommendation.reasonEn}
+      `.trim();
+    }
+
+    function renderPresentationSummary() {
+      const box = document.getElementById("presentationSummary");
+      const milestoneDone = getMilestones().filter(m => m.done).length;
+      if (state.currentLang === "zh") {
+        box.innerHTML = `
+          <strong>展示摘要</strong><br>
+          当前完成度 ${getProgressPercent()}%，已达成里程碑 ${milestoneDone} / ${getMilestones().length}，并保存了 ${state.snapshots.length} 个报告快照。<br><br>
+          这说明平台已经从内容展示页，逐步演进为一个能学习、能复习、能分析、还能做展示总结的完整小版本。
+        `;
+      } else {
+        box.innerHTML = `
+          <strong>Presentation summary</strong><br>
+          Current completion is ${getProgressPercent()}%, with ${milestoneDone} / ${getMilestones().length} milestones achieved and ${state.snapshots.length} report snapshots saved.<br><br>
+          This indicates the platform has moved from a content page toward a final small version that can teach, review, analyse, and present.
+        `;
+      }
+    }
+
+    function updateStats() {
+      const reviewCount = Object.keys(state.reviewMap).length;
+      const progress = getProgressPercent();
+
+      document.getElementById("statLearned").textContent = state.learned.length;
+      document.getElementById("statCorrect").textContent = state.correctCount;
+      document.getElementById("statReview").textContent = reviewCount;
+      document.getElementById("statFavorites").textContent = state.favorites.length;
+      document.getElementById("statSnapshots").textContent = state.snapshots.length;
+      document.getElementById("statProgress").textContent = progress + "%";
+
+      document.getElementById("scoreLearned").textContent = state.learned.length;
+      document.getElementById("scoreCorrect").textContent = state.correctCount;
+      document.getElementById("scoreReview").textContent = reviewCount;
+      document.getElementById("scoreFavorites").textContent = state.favorites.length;
+      document.getElementById("scoreProgress").textContent = progress + "%";
+
+      document.getElementById("progressFill").style.width = progress + "%";
+      document.getElementById("reviewCountChip").textContent = state.currentLang === "zh" ? `待复习 ${reviewCount}` : `${reviewCount} review`;
+      document.getElementById("snapshotCountChip").textContent = state.currentLang === "zh"
+        ? `快照 ${state.snapshots.length}`
+        : `${state.snapshots.length} snapshots`;
+
+      const rec = getRecommendation();
+      document.getElementById("recommendChip").textContent = state.currentLang === "zh"
+        ? `建议：${theoremData[rec.theoremId].tag.zh}`
+        : `Next: ${theoremData[rec.theoremId].tag.en}`;
+
+      renderRecommendation();
+      renderMilestones();
+      renderMasteryBoard();
+      renderReport();
+      renderPresentationSummary();
+      renderSnapshots();
+      saveState();
+    }
+
+    function applyTranslations() {
+      document.documentElement.lang = state.currentLang === "zh" ? "zh-CN" : "en";
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (translations[state.currentLang][key]) {
+          el.innerHTML = translations[state.currentLang][key];
+        }
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        if (translations[state.currentLang][key]) {
+          el.placeholder = translations[state.currentLang][key];
+        }
+      });
+
+      document.getElementById("langBtn").textContent = state.currentLang === "zh" ? "EN" : "中文";
+      applyMode();
+      renderTheoremList();
+      renderCurrentTheorem();
+      renderLearnQuiz();
+      renderReviewQueue();
+      renderActivityLog();
+      renderRecommendation();
+      renderMilestones();
+      renderMasteryBoard();
+      renderReport();
+      renderPresentationSummary();
+      renderSnapshots();
+      renderExamState();
+      updateStats();
+      saveState();
+    }
+
+    function renderTheoremList() {
+      const list = document.getElementById("theoremList");
+      const searchValue = document.getElementById("searchInput").value.trim().toLowerCase();
+      const filterValue = document.getElementById("filterSelect").value;
+      list.innerHTML = "";
+
+      Object.entries(theoremData).forEach(([id, item]) => {
+        const numId = Number(id);
+        const title = item.title[state.currentLang];
+        const desc = item.desc[state.currentLang];
+        const learned = state.learned.includes(numId);
+        const inReview = Boolean(state.reviewMap[numId]);
+        const favorited = state.favorites.includes(numId);
+
+        const searchHit = !searchValue || title.toLowerCase().includes(searchValue) || desc.toLowerCase().includes(searchValue);
+
+        let filterHit = true;
+        if (filterValue === "learned") filterHit = learned;
+        if (filterValue === "review") filterHit = inReview;
+        if (filterValue === "favorites") filterHit = favorited;
+        if (filterValue === "fresh") filterHit = !learned;
+
+        if (!searchHit || !filterHit) return;
+
+        const mastery = getMastery(numId);
+
+        const card = document.createElement("article");
+        card.className = "theorem-card";
+        if (state.currentTheorem === numId) card.classList.add("active");
+        if (learned) card.classList.add("completed");
+
+        const statusClass = learned ? "status-learned" : inReview ? "status-review" : favorited ? "status-favorite" : "status-neutral";
+        const statusText = learned
+          ? (state.currentLang === "zh" ? "已学会" : "Learned")
+          : inReview
+            ? (state.currentLang === "zh" ? "待复习" : "Review")
+            : favorited
+              ? (state.currentLang === "zh" ? "已收藏" : "Favorite")
+              : (state.currentLang === "zh" ? "未学习" : "Fresh");
+
+        card.innerHTML = `
+          <span class="tag">${item.tag[state.currentLang]}</span>
+          <h3>${title}</h3>
+          <p>${desc}</p>
+          <div class="status-row">
+            <span class="status-chip ${statusClass}">${statusText}</span>
+            <span class="status-chip status-neutral">${state.currentLang === "zh" ? `掌握度 ${mastery}%` : `Mastery ${mastery}%`}</span>
+          </div>
+          <div class="status-row">
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="favorite-btn" data-fav="${numId}">${favorited ? "★" : "☆"}</button>
+              <button class="btn btn-outline" data-open="${numId}">${state.currentLang === "zh" ? "打开" : "Open"}</button>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener("click", (e) => {
+          if (e.target.closest("button")) return;
+          loadTheorem(numId);
+        });
+
+        card.querySelector("[data-open]").addEventListener("click", (e) => {
+          e.stopPropagation();
+          loadTheorem(numId);
+        });
+
+        card.querySelector("[data-fav]").addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleFavorite(numId);
+        });
+
+        list.appendChild(card);
+      });
+
+      if (!list.children.length) {
+        const empty = document.createElement("div");
+        empty.className = "activity-item";
+        empty.textContent = state.currentLang === "zh" ? "没有找到符合条件的定理。" : "No theorem matches the current search.";
+        list.appendChild(empty);
+      }
+    }
+
+    function renderCurrentTheorem() {
+      const item = theoremData[state.currentTheorem];
+      document.getElementById("currentTheoremTag").textContent = item.tag[state.currentLang];
+      document.getElementById("currentTheoremTitle").textContent = item.title[state.currentLang];
+      document.getElementById("currentTheoremDesc").textContent = item.desc[state.currentLang];
+      document.getElementById("currentTheoremExplain").textContent = item.explain[state.currentLang];
+      document.getElementById("favoriteCurrentBtn").textContent = state.currentLang === "zh"
+        ? (state.favorites.includes(state.currentTheorem) ? "取消收藏" : "收藏")
+        : (state.favorites.includes(state.currentTheorem) ? "Unfavorite" : "Favorite");
+
+      const note = state.notes[state.currentTheorem] || "";
+      document.getElementById("notesBox").value = note;
+      document.getElementById("notesSavedChip").textContent = state.currentLang === "zh"
+        ? `已保存 ${note.length} 字`
+        : `${note.length} chars saved`;
+
+      const chip = document.getElementById("currentStatusChip");
+      if (state.learned.includes(state.currentTheorem)) {
+        chip.className = "status-chip status-learned";
+        chip.textContent = state.currentLang === "zh" ? "当前定理 · 已学会" : "Current theorem · Learned";
+      } else if (state.reviewMap[state.currentTheorem]) {
+        chip.className = "status-chip status-review";
+        chip.textContent = state.currentLang === "zh" ? "当前定理 · 待复习" : "Current theorem · Review";
+      } else {
+        chip.className = "status-chip status-neutral";
+        chip.textContent = state.currentLang === "zh" ? "当前定理 · 新内容" : "Current theorem · Fresh";
+      }
+
+      drawGeometry();
+    }
+
+    function loadTheorem(theoremId) {
+      state.currentTheorem = theoremId;
+      renderTheoremList();
+      renderCurrentTheorem();
+      renderLearnQuiz();
+      updateStats();
+      document.getElementById("workspace").scrollIntoView({ behavior: "smooth", block: "start" });
+      logActivity("open", `Opened theorem ${theoremId}`, `打开了定理 ${theoremId}`);
+    }
+
+    function toggleFavorite(theoremId) {
+      if (state.favorites.includes(theoremId)) {
+        state.favorites = state.favorites.filter(id => id !== theoremId);
+        logActivity("favorite", `Removed theorem ${theoremId} from favorites`, `已取消收藏定理 ${theoremId}`);
+      } else {
+        state.favorites.push(theoremId);
+        logActivity("favorite", `Added theorem ${theoremId} to favorites`, `已收藏定理 ${theoremId}`);
+      }
+      renderTheoremList();
+      renderCurrentTheorem();
+      updateStats();
+    }
+
+    function markCurrentLearned() {
+      if (!state.learned.includes(state.currentTheorem)) {
+        state.learned.push(state.currentTheorem);
+        logActivity("learned", `Marked theorem ${state.currentTheorem} as learned`, `已将定理 ${state.currentTheorem} 标记为学会`);
+      }
+      renderTheoremList();
+      renderCurrentTheorem();
+      updateStats();
+    }
+
+    function renderLearnQuiz() {
+      const item = theoremData[state.currentTheorem];
+      document.getElementById("quizQuestion").textContent = item.quizQuestion[state.currentLang];
+      const optionsEl = document.getElementById("quizOptions");
+      const feedbackEl = document.getElementById("quizFeedback");
+      optionsEl.innerHTML = "";
+      feedbackEl.className = "feedback";
+      feedbackEl.textContent = "";
+
+      item.options[state.currentLang].forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleLearnAnswer(idx));
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function handleLearnAnswer(selectedIndex) {
+      const item = theoremData[state.currentTheorem];
+      const pairKey = `learn_${state.currentLang}_${state.currentTheorem}`;
+      const feedbackEl = document.getElementById("quizFeedback");
+
+      if (selectedIndex === item.correct) {
+        if (!state.answeredPairs.includes(pairKey)) {
+          state.correctCount += 1;
+          state.answeredPairs.push(pairKey);
+        }
+        state.theoremCorrectMap[state.currentTheorem] = (state.theoremCorrectMap[state.currentTheorem] || 0) + 1;
+        delete state.reviewMap[state.currentTheorem];
+        feedbackEl.className = "feedback success show";
+        feedbackEl.textContent = state.currentLang === "zh"
+          ? "回答正确：当前定理检测通过。"
+          : "Correct: the current theorem check has been passed.";
+        logActivity("correct", `Passed quick check for theorem ${state.currentTheorem}`, `通过了定理 ${state.currentTheorem} 的快速检测`);
+      } else {
+        state.reviewMap[state.currentTheorem] = {
+          theoremId: state.currentTheorem,
+          mistakes: (state.reviewMap[state.currentTheorem]?.mistakes || 0) + 1
+        };
+        feedbackEl.className = "feedback error show";
+        feedbackEl.textContent = state.currentLang === "zh"
+          ? "回答错误：当前定理已加入复习队列。"
+          : "Incorrect: the current theorem has been added to the review queue.";
+        logActivity("wrong", `Added theorem ${state.currentTheorem} to review`, `已将定理 ${state.currentTheorem} 加入复习队列`);
+      }
+
+      renderTheoremList();
+      renderCurrentTheorem();
+      updateStats();
+    }
+
+    function renderReviewQueue() {
+      const reviewItems = Object.values(state.reviewMap);
+      document.getElementById("reviewStatusChip").textContent = state.currentLang === "zh"
+        ? `待复习 ${reviewItems.length}`
+        : `${reviewItems.length} review`;
+    }
+
+    function loadNextReview() {
+      const reviewItems = Object.values(state.reviewMap);
+      const questionEl = document.getElementById("reviewQuestion");
+      const optionsEl = document.getElementById("reviewOptions");
+      const feedbackEl = document.getElementById("reviewFeedback");
+
+      optionsEl.innerHTML = "";
+      feedbackEl.className = "feedback";
+      feedbackEl.textContent = "";
+
+      if (!reviewItems.length) {
+        questionEl.textContent = state.currentLang === "zh" ? "当前没有需要复习的项目。" : "There are no review items right now.";
+        return;
+      }
+
+      const entry = reviewItems.sort((a,b) => b.mistakes - a.mistakes)[0];
+      const theorem = theoremData[entry.theoremId];
+      questionEl.textContent = theorem.quizQuestion[state.currentLang];
+
+      theorem.options[state.currentLang].forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => {
+          if (idx === theorem.correct) {
+            delete state.reviewMap[entry.theoremId];
+            state.correctCount += 1;
+            state.theoremCorrectMap[entry.theoremId] = (state.theoremCorrectMap[entry.theoremId] || 0) + 1;
+            feedbackEl.className = "feedback success show";
+            feedbackEl.textContent = state.currentLang === "zh"
+              ? "复习正确：该项目已从复习队列中移除。"
+              : "Review correct: this item has been removed from the review queue.";
+            logActivity("review", `Cleared review item for theorem ${entry.theoremId}`, `已完成定理 ${entry.theoremId} 的复习`);
+          } else {
+            state.reviewMap[entry.theoremId].mistakes += 1;
+            feedbackEl.className = "feedback error show";
+            feedbackEl.textContent = state.currentLang === "zh"
+              ? "复习仍然错误：该项目继续保留在复习队列中。"
+              : "Still incorrect: this item remains in the review queue.";
+            logActivity("review_fail", `Review failed for theorem ${entry.theoremId}`, `定理 ${entry.theoremId} 的复习仍未通过`);
+          }
+          renderTheoremList();
+          renderCurrentTheorem();
+          renderReviewQueue();
+          updateStats();
+        });
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function startExam() {
+      state.exam = {
+        active: true,
+        order: shuffle([1,2,3,4,1]).slice(0,5),
+        index: 0,
+        score: 0
+      };
+      renderExamState();
+      logActivity("exam", "Started mixed exam mode", "已开始混合考试模式");
+    }
+
+    function resetExam() {
+      state.exam = { active: false, order: [], index: 0, score: 0 };
+      renderExamState();
+    }
+
+    function renderExamState() {
+      const chip = document.getElementById("examProgressChip");
+      const questionEl = document.getElementById("examQuestion");
+      const optionsEl = document.getElementById("examOptions");
+      const feedbackEl = document.getElementById("examFeedback");
+      optionsEl.innerHTML = "";
+      feedbackEl.className = "feedback";
+      feedbackEl.textContent = "";
+
+      if (!state.exam.active) {
+        chip.textContent = "0 / 5";
+        questionEl.textContent = state.currentLang === "zh"
+          ? "点击“开始考试”进入 5 题混合测试。"
+          : "Press “Start exam” to begin a 5-question mixed test.";
+        return;
+      }
+
+      chip.textContent = `${state.exam.index} / ${state.exam.order.length} · ${state.currentLang === "zh" ? "得分" : "Score"} ${state.exam.score}`;
+
+      if (state.exam.index >= state.exam.order.length) {
+        questionEl.textContent = state.currentLang === "zh"
+          ? `考试完成：总分 ${state.exam.score} / ${state.exam.order.length}`
+          : `Exam complete: score ${state.exam.score} / ${state.exam.order.length}`;
+        return;
+      }
+
+      const theoremId = state.exam.order[state.exam.index];
+      const theorem = theoremData[theoremId];
+      questionEl.textContent = `[${theorem.tag[state.currentLang]}] ${theorem.quizQuestion[state.currentLang]}`;
+
+      theorem.options[state.currentLang].forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => {
+          if (idx === theorem.correct) {
+            state.exam.score += 1;
+            state.correctCount += 1;
+            state.theoremCorrectMap[theoremId] = (state.theoremCorrectMap[theoremId] || 0) + 1;
+            feedbackEl.className = "feedback success show";
+            feedbackEl.textContent = state.currentLang === "zh" ? "本题回答正确。" : "Correct answer.";
+          } else {
+            state.reviewMap[theoremId] = {
+              theoremId,
+              mistakes: (state.reviewMap[theoremId]?.mistakes || 0) + 1
+            };
+            feedbackEl.className = "feedback error show";
+            feedbackEl.textContent = state.currentLang === "zh" ? "本题回答错误，已加入复习队列。" : "Incorrect answer, added to review queue.";
+          }
+          state.exam.index += 1;
+          renderTheoremList();
+          renderReviewQueue();
+          updateStats();
+          setTimeout(renderExamState, 450);
+        });
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function renderActivityLog() {
+      const wrap = document.getElementById("activityLog");
+      wrap.innerHTML = "";
+
+      if (!state.activityLog.length) {
+        const empty = document.createElement("div");
+        empty.className = "activity-item";
+        empty.textContent = state.currentLang === "zh" ? "还没有活动记录。" : "No recent activity yet.";
+        wrap.appendChild(empty);
+        return;
+      }
+
+      state.activityLog.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "activity-item";
+        div.innerHTML = `<strong>${item.message[state.currentLang]}</strong><span class="activity-meta">${item.time}</span>`;
+        wrap.appendChild(div);
+      });
+    }
+
+    function renderRecommendation() {
+      const rec = getRecommendation();
+      document.getElementById("recommendationBox").innerHTML = state.currentLang === "zh"
+        ? `<strong>建议优先学习：${theoremData[rec.theoremId].title.zh}</strong><br>${rec.reasonZh}`
+        : `<strong>Recommended next: ${theoremData[rec.theoremId].title.en}</strong><br>${rec.reasonEn}`;
+    }
+
+    function renderMilestones() {
+      const wrap = document.getElementById("milestoneList");
+      wrap.innerHTML = "";
+      getMilestones().forEach(item => {
+        const div = document.createElement("div");
+        div.className = "plan-item";
+        div.innerHTML = `<strong>${item.done ? "✔" : "○"} ${item[state.currentLang]}</strong>`;
+        wrap.appendChild(div);
+      });
+    }
+
+    function renderMasteryBoard() {
+      const wrap = document.getElementById("masteryBoard");
+      wrap.innerHTML = "";
+      [1,2,3,4].forEach(id => {
+        const score = getMastery(id);
+        const div = document.createElement("div");
+        div.className = "mastery-item";
+        div.innerHTML = `
+          <div class="mastery-top">
+            <strong>${theoremData[id].tag[state.currentLang]} · ${theoremData[id].title[state.currentLang]}</strong>
+            <span>${score}%</span>
+          </div>
+          <div class="mastery-bar"><div class="mastery-fill" style="width:${score}%"></div></div>
+        `;
+        wrap.appendChild(div);
+      });
+    }
+
+    function renderReport() {
+      document.getElementById("reportBox").innerHTML = generateReport();
+    }
+
+    function renderSnapshots() {
+      const wrap = document.getElementById("snapshotBoard");
+      wrap.innerHTML = "";
+
+      if (!state.snapshots.length) {
+        const empty = document.createElement("div");
+        empty.className = "snapshot-item";
+        empty.textContent = state.currentLang === "zh" ? "还没有保存过报告快照。" : "No report snapshot saved yet.";
+        wrap.appendChild(empty);
+        return;
+      }
+
+      state.snapshots.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "snapshot-item";
+        div.innerHTML = `<strong>${item.label}</strong><span class="activity-meta">${item.time}</span>`;
+        wrap.appendChild(div);
+      });
+    }
+
+    function handleNoteInput() {
+      state.notes[state.currentTheorem] = document.getElementById("notesBox").value;
+      document.getElementById("notesSavedChip").textContent = state.currentLang === "zh"
+        ? `已保存 ${state.notes[state.currentTheorem].length} 字`
+        : `${state.notes[state.currentTheorem].length} chars saved`;
+      updateStats();
+    }
+
+    function clearCurrentNote() {
+      state.notes[state.currentTheorem] = "";
+      document.getElementById("notesBox").value = "";
+      document.getElementById("notesSavedChip").textContent = state.currentLang === "zh" ? "已保存 0 字" : "0 chars saved";
+      logActivity("note", `Cleared notes for theorem ${state.currentTheorem}`, `已清空定理 ${state.currentTheorem} 的笔记`);
+      updateStats();
+    }
+
+    function saveSnapshot() {
+      const label = state.currentLang === "zh"
+        ? `快照 ${state.snapshots.length + 1} · 完成度 ${getProgressPercent()}%`
+        : `Snapshot ${state.snapshots.length + 1} · ${getProgressPercent()}% complete`;
+
+      state.snapshots.unshift({
+        id: Date.now() + Math.random(),
+        label,
+        time: new Date().toLocaleString(state.currentLang === "zh" ? "zh-CN" : "en-GB"),
+        report: generateReport()
+      });
+      state.snapshots = state.snapshots.slice(0, 6);
+      logActivity("snapshot", "Saved a report snapshot", "已保存一次报告快照");
+      updateStats();
+      renderSnapshots();
+    }
+
+    function exportProgress() {
+      const payload = {
+        version: "v2.5.a.8",
+        exportedAt: new Date().toISOString(),
+        learned: state.learned,
+        favorites: state.favorites,
+        reviewMap: state.reviewMap,
+        notes: state.notes,
+        theoremCorrectMap: state.theoremCorrectMap,
+        correctCount: state.correctCount,
+        progress: getProgressPercent(),
+        milestones: getMilestones(),
+        recommendation: getRecommendation(),
+        snapshots: state.snapshots,
+        report: generateReport().replace(/<br>/g, "\n").replace(/<strong>|<\/strong>/g, ""),
+        activityLog: state.activityLog
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "circle_theorems_progress_v2.5.a.8.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      state.exports += 1;
+      logActivity("export", "Exported final small-version progress", "已导出最终小版本进度");
+      updateStats();
+    }
+
+    function clearLog() {
+      state.activityLog = [];
+      renderActivityLog();
+      saveState();
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === tabName);
+      });
+      document.querySelectorAll(".tab-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === `tab-${tabName}`);
+      });
+      if (tabName === "review") loadNextReview();
+      if (tabName === "exam") renderExamState();
+      if (tabName === "notes") renderCurrentTheorem();
+      if (tabName === "report") {
+        renderReport();
+        renderSnapshots();
+      }
+    }
+
+    function drawGeometry() {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = state.radius;
+      const angleDeg = state.angle;
+      const theta = angleDeg * Math.PI / 180;
+
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#2563eb';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (state.currentTheorem === 1) {
+        const A = { x: cx + r, y: cy };
+        const B = { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
+        const C = { x: cx + r * Math.cos(theta / 2 + Math.PI), y: cy + r * Math.sin(theta / 2 + Math.PI) };
+        drawLine(cx, cy, A.x, A.y, "#2563eb", 3);
+        drawLine(cx, cy, B.x, B.y, "#2563eb", 3);
+        drawLine(C.x, C.y, A.x, A.y, "#7c3aed", 3);
+        drawLine(C.x, C.y, B.x, B.y, "#7c3aed", 3);
+        drawPoint(A.x, A.y, "A");
+        drawPoint(B.x, B.y, "B");
+        drawPoint(C.x, C.y, "C");
+        drawPoint(cx, cy, "O");
+        drawText((state.currentLang === "zh" ? "圆心角: " : "Central angle: ") + angleDeg + "°", cx + 24, cy - 18);
+        drawText((state.currentLang === "zh" ? "圆周角: " : "Inscribed angle: ") + Math.round(angleDeg / 2) + "°", C.x + 18, C.y - 8);
+      } else if (state.currentTheorem === 2) {
+        const A = { x: cx - r, y: cy };
+        const B = { x: cx + r, y: cy };
+        const C = { x: cx + r * Math.cos(theta), y: cy - r * Math.sin(theta) };
+        drawLine(A.x, A.y, B.x, B.y, "#2563eb", 3);
+        drawLine(A.x, A.y, C.x, C.y, "#7c3aed", 3);
+        drawLine(B.x, B.y, C.x, C.y, "#7c3aed", 3);
+        drawPoint(A.x, A.y, "A");
+        drawPoint(B.x, B.y, "B");
+        drawPoint(C.x, C.y, "C");
+        drawPoint(cx, cy, "O");
+        drawText("∠ACB = 90°", C.x + 18, C.y - 8);
+      } else if (state.currentTheorem === 3) {
+        const A = { x: cx + r * Math.cos(Math.PI * 0.15), y: cy - r * Math.sin(Math.PI * 0.15) };
+        const B = { x: cx - r * Math.cos(Math.PI * 0.15), y: cy - r * Math.sin(Math.PI * 0.15) };
+        const C = { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
+        const D = { x: cx + r * Math.cos(theta + 0.8), y: cy + r * Math.sin(theta + 0.8) };
+        drawLine(C.x, C.y, A.x, A.y, "#7c3aed", 3);
+        drawLine(C.x, C.y, B.x, B.y, "#7c3aed", 3);
+        drawLine(D.x, D.y, A.x, A.y, "#0ea5e9", 3);
+        drawLine(D.x, D.y, B.x, B.y, "#0ea5e9", 3);
+        drawPoint(A.x, A.y, "A");
+        drawPoint(B.x, B.y, "B");
+        drawPoint(C.x, C.y, "C");
+        drawPoint(D.x, D.y, "D");
+        drawText(state.currentLang === "zh" ? "同弧所对角相等" : "Angles in same segment are equal", cx - 100, cy + r + 26);
+      } else {
+        const P1 = getCirclePoint(cx, cy, r, -30);
+        const P2 = getCirclePoint(cx, cy, r, 50);
+        const P3 = getCirclePoint(cx, cy, r, 140);
+        const P4 = getCirclePoint(cx, cy, r, 225);
+        drawPolygon([P1, P2, P3, P4], "#7c3aed", 3);
+        drawPoint(P1.x, P1.y, "A");
+        drawPoint(P2.x, P2.y, "B");
+        drawPoint(P3.x, P3.y, "C");
+        drawPoint(P4.x, P4.y, "D");
+        drawText(state.currentLang === "zh" ? "对角和 = 180°" : "Opposite angles = 180°", cx - 80, cy + r + 26);
+      }
+    }
+
+    function getCirclePoint(cx, cy, r, deg) {
+      const rad = deg * Math.PI / 180;
+      return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+    }
+
+    function drawLine(x1, y1, x2, y2, color, width) {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function drawPolygon(points, color, width) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+      ctx.closePath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function drawPoint(x, y, label) {
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "#2563eb";
+      ctx.fill();
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text').trim() || "#16324f";
+      ctx.font = "bold 14px Arial";
+      ctx.fillText(label, x + 8, y - 8);
+    }
+
+    function drawText(text, x, y) {
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text').trim() || "#16324f";
+      ctx.font = "14px Arial";
+      ctx.fillText(text, x, y);
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    document.getElementById("langBtn").addEventListener("click", () => {
+      state.currentLang = state.currentLang === "en" ? "zh" : "en";
+      applyTranslations();
+    });
+
+    document.getElementById("themeBtn").addEventListener("click", () => {
+      state.darkMode = !state.darkMode;
+      applyMode();
+      drawGeometry();
+      saveState();
+    });
+
+    document.getElementById("cbBtn").addEventListener("click", () => {
+      state.colorblindMode = !state.colorblindMode;
+      applyMode();
+      drawGeometry();
+      saveState();
+    });
+
+    document.getElementById("focusBtn").addEventListener("click", () => {
+      state.focusMode = !state.focusMode;
+      applyMode();
+      saveState();
+      logActivity("focus", state.focusMode ? "Entered focus mode" : "Exited focus mode", state.focusMode ? "已进入专注模式" : "已退出专注模式");
+    });
+
+    document.getElementById("searchInput").addEventListener("input", renderTheoremList);
+    document.getElementById("filterSelect").addEventListener("change", renderTheoremList);
+
+    document.getElementById("markCompleteBtn").addEventListener("click", markCurrentLearned);
+    document.getElementById("favoriteCurrentBtn").addEventListener("click", () => toggleFavorite(state.currentTheorem));
+    document.getElementById("resetCanvasBtn").addEventListener("click", () => {
+      state.radius = 130;
+      state.angle = 70;
+      document.getElementById("radiusRange").value = state.radius;
+      document.getElementById("angleRange").value = state.angle;
+      drawGeometry();
+    });
+
+    document.getElementById("radiusRange").addEventListener("input", (e) => {
+      state.radius = Number(e.target.value);
+      drawGeometry();
+    });
+
+    document.getElementById("angleRange").addEventListener("input", (e) => {
+      state.angle = Number(e.target.value);
+      drawGeometry();
+    });
+
+    document.getElementById("loadNextReviewBtn").addEventListener("click", loadNextReview);
+    document.getElementById("startExamBtn").addEventListener("click", startExam);
+    document.getElementById("resetExamBtn").addEventListener("click", resetExam);
+    document.getElementById("notesBox").addEventListener("input", handleNoteInput);
+    document.getElementById("clearNoteBtn").addEventListener("click", clearCurrentNote);
+    document.getElementById("saveSnapshotBtn").addEventListener("click", saveSnapshot);
+    document.getElementById("refreshReportBtn").addEventListener("click", () => { renderReport(); renderPresentationSummary(); });
+    document.getElementById("exportBtn").addEventListener("click", exportProgress);
+    document.getElementById("clearLogBtn").addEventListener("click", clearLog);
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    window.addEventListener("load", () => {
+      document.body.classList.add("page-loaded");
+      applyTranslations();
+      renderTheoremList();
+      renderCurrentTheorem();
+      renderLearnQuiz();
+      renderReviewQueue();
+      renderActivityLog();
+      renderRecommendation();
+      renderMilestones();
+      renderMasteryBoard();
+      renderReport();
+      renderPresentationSummary();
+      renderSnapshots();
+      renderExamState();
+      updateStats();
+      drawGeometry();
+      logActivity("visit", "Opened revision 8 final small version", "已进入第 8 次修改版最终小版本");
+    });
+  </script>
+</body>
+</html>

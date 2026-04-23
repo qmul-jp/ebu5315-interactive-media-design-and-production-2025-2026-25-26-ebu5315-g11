@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>圆几何探索 · V2.5.a.6</title>
+  <style>
+    :root {
+      --bg: #f4f8ff;
+      --bg-soft: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(240,246,255,0.84));
+      --card: rgba(255,255,255,0.86);
+      --text: #16324f;
+      --muted: #5f7691;
+      --primary: #2563eb;
+      --primary-2: #7c3aed;
+      --accent: #06b6d4;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --line: rgba(37,99,235,0.12);
+      --shadow: 0 18px 45px rgba(37,99,235,0.14);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(124,58,237,0.14), transparent 24%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background 0.3s ease, color 0.3s ease, opacity 0.8s ease;
+      opacity: 0;
+    }
+    body.page-loaded { opacity: 1; }
+
+    body.dark-mode {
+      --bg: #0f172a;
+      --bg-soft: linear-gradient(180deg, rgba(30,41,59,0.96), rgba(17,24,39,0.88));
+      --card: rgba(30,41,59,0.86);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --line: rgba(255,255,255,0.08);
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(124,58,237,0.10), transparent 24%),
+        #0f172a;
+    }
+
+    body.colorblind-mode {
+      --primary: #005fcc;
+      --primary-2: #6b3fd6;
+      --accent: #d97706;
+      --text: #102a43;
+      --muted: #486581;
+      --line: rgba(0,95,204,0.20);
+    }
+
+    body.dark-mode.colorblind-mode {
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --line: rgba(255,255,255,0.18);
+    }
+
+    .container {
+      width: min(1280px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(244,248,255,0.76);
+      border-bottom: 1px solid rgba(37,99,235,0.08);
+    }
+    body.dark-mode .site-header {
+      background: rgba(15,23,42,0.78);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      padding: 10px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: var(--shadow);
+    }
+
+    .nav-links, .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      font-size: 0.95rem;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(37,99,235,0.14);
+    }
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+    .btn-outline {
+      background: rgba(255,255,255,0.82);
+      color: var(--primary);
+      border: 1px solid rgba(37,99,235,0.12);
+    }
+    .btn-ghost {
+      background: rgba(37,99,235,0.06);
+      color: var(--primary);
+      border: 1px solid rgba(37,99,235,0.10);
+    }
+    .btn-danger {
+      background: rgba(220,38,38,0.08);
+      color: var(--danger);
+      border: 1px solid rgba(220,38,38,0.12);
+    }
+    body.dark-mode .btn-outline {
+      background: rgba(30,41,59,0.85);
+      color: #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .hero {
+      padding: 48px 0 22px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(37,99,235,0.08);
+      color: var(--primary);
+      border-radius: 999px;
+      font-size: 0.92rem;
+      margin-bottom: 18px;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 4.1rem);
+      line-height: 1.05;
+      margin-bottom: 14px;
+    }
+
+    .highlight {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy p {
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin-bottom: 22px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .card, .stat, .panel, .module-card, .theorem-card, .side-card, .quiz-card, .contact-card, .mode-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.72);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    body.dark-mode .card,
+    body.dark-mode .stat,
+    body.dark-mode .panel,
+    body.dark-mode .module-card,
+    body.dark-mode .theorem-card,
+    body.dark-mode .side-card,
+    body.dark-mode .quiz-card,
+    body.dark-mode .contact-card,
+    body.dark-mode .mode-card {
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    body.colorblind-mode .card,
+    body.colorblind-mode .stat,
+    body.colorblind-mode .panel,
+    body.colorblind-mode .module-card,
+    body.colorblind-mode .theorem-card,
+    body.colorblind-mode .side-card,
+    body.colorblind-mode .quiz-card,
+    body.colorblind-mode .contact-card,
+    body.colorblind-mode .mode-card {
+      border: 2px solid rgba(0,95,204,0.20);
+    }
+
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(110px, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.3rem;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .hero-card {
+      background: var(--bg-soft);
+      border-radius: 30px;
+      padding: 22px;
+      min-height: 420px;
+      overflow: hidden;
+    }
+
+    .hero-card h3 {
+      font-size: 1.35rem;
+      margin-bottom: 8px;
+    }
+
+    .hero-card p {
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .mode-card {
+      padding: 16px;
+    }
+
+    .mode-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .mode-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    section {
+      padding: 24px 0 18px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .section-head h2 {
+      font-size: 1.85rem;
+      margin-bottom: 6px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      max-width: 64ch;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .module-card, .theorem-card, .side-card, .quiz-card, .contact-card, .panel {
+      padding: 20px 22px;
+    }
+
+    .icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      color: white;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+
+    .module-card h3,
+    .theorem-card h3,
+    .side-card h3,
+    .quiz-card h3,
+    .contact-card h3,
+    .panel h3 {
+      margin-bottom: 8px;
+    }
+
+    .module-card p,
+    .theorem-card p,
+    .side-card p,
+    .quiz-card p,
+    .contact-card p,
+    .panel p {
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 7px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: rgba(124,58,237,0.09);
+      color: var(--primary-2);
+    }
+
+    .module-card ul, .side-list {
+      list-style: none;
+      margin-top: 12px;
+      color: var(--muted);
+    }
+
+    .module-card li + li,
+    .side-list li + li {
+      margin-top: 8px;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 0.96fr 1.12fr 0.82fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .theorem-toolbar {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .toolbar-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-input, .filter-select, .contact-form input, .contact-form textarea {
+      width: 100%;
+      border: 1px solid rgba(37,99,235,0.12);
+      border-radius: 16px;
+      padding: 13px 15px;
+      font: inherit;
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+    }
+
+    body.dark-mode .search-input,
+    body.dark-mode .filter-select,
+    body.dark-mode .contact-form input,
+    body.dark-mode .contact-form textarea {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+    }
+
+    .theorem-list {
+      display: grid;
+      gap: 12px;
+      max-height: 760px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .theorem-card {
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .theorem-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(37,99,235,0.16);
+    }
+
+    .theorem-card.active {
+      border-color: rgba(37,99,235,0.32);
+      outline: 2px solid rgba(37,99,235,0.18);
+    }
+
+    .theorem-card.completed {
+      outline: 2px solid rgba(22,163,74,0.28);
+    }
+
+    .favorite-btn {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(37,99,235,0.12);
+      background: rgba(255,255,255,0.72);
+      cursor: pointer;
+      color: var(--warning);
+      font-size: 1rem;
+    }
+
+    body.dark-mode .favorite-btn {
+      background: rgba(30,41,59,0.82);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .status-learned { background: rgba(22,163,74,0.10); color: var(--success); }
+    .status-review { background: rgba(217,119,6,0.10); color: var(--warning); }
+    .status-neutral { background: rgba(37,99,235,0.08); color: var(--primary); }
+    .status-favorite { background: rgba(245,158,11,0.10); color: var(--warning); }
+
+    .lab-main {
+      display: grid;
+      gap: 16px;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: rgba(37,99,235,0.08);
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .lab-header {
+      padding: 22px 24px;
+    }
+
+    .lab-header p { color: var(--muted); }
+
+    .info-box {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(37,99,235,0.06);
+      border: 1px solid rgba(37,99,235,0.10);
+    }
+
+    .info-box p { color: var(--muted); }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(37,99,235,0.03), rgba(124,58,237,0.04)),
+        #fafcff;
+      display: block;
+    }
+
+    body.dark-mode canvas {
+      background:
+        linear-gradient(180deg, rgba(37,99,235,0.08), rgba(124,58,237,0.08)),
+        #0f172a;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .control-row label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .control-row input[type="range"] { width: 100%; }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .score-item {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid rgba(37,99,235,0.08);
+      text-align: center;
+    }
+
+    .score-item strong {
+      display: block;
+      color: var(--primary);
+      font-size: 1.15rem;
+      margin-bottom: 4px;
+    }
+
+    .quiz-question {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .option-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .option-btn {
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(37,99,235,0.12);
+      background: rgba(255,255,255,0.82);
+      cursor: pointer;
+      color: var(--text);
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .option-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(37,99,235,0.30);
+      background: rgba(37,99,235,0.05);
+    }
+
+    body.dark-mode .option-btn {
+      background: rgba(30,41,59,0.82);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      display: none;
+    }
+
+    .feedback.show { display: block; }
+    .feedback.success {
+      background: rgba(22,163,74,0.10);
+      color: var(--success);
+      border: 1px solid rgba(22,163,74,0.18);
+    }
+    .feedback.error {
+      background: rgba(220,38,38,0.10);
+      color: var(--danger);
+      border: 1px solid rgba(220,38,38,0.18);
+    }
+
+    .progress-shell {
+      margin-top: 14px;
+      background: rgba(37,99,235,0.08);
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      transition: width 0.3s ease;
+    }
+
+    .side-card {
+      display: grid;
+      gap: 16px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .side-section {
+      padding-bottom: 4px;
+      border-bottom: 1px dashed rgba(37,99,235,0.12);
+    }
+
+    .side-section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .side-section h4 {
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .activity-item, .review-item, .badge-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(37,99,235,0.05);
+      border: 1px solid rgba(37,99,235,0.08);
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .activity-item strong,
+    .review-item strong,
+    .badge-item strong {
+      color: var(--text);
+    }
+
+    .activity-meta {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .contact-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .site-footer {
+      padding: 22px 0 40px;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    @media (max-width: 1220px) {
+      .workspace-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .workspace-grid > :last-child {
+        grid-column: 1 / -1;
+      }
+      .quick-stats,
+      .scoreboard,
+      .module-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .overview-grid,
+      .workspace-grid,
+      .quick-stats,
+      .scoreboard,
+      .module-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav {
+        align-items: flex-start;
+      }
+      h1 {
+        font-size: 2.55rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#home">
+        <span class="brand-badge">◯</span>
+        <span data-i18n="brand">Circle Theorems Learning Hub</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#home" data-i18n="navHome">Home</a>
+        <a href="#highlights" data-i18n="navHighlights">Highlights</a>
+        <a href="#modules" data-i18n="navModules">Modules</a>
+        <a href="#workspace" data-i18n="navWorkspace">Workspace</a>
+        <a href="#contact" data-i18n="navContact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn btn-outline" id="langBtn">中文</button>
+        <button class="btn btn-outline" id="themeBtn">🌙 Dark</button>
+        <button class="btn btn-outline" id="cbBtn">👁 Colorblind</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow" data-i18n="eyebrow">📐 Revision 6 • Multi-mode Study • Achievement Ready</div>
+          <h1 data-i18n="heroTitle">Upgrade the workspace into a <span class="highlight">real study platform</span>.</h1>
+          <p data-i18n="heroDesc">Revision 6 keeps the searchable theorem library and review queue, then adds study modes, favourites, goals, session tracking, mixed exam practice, and achievement badges.</p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#workspace" data-i18n="heroPrimary">Enter Workspace</a>
+            <a class="btn btn-outline" href="#modules" data-i18n="heroSecondary">View New Systems</a>
+          </div>
+
+          <div class="quick-stats">
+            <div class="stat"><strong id="statLearned">0</strong><span data-i18n="statLearned">Learned theorems</span></div>
+            <div class="stat"><strong id="statCorrect">0</strong><span data-i18n="statCorrect">Correct checks</span></div>
+            <div class="stat"><strong id="statReview">0</strong><span data-i18n="statReview">Review queue</span></div>
+            <div class="stat"><strong id="statFavorites">0</strong><span data-i18n="statFavorites">Favorites</span></div>
+            <div class="stat"><strong id="statSession">00:00</strong><span data-i18n="statSession">Session time</span></div>
+            <div class="stat"><strong id="statProgress">0%</strong><span data-i18n="statProgress">Overall progress</span></div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="eyebrow" style="margin-bottom:12px;" data-i18n="overviewBadge">Platform Overview</div>
+          <h3 data-i18n="overviewTitle">Three study modes, one tracked journey</h3>
+          <p data-i18n="overviewDesc">This version separates learning into Learn, Review, and Exam modes, while also tracking favorites, goals, session length, and achievements.</p>
+
+          <div class="overview-grid">
+            <div class="mode-card">
+              <strong data-i18n="mode1Title">Learn mode</strong>
+              <p data-i18n="mode1Desc">Focus on one theorem, manipulate the figure, and complete a guided check.</p>
+            </div>
+            <div class="mode-card">
+              <strong data-i18n="mode2Title">Review mode</strong>
+              <p data-i18n="mode2Desc">Return directly to weak areas captured from wrong answers.</p>
+            </div>
+            <div class="mode-card">
+              <strong data-i18n="mode3Title">Exam mode</strong>
+              <p data-i18n="mode3Desc">Try a mixed short test across all theorems to simulate cumulative learning.</p>
+            </div>
+            <div class="mode-card">
+              <strong data-i18n="mode4Title">Achievement layer</strong>
+              <p data-i18n="mode4Desc">Unlock badges for completion, consistency, favorites, and clearing review tasks.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="highlights">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="highlightsTitle">What changed in revision 6</h2>
+            <p data-i18n="highlightsDesc">The previous version made the workspace searchable and reviewable. This version turns it into a more complete, multi-mode study platform.</p>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <article class="module-card">
+            <div class="icon">⭐</div>
+            <h3 data-i18n="feature1Title">Favorites system</h3>
+            <p data-i18n="feature1Desc">Theorem cards can now be starred, so users can build a personal shortlist of key topics.</p>
+          </article>
+          <article class="module-card">
+            <div class="icon">🎯</div>
+            <h3 data-i18n="feature2Title">Goal tracking</h3>
+            <p data-i18n="feature2Desc">The workspace tracks meaningful study actions against a small session goal.</p>
+          </article>
+          <article class="module-card">
+            <div class="icon">🧪</div>
+            <h3 data-i18n="feature3Title">Mixed exam practice</h3>
+            <p data-i18n="feature3Desc">A new exam mode draws mixed questions from across the theorem set, not just the active theorem.</p>
+          </article>
+          <article class="module-card">
+            <div class="icon">🏅</div>
+            <h3 data-i18n="feature4Title">Achievement badges</h3>
+            <p data-i18n="feature4Desc">Progress now unlocks badges, which makes the system feel more like a complete learning product.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="modules">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="modulesTitle">New systems added in this version</h2>
+            <p data-i18n="modulesDesc">Revision 6 does not just add features. It restructures the workspace around learning mode, review flow, and progress motivation.</p>
+          </div>
+        </div>
+
+        <div class="module-grid">
+          <article class="module-card">
+            <span class="tag" data-i18n="module1Tag">System 1</span>
+            <h3 data-i18n="module1Title">Mode-based learning</h3>
+            <p data-i18n="module1Desc">Users can now switch between Learn, Review, and Exam modes depending on what kind of study they need.</p>
+            <ul>
+              <li data-i18n="module1Item1">Current theorem learning</li>
+              <li data-i18n="module1Item2">Targeted review queue</li>
+              <li data-i18n="module1Item3">Mixed theorem test</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <span class="tag" data-i18n="module2Tag">System 2</span>
+            <h3 data-i18n="module2Title">Personal study tools</h3>
+            <p data-i18n="module2Desc">Favorites and action goals make the workspace feel tailored to the user rather than fixed for everyone.</p>
+            <ul>
+              <li data-i18n="module2Item1">Favorite theorem list</li>
+              <li data-i18n="module2Item2">Session goal bar</li>
+              <li data-i18n="module2Item3">More visible study ownership</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <span class="tag" data-i18n="module3Tag">System 3</span>
+            <h3 data-i18n="module3Title">Motivation layer</h3>
+            <p data-i18n="module3Desc">Achievements and session tracking reward consistent progress and make long-term use more meaningful.</p>
+            <ul>
+              <li data-i18n="module3Item1">Badge unlocking</li>
+              <li data-i18n="module3Item2">Session timer</li>
+              <li data-i18n="module3Item3">Progress visibility</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <span class="tag" data-i18n="module4Tag">System 4</span>
+            <h3 data-i18n="module4Title">Data continuity</h3>
+            <p data-i18n="module4Desc">All the core state still persists locally, so study progress behaves more like a persistent platform.</p>
+            <ul>
+              <li data-i18n="module4Item1">Saved themes and language</li>
+              <li data-i18n="module4Item2">Saved library state</li>
+              <li data-i18n="module4Item3">Exportable progress data</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workspace">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="workspaceTitle">Study workspace</h2>
+            <p data-i18n="workspaceDesc">Use the left panel to choose content, the center to study in the right mode, and the right panel to manage progress, badges, and output.</p>
+          </div>
+        </div>
+
+        <div class="workspace-grid">
+          <div class="panel">
+            <div class="theorem-toolbar">
+              <input class="search-input" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="Search theorem..." />
+              <div class="toolbar-row">
+                <select class="filter-select" id="filterSelect">
+                  <option value="all" data-i18n="filterAll">All</option>
+                  <option value="learned" data-i18n="filterLearned">Learned</option>
+                  <option value="review" data-i18n="filterReview">Review</option>
+                  <option value="favorites" data-i18n="filterFavorites">Favorites</option>
+                  <option value="fresh" data-i18n="filterFresh">Fresh</option>
+                </select>
+              </div>
+            </div>
+            <div class="theorem-list" id="theoremList"></div>
+          </div>
+
+          <div class="lab-main">
+            <div class="panel lab-header">
+              <div class="tag" id="currentTheoremTag">Theorem 1</div>
+              <h3 id="currentTheoremTitle">Angle at the centre</h3>
+              <p id="currentTheoremDesc">The angle at the centre is twice the angle at the circumference standing on the same arc.</p>
+
+              <div class="info-box">
+                <p id="currentTheoremExplain">As the central angle changes, the inscribed angle changes with it and stays exactly half as large.</p>
+              </div>
+
+              <div class="status-row">
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <span class="status-chip status-neutral" id="currentStatusChip" data-i18n="statusCurrent">Current theorem</span>
+                  <span class="status-chip status-review" id="reviewCountChip">0 review</span>
+                  <span class="status-chip status-favorite" id="goalChip">0 / 8 goal</span>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <button class="btn btn-primary" id="markCompleteBtn" data-i18n="completeBtn">Mark as learned</button>
+                  <button class="btn btn-ghost" id="favoriteCurrentBtn" data-i18n="favoriteBtn">Favorite</button>
+                  <button class="btn btn-outline" id="resetCanvasBtn" data-i18n="resetBtn">Reset lab</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="tab-bar">
+                <button class="tab-btn active" data-tab="learn" data-i18n="tabLearn">Learn</button>
+                <button class="tab-btn" data-tab="review" data-i18n="tabReview">Review</button>
+                <button class="tab-btn" data-tab="exam" data-i18n="tabExam">Exam</button>
+              </div>
+
+              <div class="tab-panel active" id="tab-learn">
+                <canvas id="geometryCanvas" width="700" height="430"></canvas>
+
+                <div class="controls">
+                  <div class="control-row">
+                    <label for="radiusRange" data-i18n="radiusLabel">Radius</label>
+                    <input type="range" id="radiusRange" min="90" max="175" value="130">
+                  </div>
+                  <div class="control-row">
+                    <label for="angleRange" data-i18n="angleLabel">Angle</label>
+                    <input type="range" id="angleRange" min="20" max="160" value="70">
+                  </div>
+                </div>
+
+                <div class="progress-shell">
+                  <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div class="scoreboard" style="margin-top: 16px;">
+                  <div class="score-item"><strong id="scoreLearned">0</strong><span data-i18n="scoreLearned">Learned</span></div>
+                  <div class="score-item"><strong id="scoreCorrect">0</strong><span data-i18n="scoreCorrect">Correct</span></div>
+                  <div class="score-item"><strong id="scoreReview">0</strong><span data-i18n="scoreReview">Review queue</span></div>
+                  <div class="score-item"><strong id="scoreFavorites">0</strong><span data-i18n="scoreFavorites">Favorites</span></div>
+                  <div class="score-item"><strong id="scoreProgress">0%</strong><span data-i18n="scoreProgress">Completion</span></div>
+                </div>
+
+                <div class="quiz-card" style="margin-top: 16px;">
+                  <h3 data-i18n="quizTitle">Quick theorem check</h3>
+                  <div class="quiz-question" id="quizQuestion">Which statement matches the current theorem?</div>
+                  <div class="option-list" id="quizOptions"></div>
+                  <div class="feedback" id="quizFeedback"></div>
+                </div>
+              </div>
+
+              <div class="tab-panel" id="tab-review">
+                <div class="quiz-card">
+                  <h3 data-i18n="reviewTitle">Targeted review mode</h3>
+                  <p id="reviewIntro" data-i18n="reviewIntro">This mode pulls from the review queue created by incorrect answers.</p>
+                  <div class="status-row" style="margin-bottom: 14px;">
+                    <span class="status-chip status-review" id="reviewStatusChip">0 review</span>
+                    <button class="btn btn-outline" id="loadNextReviewBtn" data-i18n="reviewNextBtn">Load next review item</button>
+                  </div>
+                  <div class="quiz-question" id="reviewQuestion">No review question loaded yet.</div>
+                  <div class="option-list" id="reviewOptions"></div>
+                  <div class="feedback" id="reviewFeedback"></div>
+                </div>
+              </div>
+
+              <div class="tab-panel" id="tab-exam">
+                <div class="quiz-card">
+                  <h3 data-i18n="examTitle">Mixed exam mode</h3>
+                  <p data-i18n="examIntro">Answer a short mixed set drawn from all theorems to test cumulative understanding.</p>
+                  <div class="status-row" style="margin-bottom: 14px;">
+                    <span class="status-chip status-neutral" id="examProgressChip">0 / 5</span>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                      <button class="btn btn-primary" id="startExamBtn" data-i18n="startExamBtn">Start exam</button>
+                      <button class="btn btn-outline" id="resetExamBtn" data-i18n="resetExamBtn">Reset exam</button>
+                    </div>
+                  </div>
+                  <div class="quiz-question" id="examQuestion">Press “Start exam” to begin.</div>
+                  <div class="option-list" id="examOptions"></div>
+                  <div class="feedback" id="examFeedback"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="side-card">
+            <div class="side-section">
+              <h4 data-i18n="sideTitle1">Achievements</h4>
+              <div class="stack" id="badgeList"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle2">Recent activity</h4>
+              <div class="stack" id="activityLog"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle3">Review queue</h4>
+              <div class="stack" id="reviewQueue"></div>
+            </div>
+
+            <div class="side-section">
+              <h4 data-i18n="sideTitle4">Data tools</h4>
+              <p data-i18n="sideDesc4">Export the current learning state as a JSON file, or clear the activity list for a fresh demo.</p>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+                <button class="btn btn-outline" id="exportBtn" data-i18n="exportBtn">Export progress</button>
+                <button class="btn btn-danger" id="clearLogBtn" data-i18n="clearLogBtn">Clear log</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 data-i18n="contactTitle">Contact and reflection</h2>
+            <p data-i18n="contactDesc">This version is now substantial enough to describe as a study platform prototype rather than only a themed learning page.</p>
+          </div>
+        </div>
+
+        <div class="contact-card">
+          <h3 data-i18n="contactHeading">Leave a version reflection</h3>
+          <p data-i18n="contactBody">Use this space to describe what became more platform-like in this version and which areas should be promoted into the next major update.</p>
+          <form class="contact-form" onsubmit="event.preventDefault(); alert(state.currentLang === 'zh' ? '已记录版本反思（演示版）' : 'Version reflection recorded (demo)');">
+            <input type="text" data-i18n-placeholder="contactName" placeholder="Your name">
+            <input type="email" data-i18n-placeholder="contactEmail" placeholder="Your email">
+            <textarea data-i18n-placeholder="contactMsg" placeholder="Write your version reflection..."></textarea>
+            <button class="btn btn-primary" type="submit" data-i18n="contactSubmit">Submit</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container" data-i18n="footerText">© 2026 Circle Theorems Learning Hub · V2.5.a.6 · Multi-mode platform prototype</div>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = "ct_v256_state";
+
+    const theoremData = {
+      1: {
+        title: { en: "Angle at the centre", zh: "圆心角定理" },
+        tag: { en: "Theorem 1", zh: "定理 1" },
+        desc: {
+          en: "The angle at the centre is twice the angle at the circumference standing on the same arc.",
+          zh: "同弧所对的圆心角等于圆周角的两倍。"
+        },
+        explain: {
+          en: "As the central angle changes, the inscribed angle changes with it and stays exactly half as large.",
+          zh: "当圆心角变化时，对应圆周角也会变化，并始终保持为圆心角的一半。"
+        },
+        quizQuestion: {
+          en: "Which statement matches the current theorem?",
+          zh: "以下哪句话符合当前定理？"
+        },
+        options: {
+          en: [
+            "The central angle is twice the angle at the circumference on the same arc.",
+            "The angle in a semicircle is always 90°.",
+            "Opposite angles in a cyclic quadrilateral total 180°."
+          ],
+          zh: [
+            "同弧所对的圆心角是圆周角的两倍。",
+            "半圆所对的圆周角恒为 90°。",
+            "圆内接四边形的对角和为 180°。"
+          ]
+        },
+        correct: 0
+      },
+      2: {
+        title: { en: "Angle in a semicircle", zh: "半圆中的角" },
+        tag: { en: "Theorem 2", zh: "定理 2" },
+        desc: {
+          en: "The angle subtended by a diameter at the circumference is always 90°.",
+          zh: "直径所对的圆周角恒为 90°。"
+        },
+        explain: {
+          en: "No matter where the point moves on the semicircle, the triangle keeps a right angle at the circumference.",
+          zh: "无论点在半圆上怎样移动，圆周角始终保持直角。"
+        },
+        quizQuestion: {
+          en: "What remains true in this theorem?",
+          zh: "这个定理中始终成立的是什么？"
+        },
+        options: {
+          en: [
+            "Angles on the same arc are equal.",
+            "The angle from a diameter at the circumference is always 90°.",
+            "The central angle is three times the circumference angle."
+          ],
+          zh: [
+            "同弧所对的角总相等。",
+            "直径所对的圆周角始终是 90°。",
+            "圆心角总是圆周角的三倍。"
+          ]
+        },
+        correct: 1
+      },
+      3: {
+        title: { en: "Same segment theorem", zh: "同弧定理" },
+        tag: { en: "Theorem 3", zh: "定理 3" },
+        desc: {
+          en: "Angles subtended by the same arc at the circumference are equal.",
+          zh: "同弧所对的圆周角相等。"
+        },
+        explain: {
+          en: "Two points on the circumference looking at the same chord create equal angles.",
+          zh: "圆周上两个点只要对着同一条弧或弦，就会形成相等的圆周角。"
+        },
+        quizQuestion: {
+          en: "Which option describes this theorem best?",
+          zh: "哪一项最准确描述了这个定理？"
+        },
+        options: {
+          en: [
+            "Angles in the same segment are equal.",
+            "All central angles are 90°.",
+            "A tangent is parallel to the radius."
+          ],
+          zh: [
+            "同弧所对的圆周角相等。",
+            "所有圆心角都等于 90°。",
+            "切线与半径平行。"
+          ]
+        },
+        correct: 0
+      },
+      4: {
+        title: { en: "Cyclic quadrilateral", zh: "圆内接四边形" },
+        tag: { en: "Theorem 4", zh: "定理 4" },
+        desc: {
+          en: "Opposite angles in a cyclic quadrilateral add up to 180°.",
+          zh: "圆内接四边形的对角互补，总和为 180°。"
+        },
+        explain: {
+          en: "If four points lie on a circle, then each pair of opposite angles always sums to 180°.",
+          zh: "如果四个点都在圆上，那么这四边形的任意一对对角之和都等于 180°。"
+        },
+        quizQuestion: {
+          en: "What is always true for a cyclic quadrilateral?",
+          zh: "对于圆内接四边形，哪一项一定成立？"
+        },
+        options: {
+          en: [
+            "All four angles are equal.",
+            "Opposite angles add up to 180°.",
+            "Every side has equal length."
+          ],
+          zh: [
+            "四个角全部相等。",
+            "对角之和等于 180°。",
+            "四条边长度都相等。"
+          ]
+        },
+        correct: 1
+      }
+    };
+
+    const translations = {
+      en: {
+        brand: "Circle Theorems Learning Hub",
+        navHome: "Home",
+        navHighlights: "Highlights",
+        navModules: "Modules",
+        navWorkspace: "Workspace",
+        navContact: "Contact",
+        eyebrow: "📐 Revision 6 • Multi-mode Study • Achievement Ready",
+        heroTitle: "Upgrade the workspace into a <span class='highlight'>real study platform</span>.",
+        heroDesc: "Revision 6 keeps the searchable theorem library and review queue, then adds study modes, favourites, goals, session tracking, mixed exam practice, and achievement badges.",
+        heroPrimary: "Enter Workspace",
+        heroSecondary: "View New Systems",
+        statLearned: "Learned theorems",
+        statCorrect: "Correct checks",
+        statReview: "Review queue",
+        statFavorites: "Favorites",
+        statSession: "Session time",
+        statProgress: "Overall progress",
+        overviewBadge: "Platform Overview",
+        overviewTitle: "Three study modes, one tracked journey",
+        overviewDesc: "This version separates learning into Learn, Review, and Exam modes, while also tracking favorites, goals, session length, and achievements.",
+        mode1Title: "Learn mode",
+        mode1Desc: "Focus on one theorem, manipulate the figure, and complete a guided check.",
+        mode2Title: "Review mode",
+        mode2Desc: "Return directly to weak areas captured from wrong answers.",
+        mode3Title: "Exam mode",
+        mode3Desc: "Try a mixed short test across all theorems to simulate cumulative learning.",
+        mode4Title: "Achievement layer",
+        mode4Desc: "Unlock badges for completion, consistency, favorites, and clearing review tasks.",
+        highlightsTitle: "What changed in revision 6",
+        highlightsDesc: "The previous version made the workspace searchable and reviewable. This version turns it into a more complete, multi-mode study platform.",
+        feature1Title: "Favorites system",
+        feature1Desc: "Theorem cards can now be starred, so users can build a personal shortlist of key topics.",
+        feature2Title: "Goal tracking",
+        feature2Desc: "The workspace tracks meaningful study actions against a small session goal.",
+        feature3Title: "Mixed exam practice",
+        feature3Desc: "A new exam mode draws mixed questions from across the theorem set, not just the active theorem.",
+        feature4Title: "Achievement badges",
+        feature4Desc: "Progress now unlocks badges, which makes the system feel more like a complete learning product.",
+        modulesTitle: "New systems added in this version",
+        modulesDesc: "Revision 6 does not just add features. It restructures the workspace around learning mode, review flow, and progress motivation.",
+        module1Tag: "System 1",
+        module1Title: "Mode-based learning",
+        module1Desc: "Users can now switch between Learn, Review, and Exam modes depending on what kind of study they need.",
+        module1Item1: "Current theorem learning",
+        module1Item2: "Targeted review queue",
+        module1Item3: "Mixed theorem test",
+        module2Tag: "System 2",
+        module2Title: "Personal study tools",
+        module2Desc: "Favorites and action goals make the workspace feel tailored to the user rather than fixed for everyone.",
+        module2Item1: "Favorite theorem list",
+        module2Item2: "Session goal bar",
+        module2Item3: "More visible study ownership",
+        module3Tag: "System 3",
+        module3Title: "Motivation layer",
+        module3Desc: "Achievements and session tracking reward consistent progress and make long-term use more meaningful.",
+        module3Item1: "Badge unlocking",
+        module3Item2: "Session timer",
+        module3Item3: "Progress visibility",
+        module4Tag: "System 4",
+        module4Title: "Data continuity",
+        module4Desc: "All the core state still persists locally, so study progress behaves more like a persistent platform.",
+        module4Item1: "Saved themes and language",
+        module4Item2: "Saved library state",
+        module4Item3: "Exportable progress data",
+        workspaceTitle: "Study workspace",
+        workspaceDesc: "Use the left panel to choose content, the center to study in the right mode, and the right panel to manage progress, badges, and output.",
+        searchPlaceholder: "Search theorem...",
+        filterAll: "All",
+        filterLearned: "Learned",
+        filterReview: "Review",
+        filterFavorites: "Favorites",
+        filterFresh: "Fresh",
+        statusCurrent: "Current theorem",
+        completeBtn: "Mark as learned",
+        favoriteBtn: "Favorite",
+        resetBtn: "Reset lab",
+        tabLearn: "Learn",
+        tabReview: "Review",
+        tabExam: "Exam",
+        radiusLabel: "Radius",
+        angleLabel: "Angle",
+        scoreLearned: "Learned",
+        scoreCorrect: "Correct",
+        scoreReview: "Review queue",
+        scoreFavorites: "Favorites",
+        scoreProgress: "Completion",
+        quizTitle: "Quick theorem check",
+        reviewTitle: "Targeted review mode",
+        reviewIntro: "This mode pulls from the review queue created by incorrect answers.",
+        reviewNextBtn: "Load next review item",
+        examTitle: "Mixed exam mode",
+        examIntro: "Answer a short mixed set drawn from all theorems to test cumulative understanding.",
+        startExamBtn: "Start exam",
+        resetExamBtn: "Reset exam",
+        sideTitle1: "Achievements",
+        sideTitle2: "Recent activity",
+        sideTitle3: "Review queue",
+        sideTitle4: "Data tools",
+        sideDesc4: "Export the current learning state as a JSON file, or clear the activity list for a fresh demo.",
+        exportBtn: "Export progress",
+        clearLogBtn: "Clear log",
+        contactTitle: "Contact and reflection",
+        contactDesc: "This version is now substantial enough to describe as a study platform prototype rather than only a themed learning page.",
+        contactHeading: "Leave a version reflection",
+        contactBody: "Use this space to describe what became more platform-like in this version and which areas should be promoted into the next major update.",
+        contactSubmit: "Submit",
+        contactName: "Your name",
+        contactEmail: "Your email",
+        contactMsg: "Write your version reflection...",
+        footerText: "© 2026 Circle Theorems Learning Hub · V2.5.a.6 · Multi-mode platform prototype"
+      },
+      zh: {
+        brand: "圆定理学习中心",
+        navHome: "首页",
+        navHighlights: "本版亮点",
+        navModules: "新增系统",
+        navWorkspace: "学习工作区",
+        navContact: "联系反馈",
+        eyebrow: "📐 第 6 次修改 • 多模式学习 • 成就反馈",
+        heroTitle: "把学习工作区升级成一个<span class='highlight'>真正的平台原型</span>。",
+        heroDesc: "第 6 次修改保留了可搜索的定理资料库和复习队列，并进一步加入学习模式、收藏夹、目标追踪、会话计时、混合考试练习和成就徽章。",
+        heroPrimary: "进入工作区",
+        heroSecondary: "查看新增系统",
+        statLearned: "已学定理",
+        statCorrect: "答对检测",
+        statReview: "复习队列",
+        statFavorites: "收藏数量",
+        statSession: "学习时长",
+        statProgress: "总体进度",
+        overviewBadge: "平台总览",
+        overviewTitle: "三种学习模式，一条完整轨迹",
+        overviewDesc: "这一版把学习区拆分为学习、复习、考试三种模式，同时加入收藏、目标、时长和成就记录。",
+        mode1Title: "学习模式",
+        mode1Desc: "专注当前定理，操作图形并完成引导式检测。",
+        mode2Title: "复习模式",
+        mode2Desc: "直接回到因错误答案而沉淀下来的薄弱点。",
+        mode3Title: "考试模式",
+        mode3Desc: "做一组跨定理的混合小测，模拟综合性学习检查。",
+        mode4Title: "成就层",
+        mode4Desc: "通过完成、连续学习、收藏和清空复习队列来解锁徽章。",
+        highlightsTitle: "第 6 次修改新增了什么",
+        highlightsDesc: "上一版让工作区可搜索、可复习；这一版则把它推进为更完整的多模式学习平台。",
+        feature1Title: "收藏系统",
+        feature1Desc: "现在定理卡片可以收藏，用户能够建立个人重点清单。",
+        feature2Title: "目标追踪",
+        feature2Desc: "系统会把重要学习动作计入一个小型会话目标中。",
+        feature3Title: "混合考试练习",
+        feature3Desc: "新增考试模式，会从所有定理中抽取混合题，而不是只围绕当前定理。",
+        feature4Title: "成就徽章",
+        feature4Desc: "学习进度现在会解锁徽章，让系统更像一个完整的学习产品。",
+        modulesTitle: "这一版新增的系统",
+        modulesDesc: "第 6 次修改不只是堆功能，而是围绕学习模式、复习流程和进度激励重新组织了工作区。",
+        module1Tag: "系统 1",
+        module1Title: "基于模式的学习",
+        module1Desc: "用户可以根据当前目标，在学习、复习和考试三种模式间切换。",
+        module1Item1: "当前定理学习",
+        module1Item2: "针对性复习队列",
+        module1Item3: "跨定理混合测试",
+        module2Tag: "系统 2",
+        module2Title: "个性化学习工具",
+        module2Desc: "收藏和会话目标让工作区更贴近用户自己，而不是一套固定流程。",
+        module2Item1: "重点定理收藏",
+        module2Item2: "会话目标进度",
+        module2Item3: "更强的学习主导感",
+        module3Tag: "系统 3",
+        module3Title: "激励层",
+        module3Desc: "成就和学习时长会奖励持续进步，让长期使用更有意义。",
+        module3Item1: "徽章解锁",
+        module3Item2: "会话计时",
+        module3Item3: "进度可视化",
+        module4Tag: "系统 4",
+        module4Title: "数据连续性",
+        module4Desc: "核心状态依然会保存在本地，因此学习进度更像一个持续存在的平台状态。",
+        module4Item1: "主题与语言保存",
+        module4Item2: "资料库状态保存",
+        module4Item3: "进度可导出",
+        workspaceTitle: "学习工作区",
+        workspaceDesc: "左侧选择内容，中间按合适模式学习，右侧管理进度、徽章与导出。",
+        searchPlaceholder: "搜索定理名称……",
+        filterAll: "全部",
+        filterLearned: "已学",
+        filterReview: "待复习",
+        filterFavorites: "已收藏",
+        filterFresh: "未学习",
+        statusCurrent: "当前定理",
+        completeBtn: "标记为已学会",
+        favoriteBtn: "收藏",
+        resetBtn: "重置实验区",
+        tabLearn: "学习",
+        tabReview: "复习",
+        tabExam: "考试",
+        radiusLabel: "半径",
+        angleLabel: "角度",
+        scoreLearned: "已学",
+        scoreCorrect: "答对",
+        scoreReview: "复习队列",
+        scoreFavorites: "收藏",
+        scoreProgress: "完成度",
+        quizTitle: "快速检测",
+        reviewTitle: "针对性复习模式",
+        reviewIntro: "该模式会直接从错误产生的复习队列中提取内容。",
+        reviewNextBtn: "载入下一个复习项目",
+        examTitle: "混合考试模式",
+        examIntro: "回答一组跨定理混合题，用来检测综合理解程度。",
+        startExamBtn: "开始考试",
+        resetExamBtn: "重置考试",
+        sideTitle1: "成就徽章",
+        sideTitle2: "最近活动",
+        sideTitle3: "复习队列",
+        sideTitle4: "数据工具",
+        sideDesc4: "把当前学习状态导出为 JSON 文件，或清空活动记录以便重新演示。",
+        exportBtn: "导出进度",
+        clearLogBtn: "清空日志",
+        contactTitle: "联系与反思",
+        contactDesc: "这一版已经足够接近“学习平台原型”，不再只是一个主题化学习页面。",
+        contactHeading: "留下版本反思",
+        contactBody: "可以在这里说明本版本中哪些地方更像平台，哪些内容应该继续推进到下一次大升级中。",
+        contactSubmit: "提交",
+        contactName: "你的姓名",
+        contactEmail: "你的邮箱",
+        contactMsg: "写下你的版本反思……",
+        footerText: "© 2026 圆定理学习中心 · V2.5.a.6 · 多模式平台原型版"
+      }
+    };
+
+    const defaultState = {
+      currentLang: "en",
+      darkMode: false,
+      colorblindMode: false,
+      currentTheorem: 1,
+      radius: 130,
+      angle: 70,
+      learned: [],
+      favorites: [],
+      correctCount: 0,
+      reviewMap: {},
+      answeredPairs: [],
+      activityLog: [],
+      visits: 0,
+      goalTarget: 8,
+      goalDone: 0,
+      exam: { active: false, order: [], index: 0, score: 0 },
+      sessionStart: Date.now()
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(defaultState);
+        const saved = JSON.parse(raw);
+        return { ...structuredClone(defaultState), ...saved, exam: { ...structuredClone(defaultState).exam, ...(saved.exam || {}) } };
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    const state = loadState();
+    state.visits += 1;
+    if (!state.sessionStart) state.sessionStart = Date.now();
+
+    const canvas = document.getElementById("geometryCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function t(key) {
+      return translations[state.currentLang][key] || key;
+    }
+
+    function logActivity(type, en, zh) {
+      state.activityLog.unshift({
+        id: Date.now() + Math.random(),
+        type,
+        message: { en, zh },
+        time: new Date().toLocaleString(state.currentLang === "zh" ? "zh-CN" : "en-GB")
+      });
+      state.activityLog = state.activityLog.slice(0, 10);
+      renderActivityLog();
+      saveState();
+    }
+
+    function incrementGoal() {
+      state.goalDone = Math.min(state.goalTarget, state.goalDone + 1);
+    }
+
+    function formatDuration(ms) {
+      const totalSec = Math.floor(ms / 1000);
+      const min = String(Math.floor(totalSec / 60)).padStart(2, "0");
+      const sec = String(totalSec % 60).padStart(2, "0");
+      return `${min}:${sec}`;
+    }
+
+    function getProgressPercent() {
+      const theoremPart = state.learned.length / 4;
+      const quizPart = Math.min(state.correctCount, 8) / 8;
+      const reviewPenalty = Math.min(Object.keys(state.reviewMap).length, 4) / 4;
+      const goalPart = state.goalDone / state.goalTarget;
+      return Math.max(0, Math.round((theoremPart * 0.40 + quizPart * 0.30 + (1 - reviewPenalty) * 0.10 + goalPart * 0.20) * 100));
+    }
+
+    function getAchievements() {
+      return [
+        {
+          key: "all_learned",
+          unlocked: state.learned.length === 4,
+          en: "Completed all four theorem modules",
+          zh: "完成全部四个定理模块"
+        },
+        {
+          key: "five_correct",
+          unlocked: state.correctCount >= 5,
+          en: "Answered at least five checks correctly",
+          zh: "累计答对至少五次检测"
+        },
+        {
+          key: "favorite_collector",
+          unlocked: state.favorites.length >= 2,
+          en: "Collected at least two favorite theorems",
+          zh: "已收藏至少两个重点定理"
+        },
+        {
+          key: "review_clear",
+          unlocked: Object.keys(state.reviewMap).length === 0 && state.correctCount > 0,
+          en: "Cleared the review queue after mistakes",
+          zh: "在出现错误后清空了复习队列"
+        }
+      ];
+    }
+
+    function updateStats() {
+      const reviewCount = Object.keys(state.reviewMap).length;
+      const progress = getProgressPercent();
+      document.getElementById("statLearned").textContent = state.learned.length;
+      document.getElementById("statCorrect").textContent = state.correctCount;
+      document.getElementById("statReview").textContent = reviewCount;
+      document.getElementById("statFavorites").textContent = state.favorites.length;
+      document.getElementById("statProgress").textContent = progress + "%";
+      document.getElementById("scoreLearned").textContent = state.learned.length;
+      document.getElementById("scoreCorrect").textContent = state.correctCount;
+      document.getElementById("scoreReview").textContent = reviewCount;
+      document.getElementById("scoreFavorites").textContent = state.favorites.length;
+      document.getElementById("scoreProgress").textContent = progress + "%";
+      document.getElementById("progressFill").style.width = progress + "%";
+      document.getElementById("reviewCountChip").textContent = state.currentLang === "zh" ? `待复习 ${reviewCount}` : `${reviewCount} review`;
+      document.getElementById("goalChip").textContent = state.currentLang === "zh" ? `${state.goalDone} / ${state.goalTarget} 目标` : `${state.goalDone} / ${state.goalTarget} goal`;
+      renderBadgeList();
+      saveState();
+    }
+
+    function applyMode() {
+      document.body.classList.toggle("dark-mode", state.darkMode);
+      document.body.classList.toggle("colorblind-mode", state.colorblindMode);
+      document.getElementById("themeBtn").textContent = state.currentLang === "zh"
+        ? (state.darkMode ? "☀️ 亮色" : "🌙 暗夜")
+        : (state.darkMode ? "☀️ Light" : "🌙 Dark");
+      document.getElementById("cbBtn").textContent = state.currentLang === "zh" ? "👁 色盲模式" : "👁 Colorblind";
+    }
+
+    function applyTranslations() {
+      document.documentElement.lang = state.currentLang === "zh" ? "zh-CN" : "en";
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (translations[state.currentLang][key]) {
+          el.innerHTML = translations[state.currentLang][key];
+        }
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        if (translations[state.currentLang][key]) {
+          el.placeholder = translations[state.currentLang][key];
+        }
+      });
+      document.getElementById("langBtn").textContent = state.currentLang === "zh" ? "EN" : "中文";
+      applyMode();
+      renderTheoremList();
+      renderCurrentTheorem();
+      renderLearnQuiz();
+      renderReviewQueue();
+      renderActivityLog();
+      renderBadgeList();
+      renderExamState();
+      updateStats();
+      saveState();
+    }
+
+    function renderTheoremList() {
+      const list = document.getElementById("theoremList");
+      const searchValue = document.getElementById("searchInput").value.trim().toLowerCase();
+      const filterValue = document.getElementById("filterSelect").value;
+      list.innerHTML = "";
+
+      Object.entries(theoremData).forEach(([id, item]) => {
+        const numId = Number(id);
+        const title = item.title[state.currentLang];
+        const desc = item.desc[state.currentLang];
+        const learned = state.learned.includes(numId);
+        const inReview = Boolean(state.reviewMap[numId]);
+        const favorited = state.favorites.includes(numId);
+
+        const searchHit = !searchValue || title.toLowerCase().includes(searchValue) || desc.toLowerCase().includes(searchValue);
+
+        let filterHit = true;
+        if (filterValue === "learned") filterHit = learned;
+        if (filterValue === "review") filterHit = inReview;
+        if (filterValue === "favorites") filterHit = favorited;
+        if (filterValue === "fresh") filterHit = !learned;
+
+        if (!searchHit || !filterHit) return;
+
+        const card = document.createElement("article");
+        card.className = "theorem-card";
+        if (state.currentTheorem === numId) card.classList.add("active");
+        if (learned) card.classList.add("completed");
+
+        const statusClass = learned ? "status-learned" : inReview ? "status-review" : favorited ? "status-favorite" : "status-neutral";
+        const statusText = learned
+          ? (state.currentLang === "zh" ? "已学会" : "Learned")
+          : inReview
+            ? (state.currentLang === "zh" ? "待复习" : "Review")
+            : favorited
+              ? (state.currentLang === "zh" ? "已收藏" : "Favorite")
+              : (state.currentLang === "zh" ? "未学习" : "Fresh");
+
+        card.innerHTML = `
+          <span class="tag">${item.tag[state.currentLang]}</span>
+          <h3>${title}</h3>
+          <p>${desc}</p>
+          <div class="status-row">
+            <span class="status-chip ${statusClass}">${statusText}</span>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="favorite-btn" data-fav="${numId}">${favorited ? "★" : "☆"}</button>
+              <button class="btn btn-outline" data-open="${numId}">${state.currentLang === "zh" ? "打开" : "Open"}</button>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener("click", (e) => {
+          if (e.target.closest("button")) return;
+          loadTheorem(numId);
+        });
+
+        card.querySelector("[data-open]").addEventListener("click", (e) => {
+          e.stopPropagation();
+          loadTheorem(numId);
+        });
+
+        card.querySelector("[data-fav]").addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleFavorite(numId);
+        });
+
+        list.appendChild(card);
+      });
+
+      if (!list.children.length) {
+        const empty = document.createElement("div");
+        empty.className = "activity-item";
+        empty.textContent = state.currentLang === "zh" ? "没有找到符合条件的定理。" : "No theorem matches the current search.";
+        list.appendChild(empty);
+      }
+    }
+
+    function renderCurrentTheorem() {
+      const item = theoremData[state.currentTheorem];
+      document.getElementById("currentTheoremTag").textContent = item.tag[state.currentLang];
+      document.getElementById("currentTheoremTitle").textContent = item.title[state.currentLang];
+      document.getElementById("currentTheoremDesc").textContent = item.desc[state.currentLang];
+      document.getElementById("currentTheoremExplain").textContent = item.explain[state.currentLang];
+      document.getElementById("favoriteCurrentBtn").textContent = state.currentLang === "zh"
+        ? (state.favorites.includes(state.currentTheorem) ? "取消收藏" : "收藏")
+        : (state.favorites.includes(state.currentTheorem) ? "Unfavorite" : "Favorite");
+
+      const chip = document.getElementById("currentStatusChip");
+      if (state.learned.includes(state.currentTheorem)) {
+        chip.className = "status-chip status-learned";
+        chip.textContent = state.currentLang === "zh" ? "当前定理 · 已学会" : "Current theorem · Learned";
+      } else if (state.reviewMap[state.currentTheorem]) {
+        chip.className = "status-chip status-review";
+        chip.textContent = state.currentLang === "zh" ? "当前定理 · 待复习" : "Current theorem · Review";
+      } else {
+        chip.className = "status-chip status-neutral";
+        chip.textContent = state.currentLang === "zh" ? "当前定理 · 新内容" : "Current theorem · Fresh";
+      }
+
+      drawGeometry();
+    }
+
+    function loadTheorem(theoremId) {
+      state.currentTheorem = theoremId;
+      renderTheoremList();
+      renderCurrentTheorem();
+      renderLearnQuiz();
+      updateStats();
+      document.getElementById("workspace").scrollIntoView({ behavior: "smooth", block: "start" });
+      logActivity("open", `Opened theorem ${theoremId}`, `打开了定理 ${theoremId}`);
+    }
+
+    function toggleFavorite(theoremId) {
+      if (state.favorites.includes(theoremId)) {
+        state.favorites = state.favorites.filter(id => id !== theoremId);
+        logActivity("favorite", `Removed theorem ${theoremId} from favorites`, `已取消收藏定理 ${theoremId}`);
+      } else {
+        state.favorites.push(theoremId);
+        incrementGoal();
+        logActivity("favorite", `Added theorem ${theoremId} to favorites`, `已收藏定理 ${theoremId}`);
+      }
+      renderTheoremList();
+      renderCurrentTheorem();
+      updateStats();
+    }
+
+    function markCurrentLearned() {
+      if (!state.learned.includes(state.currentTheorem)) {
+        state.learned.push(state.currentTheorem);
+        incrementGoal();
+        logActivity("learned", `Marked theorem ${state.currentTheorem} as learned`, `已将定理 ${state.currentTheorem} 标记为学会`);
+      }
+      renderTheoremList();
+      renderCurrentTheorem();
+      updateStats();
+    }
+
+    function renderLearnQuiz() {
+      const item = theoremData[state.currentTheorem];
+      document.getElementById("quizQuestion").textContent = item.quizQuestion[state.currentLang];
+      const optionsEl = document.getElementById("quizOptions");
+      const feedbackEl = document.getElementById("quizFeedback");
+      optionsEl.innerHTML = "";
+      feedbackEl.className = "feedback";
+      feedbackEl.textContent = "";
+
+      item.options[state.currentLang].forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleLearnAnswer(idx));
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function handleLearnAnswer(selectedIndex) {
+      const item = theoremData[state.currentTheorem];
+      const pairKey = `learn_${state.currentLang}_${state.currentTheorem}`;
+      const feedbackEl = document.getElementById("quizFeedback");
+
+      if (selectedIndex === item.correct) {
+        if (!state.answeredPairs.includes(pairKey)) {
+          state.correctCount += 1;
+          state.answeredPairs.push(pairKey);
+        }
+        delete state.reviewMap[state.currentTheorem];
+        incrementGoal();
+        feedbackEl.className = "feedback success show";
+        feedbackEl.textContent = state.currentLang === "zh"
+          ? "回答正确：当前定理检测通过。"
+          : "Correct: the current theorem check has been passed.";
+        logActivity("correct", `Passed quick check for theorem ${state.currentTheorem}`, `通过了定理 ${state.currentTheorem} 的快速检测`);
+      } else {
+        state.reviewMap[state.currentTheorem] = {
+          theoremId: state.currentTheorem,
+          mistakes: (state.reviewMap[state.currentTheorem]?.mistakes || 0) + 1
+        };
+        feedbackEl.className = "feedback error show";
+        feedbackEl.textContent = state.currentLang === "zh"
+          ? "回答错误：当前定理已加入复习队列。"
+          : "Incorrect: the current theorem has been added to the review queue.";
+        logActivity("wrong", `Added theorem ${state.currentTheorem} to review`, `已将定理 ${state.currentTheorem} 加入复习队列`);
+      }
+
+      renderReviewQueue();
+      renderTheoremList();
+      renderCurrentTheorem();
+      updateStats();
+    }
+
+    function renderReviewQueue() {
+      const wrap = document.getElementById("reviewQueue");
+      wrap.innerHTML = "";
+      const items = Object.values(state.reviewMap);
+
+      if (!items.length) {
+        const empty = document.createElement("div");
+        empty.className = "review-item";
+        empty.textContent = state.currentLang === "zh" ? "当前没有待复习项目。" : "No review items at the moment.";
+        wrap.appendChild(empty);
+      } else {
+        items.forEach(entry => {
+          const theorem = theoremData[entry.theoremId];
+          const div = document.createElement("div");
+          div.className = "review-item";
+          div.innerHTML = `
+            <strong>${theorem.tag[state.currentLang]} · ${theorem.title[state.currentLang]}</strong>
+            <div>${state.currentLang === "zh" ? `错误次数：${entry.mistakes}` : `Mistakes: ${entry.mistakes}`}</div>
+          `;
+          div.addEventListener("click", () => loadTheorem(entry.theoremId));
+          wrap.appendChild(div);
+        });
+      }
+      document.getElementById("reviewStatusChip").textContent = state.currentLang === "zh"
+        ? `待复习 ${items.length}`
+        : `${items.length} review`;
+    }
+
+    function renderActivityLog() {
+      const wrap = document.getElementById("activityLog");
+      wrap.innerHTML = "";
+
+      if (!state.activityLog.length) {
+        const empty = document.createElement("div");
+        empty.className = "activity-item";
+        empty.textContent = state.currentLang === "zh" ? "还没有活动记录。" : "No recent activity yet.";
+        wrap.appendChild(empty);
+        return;
+      }
+
+      state.activityLog.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "activity-item";
+        div.innerHTML = `<strong>${item.message[state.currentLang]}</strong><span class="activity-meta">${item.time}</span>`;
+        wrap.appendChild(div);
+      });
+    }
+
+    function renderBadgeList() {
+      const wrap = document.getElementById("badgeList");
+      wrap.innerHTML = "";
+
+      getAchievements().forEach(item => {
+        const div = document.createElement("div");
+        div.className = "badge-item";
+        div.innerHTML = `
+          <strong>${item.unlocked ? "🏅" : "⬜"} ${item[state.currentLang]}</strong>
+          <div>${item.unlocked ? (state.currentLang === "zh" ? "已解锁" : "Unlocked") : (state.currentLang === "zh" ? "未解锁" : "Locked")}</div>
+        `;
+        wrap.appendChild(div);
+      });
+    }
+
+    function getAchievements() {
+      return [
+        {
+          key: "all_learned",
+          unlocked: state.learned.length === 4,
+          en: "Completed all four theorem modules",
+          zh: "完成全部四个定理模块"
+        },
+        {
+          key: "five_correct",
+          unlocked: state.correctCount >= 5,
+          en: "Answered at least five checks correctly",
+          zh: "累计答对至少五次检测"
+        },
+        {
+          key: "favorite_collector",
+          unlocked: state.favorites.length >= 2,
+          en: "Collected at least two favorite theorems",
+          zh: "已收藏至少两个重点定理"
+        },
+        {
+          key: "review_clear",
+          unlocked: Object.keys(state.reviewMap).length === 0 && state.correctCount > 0,
+          en: "Cleared the review queue after mistakes",
+          zh: "在出现错误后清空了复习队列"
+        }
+      ];
+    }
+
+    function loadNextReview() {
+      const reviewItems = Object.values(state.reviewMap);
+      const questionEl = document.getElementById("reviewQuestion");
+      const optionsEl = document.getElementById("reviewOptions");
+      const feedbackEl = document.getElementById("reviewFeedback");
+
+      optionsEl.innerHTML = "";
+      feedbackEl.className = "feedback";
+      feedbackEl.textContent = "";
+
+      if (!reviewItems.length) {
+        questionEl.textContent = state.currentLang === "zh" ? "当前没有需要复习的项目。" : "There are no review items right now.";
+        return;
+      }
+
+      const entry = reviewItems[0];
+      const theorem = theoremData[entry.theoremId];
+      questionEl.textContent = theorem.quizQuestion[state.currentLang];
+
+      theorem.options[state.currentLang].forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => {
+          if (idx === theorem.correct) {
+            delete state.reviewMap[entry.theoremId];
+            state.correctCount += 1;
+            incrementGoal();
+            feedbackEl.className = "feedback success show";
+            feedbackEl.textContent = state.currentLang === "zh"
+              ? "复习正确：该项目已从复习队列中移除。"
+              : "Review correct: this item has been removed from the review queue.";
+            logActivity("review", `Cleared review item for theorem ${entry.theoremId}`, `已完成定理 ${entry.theoremId} 的复习`);
+          } else {
+            state.reviewMap[entry.theoremId].mistakes += 1;
+            feedbackEl.className = "feedback error show";
+            feedbackEl.textContent = state.currentLang === "zh"
+              ? "复习仍然错误：该项目将继续保留在复习队列中。"
+              : "Still incorrect: this item remains in the review queue.";
+            logActivity("review_fail", `Review failed for theorem ${entry.theoremId}`, `定理 ${entry.theoremId} 的复习仍未通过`);
+          }
+          renderReviewQueue();
+          renderTheoremList();
+          renderCurrentTheorem();
+          updateStats();
+        });
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function startExam() {
+      state.exam = {
+        active: true,
+        order: shuffle([1,2,3,4,1]).slice(0,5),
+        index: 0,
+        score: 0
+      };
+      incrementGoal();
+      renderExamState();
+      logActivity("exam", "Started mixed exam mode", "已开始混合考试模式");
+    }
+
+    function resetExam() {
+      state.exam = { active: false, order: [], index: 0, score: 0 };
+      renderExamState();
+    }
+
+    function renderExamState() {
+      const chip = document.getElementById("examProgressChip");
+      const questionEl = document.getElementById("examQuestion");
+      const optionsEl = document.getElementById("examOptions");
+      const feedbackEl = document.getElementById("examFeedback");
+      optionsEl.innerHTML = "";
+      feedbackEl.className = "feedback";
+      feedbackEl.textContent = "";
+
+      if (!state.exam.active) {
+        chip.textContent = "0 / 5";
+        questionEl.textContent = state.currentLang === "zh" ? "点击“开始考试”进入 5 题混合测试。" : "Press “Start exam” to begin a 5-question mixed test.";
+        return;
+      }
+
+      chip.textContent = `${state.exam.index} / ${state.exam.order.length} · ${state.currentLang === "zh" ? "得分" : "Score"} ${state.exam.score}`;
+
+      if (state.exam.index >= state.exam.order.length) {
+        questionEl.textContent = state.currentLang === "zh"
+          ? `考试完成：总分 ${state.exam.score} / ${state.exam.order.length}`
+          : `Exam complete: score ${state.exam.score} / ${state.exam.order.length}`;
+        return;
+      }
+
+      const theoremId = state.exam.order[state.exam.index];
+      const theorem = theoremData[theoremId];
+      questionEl.textContent = `[${theorem.tag[state.currentLang]}] ${theorem.quizQuestion[state.currentLang]}`;
+
+      theorem.options[state.currentLang].forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => {
+          if (idx === theorem.correct) {
+            state.exam.score += 1;
+            state.correctCount += 1;
+            incrementGoal();
+            feedbackEl.className = "feedback success show";
+            feedbackEl.textContent = state.currentLang === "zh" ? "本题回答正确。" : "Correct answer.";
+          } else {
+            state.reviewMap[theoremId] = {
+              theoremId,
+              mistakes: (state.reviewMap[theoremId]?.mistakes || 0) + 1
+            };
+            feedbackEl.className = "feedback error show";
+            feedbackEl.textContent = state.currentLang === "zh" ? "本题回答错误，已加入复习队列。" : "Incorrect answer, added to review queue.";
+          }
+          state.exam.index += 1;
+          renderReviewQueue();
+          renderTheoremList();
+          updateStats();
+          setTimeout(() => renderExamState(), 450);
+        });
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function exportProgress() {
+      const payload = {
+        version: "v2.5.a.6",
+        exportedAt: new Date().toISOString(),
+        learned: state.learned,
+        favorites: state.favorites,
+        correctCount: state.correctCount,
+        reviewMap: state.reviewMap,
+        answeredPairs: state.answeredPairs,
+        visits: state.visits,
+        goalDone: state.goalDone,
+        goalTarget: state.goalTarget,
+        activityLog: state.activityLog,
+        achievements: getAchievements()
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "circle_theorems_progress_v2.5.a.6.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      logActivity("export", "Exported learning progress", "已导出当前学习进度");
+    }
+
+    function clearLog() {
+      state.activityLog = [];
+      renderActivityLog();
+      saveState();
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === tabName);
+      });
+      document.querySelectorAll(".tab-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === `tab-${tabName}`);
+      });
+      if (tabName === "review") loadNextReview();
+      if (tabName === "exam") renderExamState();
+    }
+
+    function drawGeometry() {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = state.radius;
+      const angleDeg = state.angle;
+      const theta = angleDeg * Math.PI / 180;
+
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#2563eb';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (state.currentTheorem === 1) {
+        const A = { x: cx + r, y: cy };
+        const B = { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
+        const C = { x: cx + r * Math.cos(theta / 2 + Math.PI), y: cy + r * Math.sin(theta / 2 + Math.PI) };
+
+        drawLine(cx, cy, A.x, A.y, "#2563eb", 3);
+        drawLine(cx, cy, B.x, B.y, "#2563eb", 3);
+        drawLine(C.x, C.y, A.x, A.y, "#7c3aed", 3);
+        drawLine(C.x, C.y, B.x, B.y, "#7c3aed", 3);
+
+        drawPoint(A.x, A.y, "A");
+        drawPoint(B.x, B.y, "B");
+        drawPoint(C.x, C.y, "C");
+        drawPoint(cx, cy, "O");
+
+        drawText((state.currentLang === "zh" ? "圆心角: " : "Central angle: ") + angleDeg + "°", cx + 24, cy - 18);
+        drawText((state.currentLang === "zh" ? "圆周角: " : "Inscribed angle: ") + Math.round(angleDeg / 2) + "°", C.x + 18, C.y - 8);
+      } else if (state.currentTheorem === 2) {
+        const A = { x: cx - r, y: cy };
+        const B = { x: cx + r, y: cy };
+        const C = { x: cx + r * Math.cos(theta), y: cy - r * Math.sin(theta) };
+
+        drawLine(A.x, A.y, B.x, B.y, "#2563eb", 3);
+        drawLine(A.x, A.y, C.x, C.y, "#7c3aed", 3);
+        drawLine(B.x, B.y, C.x, C.y, "#7c3aed", 3);
+
+        drawPoint(A.x, A.y, "A");
+        drawPoint(B.x, B.y, "B");
+        drawPoint(C.x, C.y, "C");
+        drawPoint(cx, cy, "O");
+        drawText("∠ACB = 90°", C.x + 18, C.y - 8);
+      } else if (state.currentTheorem === 3) {
+        const A = { x: cx + r * Math.cos(Math.PI * 0.15), y: cy - r * Math.sin(Math.PI * 0.15) };
+        const B = { x: cx - r * Math.cos(Math.PI * 0.15), y: cy - r * Math.sin(Math.PI * 0.15) };
+        const C = { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
+        const D = { x: cx + r * Math.cos(theta + 0.8), y: cy + r * Math.sin(theta + 0.8) };
+
+        drawLine(C.x, C.y, A.x, A.y, "#7c3aed", 3);
+        drawLine(C.x, C.y, B.x, B.y, "#7c3aed", 3);
+        drawLine(D.x, D.y, A.x, A.y, "#0ea5e9", 3);
+        drawLine(D.x, D.y, B.x, B.y, "#0ea5e9", 3);
+
+        drawPoint(A.x, A.y, "A");
+        drawPoint(B.x, B.y, "B");
+        drawPoint(C.x, C.y, "C");
+        drawPoint(D.x, D.y, "D");
+        drawText(state.currentLang === "zh" ? "同弧所对角相等" : "Angles in same segment are equal", cx - 100, cy + r + 26);
+      } else {
+        const P1 = getCirclePoint(cx, cy, r, -30);
+        const P2 = getCirclePoint(cx, cy, r, 50);
+        const P3 = getCirclePoint(cx, cy, r, 140);
+        const P4 = getCirclePoint(cx, cy, r, 225);
+
+        drawPolygon([P1, P2, P3, P4], "#7c3aed", 3);
+
+        drawPoint(P1.x, P1.y, "A");
+        drawPoint(P2.x, P2.y, "B");
+        drawPoint(P3.x, P3.y, "C");
+        drawPoint(P4.x, P4.y, "D");
+        drawText(state.currentLang === "zh" ? "对角和 = 180°" : "Opposite angles = 180°", cx - 80, cy + r + 26);
+      }
+    }
+
+    function getCirclePoint(cx, cy, r, deg) {
+      const rad = deg * Math.PI / 180;
+      return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+    }
+
+    function drawLine(x1, y1, x2, y2, color, width) {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function drawPolygon(points, color, width) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+      ctx.closePath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function drawPoint(x, y, label) {
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "#2563eb";
+      ctx.fill();
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text').trim() || "#16324f";
+      ctx.font = "bold 14px Arial";
+      ctx.fillText(label, x + 8, y - 8);
+    }
+
+    function drawText(text, x, y) {
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text').trim() || "#16324f";
+      ctx.font = "14px Arial";
+      ctx.fillText(text, x, y);
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    document.getElementById("langBtn").addEventListener("click", () => {
+      state.currentLang = state.currentLang === "en" ? "zh" : "en";
+      applyTranslations();
+    });
+
+    document.getElementById("themeBtn").addEventListener("click", () => {
+      state.darkMode = !state.darkMode;
+      applyMode();
+      drawGeometry();
+      saveState();
+    });
+
+    document.getElementById("cbBtn").addEventListener("click", () => {
+      state.colorblindMode = !state.colorblindMode;
+      applyMode();
+      drawGeometry();
+      saveState();
+    });
+
+    document.getElementById("searchInput").addEventListener("input", renderTheoremList);
+    document.getElementById("filterSelect").addEventListener("change", renderTheoremList);
+
+    document.getElementById("markCompleteBtn").addEventListener("click", markCurrentLearned);
+    document.getElementById("favoriteCurrentBtn").addEventListener("click", () => toggleFavorite(state.currentTheorem));
+
+    document.getElementById("resetCanvasBtn").addEventListener("click", () => {
+      state.radius = 130;
+      state.angle = 70;
+      document.getElementById("radiusRange").value = state.radius;
+      document.getElementById("angleRange").value = state.angle;
+      drawGeometry();
+    });
+
+    document.getElementById("radiusRange").addEventListener("input", (e) => {
+      state.radius = Number(e.target.value);
+      drawGeometry();
+    });
+
+    document.getElementById("angleRange").addEventListener("input", (e) => {
+      state.angle = Number(e.target.value);
+      drawGeometry();
+    });
+
+    document.getElementById("loadNextReviewBtn").addEventListener("click", loadNextReview);
+    document.getElementById("startExamBtn").addEventListener("click", startExam);
+    document.getElementById("resetExamBtn").addEventListener("click", resetExam);
+    document.getElementById("exportBtn").addEventListener("click", exportProgress);
+    document.getElementById("clearLogBtn").addEventListener("click", clearLog);
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    setInterval(() => {
+      document.getElementById("statSession").textContent = formatDuration(Date.now() - state.sessionStart);
+    }, 1000);
+
+    window.addEventListener("load", () => {
+      document.body.classList.add("page-loaded");
+      applyTranslations();
+      renderTheoremList();
+      renderCurrentTheorem();
+      renderLearnQuiz();
+      renderReviewQueue();
+      renderActivityLog();
+      renderBadgeList();
+      renderExamState();
+      updateStats();
+      drawGeometry();
+      document.getElementById("statSession").textContent = formatDuration(Date.now() - state.sessionStart);
+      logActivity("visit", "Opened revision 6 platform prototype", "已进入第 6 次修改版平台原型");
+    });
+  </script>
+</body>
+</html>
